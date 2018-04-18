@@ -21,7 +21,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
-    private static final int RC_SIGN_IN = 69;
+    
     private FirebaseAuth mAuth;
     private ProgressDialog progressDialog;
     EditText mail;
