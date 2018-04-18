@@ -28,6 +28,23 @@ public class Register extends AppCompatActivity {
         mail = findViewById(R.id.xxxreg);
         pw = findViewById(R.id.xxxxPW);
 
+        //set email to empty text when clicked
+        mail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mail.getText().clear();
+            }
+        });
+
+        //set email field to empty text when clicked
+        pw.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pw.getText().clear();
+            }
+        });
+
+
         //Ensure that the email entered is proper length
         if (mail.length() < 8) {
             Toast.makeText(this, "Email length is too short", Toast.LENGTH_SHORT).show();
@@ -56,15 +73,19 @@ public class Register extends AppCompatActivity {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 progressDialog.dismiss();
                 if (task.isSuccessful()) {
-                    Toast.makeText(Register.this, "Registered Successfully", Toast.LENGTH_LONG).show();
-                    Intent x = new Intent(Register.this, Dine.class);
+                    Toast.makeText(Register.this, "Registered Successfully: Check your Email for" +
+                            " Confirmation", Toast.LENGTH_LONG).show();
+                    Intent x = new Intent(Register.this, MainActivity.class);
                     FirebaseAuth.getInstance().getCurrentUser().sendEmailVerification();
+                    //Log out immediately to prevent illegal sign in without email confirmation
+                    FirebaseAuth.getInstance().signOut();
+                    //Puts the email in a string, perhaps we can use to transfer to main email box
                     x.putExtra("email", mail.getText().toString().trim());
-                    x.putExtra("PW", pw.getText().toString().trim());
                     startActivity(x);
                 } else {
                     Log.d("XXX", "mail " + mail.getText().toString().trim());
                     Log.d("XXX", "pw " + pw.getText().toString().trim());
+
                     Log.w("XXX", "signInWithEmail:failure", task.getException());
                     Toast.makeText(Register.this, "Error :" + task.getException(), Toast.LENGTH_LONG).show();
                     Log.d("XXX", "firebaseAuth.getCurrentUser() =  " + firebaseAuth.getCurrentUser());

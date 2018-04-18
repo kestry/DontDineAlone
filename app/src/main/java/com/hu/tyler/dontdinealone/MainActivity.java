@@ -46,6 +46,22 @@ public class MainActivity extends AppCompatActivity {
         pw = findViewById(R.id.etPW);
         loginBtn = findViewById(R.id.login);
         registerBtn = findViewById(R.id.register);
+//
+//        //set email to empty text when clicked
+//        mail.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                mail.getText().clear();
+//            }
+//        });
+//
+//        //set email field to empty text when clicked
+//        pw.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                pw.getText().clear();
+//            }
+//        });
 
         //When the Login Button is clicked, the below is executed:
         loginBtn.setOnClickListener(new View.OnClickListener() {
@@ -61,9 +77,8 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(x);
             }
         });
-
-
     }
+
 
 
     //Check if the user is already logged in.
@@ -84,10 +99,19 @@ public class MainActivity extends AppCompatActivity {
     public void trylogin() {
         String email = mail.getText().toString().trim();
         String password = pw.getText().toString();
-        if (TextUtils.isEmpty(email)) {
-            Toast.makeText(this, "Please Enter email", Toast.LENGTH_SHORT).show();
+
+        //Ensure that the email entered is proper length
+        if (mail.length() < 8) {
+            Toast.makeText(this, "Email length is too short", Toast.LENGTH_SHORT).show();
             return;
         }
+        //Take the last 8 chars of the string to ensure it's ucsc.edu:
+        String domainCheck = email.substring(email.length() - 8, email.length());
+        if (!domainCheck.equalsIgnoreCase("ucsc.edu")) {
+            Toast.makeText(this, "Registration is restricted to UCSC Domain", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (TextUtils.isEmpty(password)) {
             Toast.makeText(this, "Please Enter password", Toast.LENGTH_SHORT).show();
             return;
@@ -109,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 } else
                     Log.w("XXX", "signInWithEmail:failure", task.getException());
+                    Log.w("XXX", "Failed Email: " + mail.getText().toString().trim());
                 Toast.makeText(MainActivity.this, "signInWithEmail:failure" + task.getException(), Toast.LENGTH_SHORT).show();
             }
         });
