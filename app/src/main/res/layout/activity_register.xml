@@ -45,7 +45,6 @@
         android:layout_marginBottom="31dp"
         android:layout_marginEnd="29dp"
         android:fontFamily="casual"
-        android:onClick="registering"
         android:text="Register"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

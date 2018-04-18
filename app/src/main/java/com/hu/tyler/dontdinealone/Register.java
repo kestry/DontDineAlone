@@ -20,15 +20,22 @@ public class Register extends AppCompatActivity {
     int x = 1;
     EditText mail;
     EditText pw;
+    Button registerBtn;
     private ProgressDialog progressDialog;
     private FirebaseAuth firebaseAuth;
 
-    protected void registering(View v)
+    public void registering()
     {
         mail = findViewById(R.id.xxxreg);
         pw = findViewById(R.id.xxxxPW);
 
+        if(mail.length() < 8)
+        {
+            Toast.makeText(this,"Email length is too short", Toast.LENGTH_SHORT).show();
+            return;
+        }
         String email = mail.getText().toString().trim();
+
         email = email.substring(email.length()-8,email.length());
         if(!email.equalsIgnoreCase("ucsc.edu"))
         {
@@ -80,5 +87,12 @@ public class Register extends AppCompatActivity {
         setContentView(R.layout.activity_register);
         progressDialog = new ProgressDialog(this);
         firebaseAuth = FirebaseAuth.getInstance();
+        registerBtn = findViewById(R.id.registerAccount);
+
+        registerBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                registering();
+            }
+        });
     }
 }

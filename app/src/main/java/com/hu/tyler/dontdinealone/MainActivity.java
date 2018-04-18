@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -23,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
     EditText mail;
     EditText pw;
+//    Button loginBtn,registerBtn;
+
 
     //Base on what button is pressed, it goes here
     public void login(View v) {
@@ -38,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
     }
+
+
 
     @Override
     public void onStart() {
@@ -99,7 +104,6 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mail = findViewById(R.id.etEmail);
         pw = findViewById(R.id.etPW);
-
     }
 
 }
