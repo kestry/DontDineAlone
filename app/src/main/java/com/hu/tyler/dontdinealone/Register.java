@@ -17,7 +17,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class Register extends AppCompatActivity {
-    int x = 1;
+
     EditText mail;
     EditText pw;
     Button registerBtn;
@@ -29,13 +29,14 @@ public class Register extends AppCompatActivity {
         mail = findViewById(R.id.xxxreg);
         pw = findViewById(R.id.xxxxPW);
 
+        //Ensure that the email entered is proper length
         if(mail.length() < 8)
         {
             Toast.makeText(this,"Email length is too short", Toast.LENGTH_SHORT).show();
             return;
         }
+        //Take the last 8 chars of the string to ensure it's ucsc.edu:
         String email = mail.getText().toString().trim();
-
         email = email.substring(email.length()-8,email.length());
         if(!email.equalsIgnoreCase("ucsc.edu"))
         {
@@ -44,19 +45,16 @@ public class Register extends AppCompatActivity {
         }
 
 
-        if(TextUtils.isEmpty(mail.getText().toString().trim())){
-            Toast.makeText(this, "Please Enter email", Toast.LENGTH_SHORT).show();
-            return;
-        }
         if(TextUtils.isEmpty(pw.getText().toString().trim())){
             Toast.makeText(this, "Please Enter password", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        //Show the progress bar
         progressDialog.setMessage("Registering User...");
         progressDialog.show();
 
-
+        //Try and Register:
         firebaseAuth.createUserWithEmailAndPassword(mail.getText().toString().trim(), pw.getText().toString()).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
@@ -78,7 +76,6 @@ public class Register extends AppCompatActivity {
                 }
             }
         });
-
     }
 
     @Override
