@@ -24,28 +24,24 @@ public class Register extends AppCompatActivity {
     private ProgressDialog progressDialog;
     private FirebaseAuth firebaseAuth;
 
-    public void registering()
-    {
+    public void registering() {
         mail = findViewById(R.id.xxxreg);
         pw = findViewById(R.id.xxxxPW);
 
         //Ensure that the email entered is proper length
-        if(mail.length() < 8)
-        {
-            Toast.makeText(this,"Email length is too short", Toast.LENGTH_SHORT).show();
+        if (mail.length() < 8) {
+            Toast.makeText(this, "Email length is too short", Toast.LENGTH_SHORT).show();
             return;
         }
         //Take the last 8 chars of the string to ensure it's ucsc.edu:
         String email = mail.getText().toString().trim();
-        email = email.substring(email.length()-8,email.length());
-        if(!email.equalsIgnoreCase("ucsc.edu"))
-        {
-            Toast.makeText(this,"Registration is restricted to UCSC Domain", Toast.LENGTH_SHORT).show();
+        email = email.substring(email.length() - 8, email.length());
+        if (!email.equalsIgnoreCase("ucsc.edu")) {
+            Toast.makeText(this, "Registration is restricted to UCSC Domain", Toast.LENGTH_SHORT).show();
             return;
         }
 
-
-        if(TextUtils.isEmpty(pw.getText().toString().trim())){
+        if (TextUtils.isEmpty(pw.getText().toString().trim())) {
             Toast.makeText(this, "Please Enter password", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -59,20 +55,19 @@ public class Register extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 progressDialog.dismiss();
-                if(task.isSuccessful()){
+                if (task.isSuccessful()) {
                     Toast.makeText(Register.this, "Registered Successfully", Toast.LENGTH_LONG).show();
                     Intent x = new Intent(Register.this, Dine.class);
                     FirebaseAuth.getInstance().getCurrentUser().sendEmailVerification();
                     x.putExtra("email", mail.getText().toString().trim());
                     x.putExtra("PW", pw.getText().toString().trim());
                     startActivity(x);
-                }
-                else{
-                    Log.d("XXX", "mail " + mail.getText().toString().trim() );
-                    Log.d("XXX", "pw " + pw.getText().toString().trim() );
+                } else {
+                    Log.d("XXX", "mail " + mail.getText().toString().trim());
+                    Log.d("XXX", "pw " + pw.getText().toString().trim());
                     Log.w("XXX", "signInWithEmail:failure", task.getException());
                     Toast.makeText(Register.this, "Error :" + task.getException(), Toast.LENGTH_LONG).show();
-                    Log.d("XXX", "firebaseAuth.getCurrentUser() =  "+ firebaseAuth.getCurrentUser() );
+                    Log.d("XXX", "firebaseAuth.getCurrentUser() =  " + firebaseAuth.getCurrentUser());
                 }
             }
         });
