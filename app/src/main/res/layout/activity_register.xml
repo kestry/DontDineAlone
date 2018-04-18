@@ -46,6 +46,7 @@
         android:layout_marginEnd="29dp"
         android:fontFamily="casual"
         android:text="Register"
+        android:background="#FF9900"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
