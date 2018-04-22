@@ -11,6 +11,7 @@
 
     <EditText
         android:textColor="#fff"
+        android:textColorHint="#fff"
         android:id="@+id/etEmail"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -20,7 +21,7 @@
         android:ems="10"
         android:fontFamily="casual"
         android:inputType="textEmailAddress"
-        android:text="Email"
+        android:hint="Email"
         android:typeface="monospace"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -29,6 +30,7 @@
     <EditText
         android:id="@+id/etPW"
         android:textColor="#fff"
+        android:textColorHint="#fff"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="70dp"
@@ -36,7 +38,7 @@
         android:layout_marginTop="31dp"
         android:ems="10"
         android:inputType="textPassword"
-        android:text="password"
+        android:hint="Password"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etEmail" />

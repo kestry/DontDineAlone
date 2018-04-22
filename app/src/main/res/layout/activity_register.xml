@@ -18,7 +18,7 @@
         android:ems="10"
         android:fontFamily="casual"
         android:inputType="textEmailAddress"
-        android:text="Email"
+        android:hint="\@ucsc Email"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -33,10 +33,24 @@
         android:layout_marginTop="30dp"
         android:ems="10"
         android:inputType="textPassword"
-        android:text="password"
+        android:hint="Password"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/xxxreg" />
+
+    <EditText
+        android:id="@+id/xxxxPWC"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="70dp"
+        android:layout_marginStart="70dp"
+        android:layout_marginTop="30dp"
+        android:ems="10"
+        android:inputType="textPassword"
+        android:hint="Confirm Password"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/xxxxPW" />
 
     <Button
         android:id="@+id/registerAccount"

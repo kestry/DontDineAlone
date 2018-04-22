@@ -20,6 +20,7 @@ public class Register extends AppCompatActivity {
 
     EditText mail;
     EditText pw;
+    EditText pwc;
     Button registerBtn;
     private ProgressDialog progressDialog;
     private FirebaseAuth firebaseAuth;
@@ -27,6 +28,15 @@ public class Register extends AppCompatActivity {
     public void registering() {
         mail = findViewById(R.id.xxxreg);
         pw = findViewById(R.id.xxxxPW);
+        pwc = findViewById(R.id.xxxxPWC);
+        // Noticed we were calling these a lot so I made them strings.
+        // Declared final so the inner class can access them. - Cody
+        final String email = mail.getText().toString().trim();
+        final String password = pw.getText().toString().trim();
+        String passwordConfirm = pwc.getText().toString().trim();
+        String domain;
+
+        /* Got this to work by changing text= to hint= in the XML for EditText - Cody
 
         //set email to empty text when clicked
         mail.setOnClickListener(new View.OnClickListener() {
@@ -43,7 +53,7 @@ public class Register extends AppCompatActivity {
                 pw.getText().clear();
             }
         });
-
+        */
 
         //Ensure that the email entered is proper length
         if (mail.length() < 8) {
@@ -51,15 +61,20 @@ public class Register extends AppCompatActivity {
             return;
         }
         //Take the last 8 chars of the string to ensure it's ucsc.edu:
-        String email = mail.getText().toString().trim();
-        email = email.substring(email.length() - 8, email.length());
-        if (!email.equalsIgnoreCase("ucsc.edu")) {
+        domain = email.substring(email.length() - 8, email.length());
+        if (!domain.equalsIgnoreCase("ucsc.edu")) {
             Toast.makeText(this, "Registration is restricted to UCSC Domain", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (TextUtils.isEmpty(pw.getText().toString().trim())) {
-            Toast.makeText(this, "Please Enter password", Toast.LENGTH_SHORT).show();
+        if (TextUtils.isEmpty(password)) {
+            Toast.makeText(this, "Please enter password", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        //Verify that passwords entered match
+        if(!password.equals(passwordConfirm)){
+            Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -68,7 +83,7 @@ public class Register extends AppCompatActivity {
         progressDialog.show();
 
         //Try and Register:
-        firebaseAuth.createUserWithEmailAndPassword(mail.getText().toString().trim(), pw.getText().toString()).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+        firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 progressDialog.dismiss();
@@ -80,11 +95,11 @@ public class Register extends AppCompatActivity {
                     //Log out immediately to prevent illegal sign in without email confirmation
                     FirebaseAuth.getInstance().signOut();
                     //Puts the email in a string, perhaps we can use to transfer to main email box
-                    x.putExtra("email", mail.getText().toString().trim());
+                    x.putExtra("email", email);
                     startActivity(x);
                 } else {
-                    Log.d("XXX", "mail " + mail.getText().toString().trim());
-                    Log.d("XXX", "pw " + pw.getText().toString().trim());
+                    Log.d("XXX", "mail " + email);
+                    Log.d("XXX", "pw " + password);
 
                     Log.w("XXX", "signInWithEmail:failure", task.getException());
                     Toast.makeText(Register.this, "Error :" + task.getException(), Toast.LENGTH_LONG).show();
