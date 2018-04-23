@@ -22,6 +22,7 @@ public class Register extends AppCompatActivity {
     EditText pw;
     EditText pwc;
     Button registerBtn;
+    Button signinBtn;
     private ProgressDialog progressDialog;
     private FirebaseAuth firebaseAuth;
 
@@ -109,18 +110,39 @@ public class Register extends AppCompatActivity {
         });
     }
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
         progressDialog = new ProgressDialog(this);
         firebaseAuth = FirebaseAuth.getInstance();
-        registerBtn = findViewById(R.id.registerAccount);
 
+        registerBtn = findViewById(R.id.registerAccount);
         registerBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 registering();
             }
         });
+
+
+        signinBtn = findViewById(R.id.signinInstead);
+        signinBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // Code here executes on main thread after user presses button
+                toLogin();
+            }
+        });
+    }
+
+    // Didn't know how to make functions across Java files, so this function is almost a copy paste of Dine's logoff() - Jean
+    public void toLogin() {
+        Toast.makeText(this, "Back to Login.", Toast.LENGTH_SHORT).show();
+        //Next time the app opens go to MainActivity
+        Intent x = new Intent(this, MainActivity.class);
+        startActivity(x);
+        //Terminate the current activity
+        finish();
     }
 }
