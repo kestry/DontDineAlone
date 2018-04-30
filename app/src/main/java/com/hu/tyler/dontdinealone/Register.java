@@ -37,25 +37,6 @@ public class Register extends AppCompatActivity {
         String passwordConfirm = pwc.getText().toString().trim();
         String domain;
 
-        /* Got this to work by changing text= to hint= in the XML for EditText - Cody
-
-        //set email to empty text when clicked
-        mail.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mail.getText().clear();
-            }
-        });
-
-        //set email field to empty text when clicked
-        pw.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                pw.getText().clear();
-            }
-        });
-        */
-
         //Ensure that the email entered is proper length
         if (mail.length() < 8) {
             Toast.makeText(this, "Email length is too short", Toast.LENGTH_SHORT).show();

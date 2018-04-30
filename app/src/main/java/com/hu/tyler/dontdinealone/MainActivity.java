@@ -30,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
     EditText pw;
     Button loginBtn, registerBtn;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,22 +45,6 @@ public class MainActivity extends AppCompatActivity {
         pw = findViewById(R.id.etPW);
         loginBtn = findViewById(R.id.login);
         registerBtn = findViewById(R.id.register);
-//
-//        //set email to empty text when clicked
-//        mail.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                mail.getText().clear();
-//            }
-//        });
-//
-//        //set email field to empty text when clicked
-//        pw.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                pw.getText().clear();
-//            }
-//        });
 
         //When the Login Button is clicked, the below is executed:
         loginBtn.setOnClickListener(new View.OnClickListener() {
