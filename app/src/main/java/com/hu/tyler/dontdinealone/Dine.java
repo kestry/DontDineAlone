@@ -39,7 +39,7 @@ public class Dine extends AppCompatActivity {
 
     private void editPersonalProfile()
     {
-//        progressDialog.setMessage("Loading...");
+//        progressDialog.setMessage("Loading Profile...");
 //        progressDialog.show();
         Intent x = new Intent(this, EditProfile.class);
         startActivity(x);

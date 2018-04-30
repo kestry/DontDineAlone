@@ -105,8 +105,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 progressDialog.dismiss();
+
                 if (task.isSuccessful()) {
                     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
                     if (user.isEmailVerified()) {
                         Toast.makeText(MainActivity.this, "Email is verified", Toast.LENGTH_SHORT).show();
                         finish();
@@ -114,10 +116,11 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         Toast.makeText(MainActivity.this, "Email is not verified", Toast.LENGTH_SHORT).show();
                     }
-                } else
-                    Log.w("XXX", "signInWithEmail:failure", task.getException());
+                } else {
+                    Log.w("XXX", "signInWithEmail:failure ", task.getException());
                     Log.w("XXX", "Failed Email: " + mail.getText().toString().trim());
-                Toast.makeText(MainActivity.this, "signInWithEmail:failure" + task.getException(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Error: " + task.getException(), Toast.LENGTH_LONG).show();
+                }
             }
         });
     }

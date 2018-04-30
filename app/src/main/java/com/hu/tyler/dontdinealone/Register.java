@@ -83,8 +83,8 @@ public class Register extends AppCompatActivity {
                     Log.d("XXX", "mail " + email);
                     Log.d("XXX", "pw " + password);
 
-                    Log.w("XXX", "signInWithEmail:failure", task.getException());
-                    Toast.makeText(Register.this, "Error :" + task.getException(), Toast.LENGTH_LONG).show();
+                    Log.w("XXX", "createUserWithEmailAndPassword:failure ", task.getException());
+                    Toast.makeText(Register.this, "Error: " + task.getException(), Toast.LENGTH_LONG).show();
                     Log.d("XXX", "firebaseAuth.getCurrentUser() =  " + firebaseAuth.getCurrentUser());
                 }
             }
@@ -117,7 +117,6 @@ public class Register extends AppCompatActivity {
         });
     }
 
-    // Didn't know how to make functions across Java files, so this function is almost a copy paste of Dine's logoff() - Jean
     public void toLogin() {
         Toast.makeText(this, "Back to Login.", Toast.LENGTH_SHORT).show();
         //Next time the app opens go to MainActivity

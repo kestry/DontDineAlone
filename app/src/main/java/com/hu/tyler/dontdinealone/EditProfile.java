@@ -66,7 +66,6 @@ public class EditProfile extends AppCompatActivity {
 
     }
 
-
     private void backtoDine()
     {
         Intent x = new Intent(this, Dine.class);
