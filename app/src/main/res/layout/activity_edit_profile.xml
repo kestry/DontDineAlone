@@ -147,7 +147,7 @@
                 tools:layout_editor_absoluteY="42dp" />
 
             <EditText
-                android:id="@+id/displayName"
+                android:id="@+id/editTextName"
                 android:layout_width="262dp"
                 android:layout_height="45dp"
                 android:ems="10"
@@ -168,7 +168,7 @@
                 tools:layout_editor_absoluteY="160dp" />
 
             <EditText
-                android:id="@+id/Gender"
+                android:id="@+id/editTextGender"
                 android:layout_width="262dp"
                 android:layout_height="42dp"
                 android:ems="10"
@@ -190,7 +190,7 @@
                 tools:layout_editor_absoluteY="276dp" />
 
             <EditText
-                android:id="@+id/spiritAnimal"
+                android:id="@+id/editTextAnimal"
                 android:layout_width="262dp"
                 android:layout_height="45dp"
                 android:ems="10"

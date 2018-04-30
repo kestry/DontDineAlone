@@ -7,28 +7,61 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 public class EditProfile extends AppCompatActivity {
 
+    //Firebase auth object
+    private FirebaseAuth firebaseAuth;
+
+    //Reference to Firebase database
+    private DatabaseReference databaseReference;
+
+    EditText editTextName;
+    EditText editTextGender;
+    EditText editTextAnimal;
     Button editOK, editCancel;
     ImageView avaBtn[] = new ImageView[8]; //this is for the avatars.
     ImageView currentAvatar;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
+
+        //Initializing firebase auth object
+        firebaseAuth = FirebaseAuth.getInstance();
+
+        //Check if user is not logged in
+        if (firebaseAuth.getCurrentUser() == null) {
+            //Closing this activity
+            finish();
+            //Starting Main activity
+            startActivity(new Intent(this, MainActivity.class));
+        }
+
+        databaseReference = FirebaseDatabase.getInstance().getReference();
+
         editOK = findViewById(R.id.editOk);
 
         editOK.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(EditProfile.this, "OK!!!", Toast.LENGTH_SHORT).show();
+                saveUserInfo();
+                //Toast.makeText(EditProfile.this, "OK!!!", Toast.LENGTH_SHORT).show();
             }
         });
+
         editCancel = findViewById(R.id.editCancel);
         editCancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,6 +97,24 @@ public class EditProfile extends AppCompatActivity {
             });
         }
 
+    }
+
+    private void saveUserInfo() {
+        editTextName = findViewById(R.id.editTextName);
+        editTextGender = findViewById(R.id.editTextGender);
+        editTextAnimal = findViewById(R.id.editTextAnimal);
+
+        String name = editTextName.getText().toString().trim();
+        String gender = editTextGender.getText().toString().trim();
+        String animal = editTextAnimal.getText().toString().trim();
+
+        UserInfo userInfo = new UserInfo(name, gender, animal);
+
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+
+        databaseReference.child(user.getUid()).setValue(userInfo);
+
+        Toast.makeText(this, "Information saved...", Toast.LENGTH_SHORT).show();
     }
 
     private void backtoDine()

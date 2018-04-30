@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //this method logs the user in.
+    //This method logs the user in.
     public void trylogin() {
         String email = mail.getText().toString().trim();
         String password = pw.getText().toString();
