@@ -115,6 +115,67 @@
                 android:scaleType="fitCenter"
                 android:src="@drawable/a8" />
 
+
+            <ImageView
+                android:id="@+id/ava9"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                android:adjustViewBounds="true"
+                android:background="@color/fui_transparent"
+                android:padding="5dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/a14" />
+
+            <ImageView
+                android:id="@+id/ava10"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                android:adjustViewBounds="true"
+                android:background="@color/fui_transparent"
+                android:padding="5dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/a9" />
+
+            <ImageView
+                android:id="@+id/ava11"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                android:adjustViewBounds="true"
+                android:background="@color/fui_transparent"
+                android:padding="5dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/a10" />
+
+            <ImageView
+                android:id="@+id/ava12"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                android:adjustViewBounds="true"
+                android:background="@color/fui_transparent"
+                android:padding="5dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/a11" />
+
+            <ImageView
+                android:id="@+id/ava13"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                android:adjustViewBounds="true"
+                android:background="@color/fui_transparent"
+                android:padding="5dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/a12" />
+
+            <ImageView
+                android:id="@+id/ava14"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                android:adjustViewBounds="true"
+                android:background="@color/fui_transparent"
+                android:padding="5dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/a13" />
+
         </LinearLayout>
     </ScrollView>
 

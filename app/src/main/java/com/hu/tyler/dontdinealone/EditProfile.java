@@ -29,7 +29,8 @@ public class EditProfile extends AppCompatActivity {
     EditText editTextGender;
     EditText editTextAnimal;
     Button editOK, editCancel;
-    ImageView avaBtn[] = new ImageView[8]; //this is for the avatars.
+    int x = 14;
+    ImageView avaBtn[] = new ImageView[x]; //this is for the avatars.
     ImageView currentAvatar;
 
 
@@ -80,10 +81,16 @@ public class EditProfile extends AppCompatActivity {
         avaBtn[5] = findViewById(R.id.ava6);
         avaBtn[6] = findViewById(R.id.ava7);
         avaBtn[7] = findViewById(R.id.ava8);
+        avaBtn[8] = findViewById(R.id.ava9);
+        avaBtn[9] = findViewById(R.id.ava10);
+        avaBtn[10] = findViewById(R.id.ava11);
+        avaBtn[11] = findViewById(R.id.ava12);
+        avaBtn[12] = findViewById(R.id.ava13);
+        avaBtn[13] = findViewById(R.id.ava14);
 
         currentAvatar = avaBtn[0];
 
-        for(int i = 0; i < 8; i++)
+        for(int i = 0; i < x; i++)
         {
             final int j = i;
             avaBtn[i].setOnClickListener(new View.OnClickListener() {
