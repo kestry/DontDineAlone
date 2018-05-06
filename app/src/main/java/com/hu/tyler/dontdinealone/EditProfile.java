@@ -29,7 +29,7 @@ public class EditProfile extends AppCompatActivity {
     EditText editTextGender;
     EditText editTextAnimal;
     Button editOK, editCancel;
-    int x = 14;
+    int x = 14; //total number of avatars
     ImageView avaBtn[] = new ImageView[x]; //this is for the avatars.
     ImageView currentAvatar;
 
@@ -92,7 +92,7 @@ public class EditProfile extends AppCompatActivity {
 
         for(int i = 0; i < x; i++)
         {
-            final int j = i;
+            final int j = i;  // can't pass in a dynamic int to the class below, so had to do this.
             avaBtn[i].setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

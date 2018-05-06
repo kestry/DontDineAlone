@@ -37,17 +37,21 @@ public class Register extends AppCompatActivity {
         String passwordConfirm = pwc.getText().toString().trim();
         String domain;
 
+        //TODO:Uncomment for Later Releases
         //Ensure that the email entered is proper length
-        if (mail.length() < 8) {
-            Toast.makeText(this, "Email length is too short", Toast.LENGTH_SHORT).show();
-            return;
-        }
+//        if (mail.length() < 8) {
+//            Toast.makeText(this, "Email length is too short", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
+
+        //TODO:Uncomment for Later Releases
         //Take the last 8 chars of the string to ensure it's ucsc.edu:
-        domain = email.substring(email.length() - 8, email.length());
-        if (!domain.equalsIgnoreCase("ucsc.edu")) {
-            Toast.makeText(this, "Registration is restricted to UCSC Domain", Toast.LENGTH_SHORT).show();
-            return;
-        }
+//        domain = email.substring(email.length() - 8, email.length());
+//        if (!domain.equalsIgnoreCase("ucsc.edu")) {
+//            Toast.makeText(this, "Registration is restricted to UCSC Domain", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
+        //END OF UNCOMMENT
 
         if (TextUtils.isEmpty(password)) {
             Toast.makeText(this, "Please enter password", Toast.LENGTH_SHORT).show();
@@ -73,7 +77,10 @@ public class Register extends AppCompatActivity {
                     Toast.makeText(Register.this, "Registered Successfully: Check your Email for" +
                             " Confirmation", Toast.LENGTH_LONG).show();
                     Intent x = new Intent(Register.this, MainActivity.class);
-                    FirebaseAuth.getInstance().getCurrentUser().sendEmailVerification();
+
+
+                    //TODO:UNCOMMENT FOR EMAIL VERIFICATION BELOW
+//                    FirebaseAuth.getInstance().getCurrentUser().sendEmailVerification();
                     //Log out immediately to prevent illegal sign in without email confirmation
                     FirebaseAuth.getInstance().signOut();
                     //Puts the email in a string, perhaps we can use to transfer to main email box

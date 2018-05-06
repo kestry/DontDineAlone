@@ -88,13 +88,15 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Email length is too short", Toast.LENGTH_SHORT).show();
             return;
         }
-        //Take the last 8 chars of the string to ensure it's ucsc.edu:
-        String domainCheck = email.substring(email.length() - 8, email.length());
-        if (!domainCheck.equalsIgnoreCase("ucsc.edu")) {
-            Toast.makeText(this, "Registration is restricted to UCSC Domain", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
+        //TODO: Uncomment this for final release
+        //Take the last 8 chars of the string to ensure it's ucsc.edu:
+//        String domainCheck = email.substring(email.length() - 8, email.length());
+//        if (!domainCheck.equalsIgnoreCase("ucsc.edu")) {
+//            Toast.makeText(this, "Registration is restricted to UCSC Domain", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
+//END OF UNCOMMENT
         if (TextUtils.isEmpty(password)) {
             Toast.makeText(this, "Please Enter password", Toast.LENGTH_SHORT).show();
             return;
@@ -107,15 +109,22 @@ public class MainActivity extends AppCompatActivity {
                 progressDialog.dismiss();
 
                 if (task.isSuccessful()) {
-                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-                    if (user.isEmailVerified()) {
-                        Toast.makeText(MainActivity.this, "Email is verified", Toast.LENGTH_SHORT).show();
+                    //TODO: Delete the 2 lines below later.
                         finish();
                         startActivity(new Intent(getApplicationContext(), Dine.class));
-                    } else {
-                        Toast.makeText(MainActivity.this, "Email is not verified", Toast.LENGTH_SHORT).show();
-                    }
+
+
+                        //TODO: Uncomment for future releases
+//                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+//                    if (user.isEmailVerified()) {
+//                        Toast.makeText(MainActivity.this, "Email is verified", Toast.LENGTH_SHORT).show();
+//                        finish();
+//                        startActivity(new Intent(getApplicationContext(), Dine.class));
+//                    } else {
+//                        Toast.makeText(MainActivity.this, "Email is not verified", Toast.LENGTH_SHORT).show();
+//                    }
+                    //END OF UNCOMMENT
+
                 } else {
                     Log.w("XXX", "signInWithEmail:failure ", task.getException());
                     Log.w("XXX", "Failed Email: " + mail.getText().toString().trim());
