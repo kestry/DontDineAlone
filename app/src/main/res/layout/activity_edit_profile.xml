@@ -208,7 +208,7 @@
                 tools:layout_editor_absoluteY="42dp" />
 
             <EditText
-                android:id="@+id/editTextName"
+                android:id="@+id/editTextDisplayName"
                 android:layout_width="262dp"
                 android:layout_height="45dp"
                 android:ems="10"

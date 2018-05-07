@@ -3,6 +3,7 @@ package com.hu.tyler.dontdinealone;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -12,20 +13,32 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class EditProfile extends AppCompatActivity {
+
+    // Keys for Cloud Firestore
+    private static final String KEY_DISPLAY_NAME = "display_name";
+    private static final String KEY_GENDER = "gender";
+    private static final String KEY_ANIMAL = "animal";
+    private static final String KEY_ID = "id";
 
     //Firebase auth object
     private FirebaseAuth firebaseAuth;
 
-    //Reference to Firebase database
-    private DatabaseReference databaseReference;
+    //Reference to Cloud Firestore Database
+    private FirebaseFirestore db;
 
-    EditText editTextName;
+    EditText editTextDisplayName;
     EditText editTextGender;
     EditText editTextAnimal;
     int x = 14; //total number of avatars
@@ -48,7 +61,8 @@ public class EditProfile extends AppCompatActivity {
             startActivity(new Intent(this, MainActivity.class));
         }
 
-        databaseReference = FirebaseDatabase.getInstance().getReference();
+        // Initialize Cloud Firestore database
+        db = FirebaseFirestore.getInstance();
 
         //Didn't figure out how to dynamically set buttons, so the below is temporary
         avaBtn[0] = findViewById(R.id.ava1);
@@ -86,21 +100,37 @@ public class EditProfile extends AppCompatActivity {
 
     // Saves user info.
     public void saveUserInfo(View v) {
-        editTextName = findViewById(R.id.editTextName);
+        editTextDisplayName = findViewById(R.id.editTextDisplayName);
         editTextGender = findViewById(R.id.editTextGender);
         editTextAnimal = findViewById(R.id.editTextAnimal);
 
-        String name = editTextName.getText().toString().trim();
+        String name = editTextDisplayName.getText().toString().trim();
         String gender = editTextGender.getText().toString().trim();
         String animal = editTextAnimal.getText().toString().trim();
 
-        UserInfo userInfo = new UserInfo(name, gender, animal);
+        // Keys are fields in our database, Values are the user's info.
+        Map<String, Object> profile = new HashMap<>();
+        profile.put(KEY_DISPLAY_NAME, name);
+        profile.put(KEY_GENDER, gender);
+        profile.put(KEY_ANIMAL, animal);
 
         FirebaseUser user = firebaseAuth.getCurrentUser();
 
-        databaseReference.child(user.getUid()).setValue(userInfo);
-
-        Toast.makeText(this, "Information saved...", Toast.LENGTH_SHORT).show();
+        //Alternative: db.collection("Profiles/user.getUid()).set(profile)...
+        //However the way below is more intuitive, because we can chain nest collections and documents.
+        db.collection("Profiles").document(user.getUid()).set(profile)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(EditProfile.this, "Profile saved...", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(EditProfile.this, "Profile error: " + e.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     // Goes back to the dine page.
