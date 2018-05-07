@@ -21,13 +21,11 @@ public class Register extends AppCompatActivity {
     EditText mail;
     EditText pw;
     EditText pwc;
-    Button registerBtn;
-    Button signinBtn;
     private ProgressDialog progressDialog;
     private FirebaseAuth firebaseAuth;
 
-    public void registering() {
-        mail = findViewById(R.id.xxxreg);
+    public void registering(View v) {
+        mail = findViewById(R.id.xxxReg);
         pw = findViewById(R.id.xxxxPW);
         pwc = findViewById(R.id.xxxxPWC);
         // Noticed we were calling these a lot so I made them strings.
@@ -98,33 +96,15 @@ public class Register extends AppCompatActivity {
         });
     }
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
         progressDialog = new ProgressDialog(this);
         firebaseAuth = FirebaseAuth.getInstance();
-
-        registerBtn = findViewById(R.id.registerAccount);
-        registerBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                registering();
-            }
-        });
-
-
-        signinBtn = findViewById(R.id.signinInstead);
-        signinBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Code here executes on main thread after user presses button
-                toLogin();
-            }
-        });
     }
 
-    public void toLogin() {
+    public void backToLogin(View v) {
         Toast.makeText(this, "Back to Login.", Toast.LENGTH_SHORT).show();
         //Next time the app opens go to MainActivity
         Intent x = new Intent(this, MainActivity.class);

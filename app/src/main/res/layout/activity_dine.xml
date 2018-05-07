@@ -9,7 +9,7 @@
 
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/textViewTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -19,10 +19,11 @@
         android:textColor="#000"
         android:textSize="33dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginLeft="16dp" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/buttonLogout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="108dp"
@@ -30,11 +31,12 @@
         android:background="#FF9900"
         android:fontFamily="casual"
         android:text="Log Out"
+        android:onClick="logout"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent" />
 
     <Button
-        android:id="@+id/dineProfile"
+        android:id="@+id/buttonEditProfile"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="43dp"
@@ -43,7 +45,8 @@
         android:fontFamily="casual"
         android:padding="5dp"
         android:text="Edit Profile"
-        app:layout_constraintBottom_toTopOf="@+id/button2"
+        android:onClick="goToEditProfile"
+        app:layout_constraintBottom_toTopOf="@+id/buttonLogout"
         app:layout_constraintStart_toStartOf="parent" />
 
 

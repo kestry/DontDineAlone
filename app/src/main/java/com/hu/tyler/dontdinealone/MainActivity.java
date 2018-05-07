@@ -26,9 +26,8 @@ public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private ProgressDialog progressDialog;
-    EditText mail;
-    EditText pw;
-    Button loginBtn, registerBtn;
+    EditText editTextEmail;
+    EditText editTextPW;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,28 +40,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         progressDialog = new ProgressDialog(this);
         mAuth = FirebaseAuth.getInstance();
-        mail = findViewById(R.id.etEmail);
-        pw = findViewById(R.id.etPW);
-        loginBtn = findViewById(R.id.login);
-        registerBtn = findViewById(R.id.register);
-
-        //When the Login Button is clicked, the below is executed:
-        loginBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                trylogin();
-            }
-        });
-
-        //When the Register Button is clicked, the below is executed:
-        registerBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Intent x = new Intent(MainActivity.this, Register.class);
-                startActivity(x);
-            }
-        });
+        editTextEmail = findViewById(R.id.editTextEmail);
+        editTextPW = findViewById(R.id.editTextPW);
     }
-
-
 
     //Check if the user is already logged in.
     @Override
@@ -78,13 +58,20 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //This method logs the user in.
-    public void trylogin() {
-        String email = mail.getText().toString().trim();
-        String password = pw.getText().toString();
+    //This method goes to the Register page.
+    public void goToRegister(View v) {
+        Intent x = new Intent(MainActivity.this, Register.class);
+        finish();
+        startActivity(x);
+    }
+
+    //This method logs the user in
+    public void trylogin(View v) {
+        String email = editTextEmail.getText().toString().trim();
+        String password = editTextPW.getText().toString();
 
         //Ensure that the email entered is proper length
-        if (mail.length() < 8) {
+        if (editTextEmail.length() < 8) {
             Toast.makeText(this, "Email length is too short", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -127,12 +114,11 @@ public class MainActivity extends AppCompatActivity {
 
                 } else {
                     Log.w("XXX", "signInWithEmail:failure ", task.getException());
-                    Log.w("XXX", "Failed Email: " + mail.getText().toString().trim());
+                    Log.w("XXX", "Failed Email: " + editTextEmail.getText().toString().trim());
                     Toast.makeText(MainActivity.this, "Error: " + task.getException(), Toast.LENGTH_LONG).show();
                 }
             }
         });
     }
-
 
 }

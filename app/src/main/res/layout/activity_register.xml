@@ -10,7 +10,7 @@
 
 
     <EditText
-        android:id="@+id/xxxreg"
+        android:id="@+id/xxxReg"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="70dp"
@@ -37,7 +37,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/xxxreg" />
+        app:layout_constraintTop_toBottomOf="@+id/xxxReg" />
 
     <EditText
         android:id="@+id/xxxxPWC"
@@ -55,7 +55,7 @@
         app:layout_constraintTop_toBottomOf="@+id/xxxxPW" />
 
     <Button
-        android:id="@+id/signinInstead"
+        android:id="@+id/buttonSignin"
         android:layout_width="112dp"
         android:layout_height="45dp"
         android:layout_marginBottom="28dp"
@@ -64,12 +64,13 @@
         android:background="@android:color/transparent"
         android:fontFamily="casual"
         android:text="Sign in instead"
+        android:onClick="backToLogin"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
 
     <Button
-        android:id="@+id/registerAccount"
+        android:id="@+id/buttonRegisterAccount"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="28dp"
@@ -78,11 +79,12 @@
         android:background="#FF9900"
         android:fontFamily="casual"
         android:text="Register"
+        android:onClick="registering"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/textViewTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="27dp"
@@ -92,7 +94,8 @@
         android:text="Registration"
         android:textSize="39dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginLeft="27dp" />
 
 
 </android.support.constraint.ConstraintLayout>

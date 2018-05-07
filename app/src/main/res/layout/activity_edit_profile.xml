@@ -266,18 +266,19 @@
                 android:layout_marginTop="100dp">
 
                 <Button
-                    android:id="@+id/editOk"
+                    android:id="@+id/buttonEditOk"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="#FF9900"
                     android:fontFamily="casual"
                     android:text="OK"
                     android:textColor="#FFF"
+                    android:onClick="saveUserInfo"
                     tools:layout_editor_absoluteX="296dp"
                     tools:layout_editor_absoluteY="521dp" />
 
                 <Button
-                    android:id="@+id/editCancel"
+                    android:id="@+id/buttonEditCancel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="90dp"
@@ -285,6 +286,7 @@
                     android:fontFamily="casual"
                     android:text="cancel"
                     android:textColor="#FFF"
+                    android:onClick="backToDine"
                     tools:layout_editor_absoluteX="149dp"
                     tools:layout_editor_absoluteY="521dp" />
 

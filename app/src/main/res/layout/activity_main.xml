@@ -10,9 +10,9 @@
 
 
     <EditText
+        android:id="@+id/editTextEmail"
         android:textColor="#fff"
         android:textColorHint="#fff"
-        android:id="@+id/etEmail"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="70dp"
@@ -27,9 +27,8 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-
+        android:id="@+id/editTextPW"
         android:typeface="monospace"
-        android:id="@+id/etPW"
         android:textColor="#fff"
         android:textColorHint="#fff"
         android:layout_width="0dp"
@@ -38,15 +37,14 @@
         android:layout_marginStart="70dp"
         android:layout_marginTop="31dp"
         android:ems="10"
-
         android:inputType="textPassword"
         android:hint="Password"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etEmail" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextEmail" />
 
     <Button
-        android:id="@+id/login"
+        android:id="@+id/buttonLogin"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="33dp"
@@ -56,25 +54,30 @@
         android:textColor="#FFF"
         android:background="#FF9900"
         android:text="Login"
-        app:layout_constraintEnd_toStartOf="@+id/register"
+        android:onClick="trylogin"
+        app:layout_constraintEnd_toStartOf="@+id/buttonRegister"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etPW" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextPW"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="33dp" />
 
     <Button
-        android:id="@+id/register"
+        android:id="@+id/buttonRegister"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="39dp"
         android:fontFamily="casual"
         android:text="Register"
-        app:layout_constraintBaseline_toBaselineOf="@+id/login"
+        android:onClick="goToRegister"
+        app:layout_constraintBaseline_toBaselineOf="@+id/buttonLogin"
         app:layout_constraintEnd_toEndOf="parent"
         android:textColor="#FFF"
         android:background="#FF9900"
-        app:layout_constraintStart_toEndOf="@+id/login" />
+        app:layout_constraintStart_toEndOf="@+id/buttonLogin"
+        android:layout_marginRight="39dp" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/textViewTitle"
         android:layout_width="301dp"
         android:layout_height="124dp"
         android:layout_marginBottom="124dp"
@@ -85,9 +88,10 @@
         android:shadowColor="@color/colorAccent"
         android:text="Don't Dine Alone"
         android:textSize="39dp"
-        app:layout_constraintBottom_toBottomOf="@+id/etEmail"
+        app:layout_constraintBottom_toBottomOf="@+id/editTextEmail"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.0"
+        android:layout_marginLeft="52dp" />
 
 </android.support.constraint.ConstraintLayout>

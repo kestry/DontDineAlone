@@ -28,12 +28,9 @@ public class EditProfile extends AppCompatActivity {
     EditText editTextName;
     EditText editTextGender;
     EditText editTextAnimal;
-    Button editOK, editCancel;
     int x = 14; //total number of avatars
     ImageView avaBtn[] = new ImageView[x]; //this is for the avatars.
     ImageView currentAvatar;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,25 +49,6 @@ public class EditProfile extends AppCompatActivity {
         }
 
         databaseReference = FirebaseDatabase.getInstance().getReference();
-
-        editOK = findViewById(R.id.editOk);
-
-        editOK.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                saveUserInfo();
-                //Toast.makeText(EditProfile.this, "OK!!!", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        editCancel = findViewById(R.id.editCancel);
-        editCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //Next time the app opens go to MainActivity
-                backtoDine();
-            }
-        });
 
         //Didn't figure out how to dynamically set buttons, so the below is temporary
         avaBtn[0] = findViewById(R.id.ava1);
@@ -106,7 +84,8 @@ public class EditProfile extends AppCompatActivity {
 
     }
 
-    private void saveUserInfo() {
+    // Saves user info.
+    public void saveUserInfo(View v) {
         editTextName = findViewById(R.id.editTextName);
         editTextGender = findViewById(R.id.editTextGender);
         editTextAnimal = findViewById(R.id.editTextAnimal);
@@ -124,7 +103,8 @@ public class EditProfile extends AppCompatActivity {
         Toast.makeText(this, "Information saved...", Toast.LENGTH_SHORT).show();
     }
 
-    private void backtoDine()
+    // Goes back to the dine page.
+    public void backToDine(View v)
     {
         Intent x = new Intent(this, Dine.class);
         startActivity(x);
