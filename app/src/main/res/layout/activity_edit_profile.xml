@@ -212,7 +212,6 @@
                 android:layout_width="262dp"
                 android:layout_height="45dp"
                 android:ems="10"
-                android:hint="Patrick Star"
                 android:inputType="textPersonName" />
 
 
@@ -233,7 +232,6 @@
                 android:layout_width="262dp"
                 android:layout_height="42dp"
                 android:ems="10"
-                android:hint="Male,Female,etc."
                 android:inputType="textPersonName"
                 tools:layout_editor_absoluteX="122dp"
                 tools:layout_editor_absoluteY="199dp" />
@@ -255,7 +253,6 @@
                 android:layout_width="262dp"
                 android:layout_height="45dp"
                 android:ems="10"
-                android:hint="Donkey, Monkey, Slug, etc."
                 android:inputType="textPersonName"
                 tools:layout_editor_absoluteX="122dp"
                 tools:layout_editor_absoluteY="313dp" />
@@ -273,7 +270,7 @@
                     android:fontFamily="casual"
                     android:text="OK"
                     android:textColor="#FFF"
-                    android:onClick="saveUserInfo"
+                    android:onClick="saveProfileInfo"
                     tools:layout_editor_absoluteX="296dp"
                     tools:layout_editor_absoluteY="521dp" />
 

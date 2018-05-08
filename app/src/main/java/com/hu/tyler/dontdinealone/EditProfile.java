@@ -19,6 +19,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -26,17 +28,20 @@ import java.util.Map;
 
 public class EditProfile extends AppCompatActivity {
 
-    // Keys for Cloud Firestore
+    // Field keys for Cloud Firestore
     private static final String KEY_DISPLAY_NAME = "display_name";
     private static final String KEY_GENDER = "gender";
     private static final String KEY_ANIMAL = "animal";
-    private static final String KEY_ID = "id";
 
-    //Firebase auth object
+    //Firebase auth object and use
     private FirebaseAuth firebaseAuth;
+    FirebaseUser user;
 
     //Reference to Cloud Firestore Database
     private FirebaseFirestore db;
+
+    //Reference to Firestore Document
+    private DocumentReference profileUserRef;
 
     EditText editTextDisplayName;
     EditText editTextGender;
@@ -50,11 +55,12 @@ public class EditProfile extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
 
-        //Initializing firebase auth object
+        //Initialize firebase auth object and user
         firebaseAuth = FirebaseAuth.getInstance();
+        user = firebaseAuth.getCurrentUser();
 
         //Check if user is not logged in
-        if (firebaseAuth.getCurrentUser() == null) {
+        if (user == null) {
             //Closing this activity
             finish();
             //Starting Main activity
@@ -63,6 +69,9 @@ public class EditProfile extends AppCompatActivity {
 
         // Initialize Cloud Firestore database
         db = FirebaseFirestore.getInstance();
+        profileUserRef = db.collection("Profiles").document(user.getUid());
+
+        loadProfileInfo();
 
         //Didn't figure out how to dynamically set buttons, so the below is temporary
         avaBtn[0] = findViewById(R.id.ava1);
@@ -95,34 +104,64 @@ public class EditProfile extends AppCompatActivity {
                 }
             });
         }
-
     }
 
-    // Saves user info.
-    public void saveUserInfo(View v) {
+    public void saveProfileInfo(View v) {
         editTextDisplayName = findViewById(R.id.editTextDisplayName);
         editTextGender = findViewById(R.id.editTextGender);
         editTextAnimal = findViewById(R.id.editTextAnimal);
 
-        String name = editTextDisplayName.getText().toString().trim();
+        String displayName = editTextDisplayName.getText().toString().trim();
         String gender = editTextGender.getText().toString().trim();
         String animal = editTextAnimal.getText().toString().trim();
 
         // Keys are fields in our database, Values are the user's info.
         Map<String, Object> profile = new HashMap<>();
-        profile.put(KEY_DISPLAY_NAME, name);
+        profile.put(KEY_DISPLAY_NAME, displayName);
         profile.put(KEY_GENDER, gender);
         profile.put(KEY_ANIMAL, animal);
 
-        FirebaseUser user = firebaseAuth.getCurrentUser();
-
-        //Alternative: db.collection("Profiles/user.getUid()).set(profile)...
-        //However the way below is more intuitive, because we can chain nest collections and documents.
-        db.collection("Profiles").document(user.getUid()).set(profile)
+        profileUserRef.set(profile)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Toast.makeText(EditProfile.this, "Profile saved...", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(EditProfile.this, "Profile error: " + e.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    public void loadProfileInfo() {
+        editTextDisplayName = findViewById(R.id.editTextDisplayName);
+        editTextGender = findViewById(R.id.editTextGender);
+        editTextAnimal = findViewById(R.id.editTextAnimal);
+
+        profileUserRef.get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            String displayName = documentSnapshot.getString(KEY_DISPLAY_NAME);
+                            String gender = documentSnapshot.getString(KEY_GENDER);
+                            String animal = documentSnapshot.getString(KEY_ANIMAL);
+
+                            // Alternative to above: can get entire document map instead of individual parts too
+                            // Map<String, Object> profile = documentSnapshot.getData();
+
+                            editTextDisplayName.setText(displayName);
+                            editTextGender.setText(gender);
+                            editTextAnimal.setText(animal);
+
+                        } else {
+                            editTextDisplayName.setHint("Patrick Star");
+                            editTextGender.setHint("Male,Female,etc.");
+                            editTextAnimal.setHint("Donkey, Monkey, Slug, etc.");
+                        }
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
