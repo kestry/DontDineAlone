@@ -3,6 +3,7 @@ package com.hu.tyler.dontdinealone;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,6 +11,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -43,9 +46,7 @@ public class Dine extends AppCompatActivity {
     private boolean hasChosenDiningHalls;
 
     // User items
-    private Map<String, Boolean> userGroupSizes;
-    private Map<String, Boolean> userDiningHalls;
-
+    private Map<String, Boolean> userPreferences;
 
     Button buttonPreferences;
     Button buttonMatch;
@@ -87,11 +88,11 @@ public class Dine extends AppCompatActivity {
         /*
         // Initializing user preference maps.
         for (int i = 0; i < groupSizes.length; i++) {
-            userGroupSizes.put(groupSizes[i], false);
+            userPreferences.put(groupSizes[i], false);
         }
 
         for (int i = 0; i < diningHallsDatabaseNames.length; i++) {
-            userDiningHalls.put(diningHallsDatabaseNames[i], false);
+            userPreferences.put(diningHallsDatabaseNames[i], false);
         }
         */
     }
@@ -112,7 +113,7 @@ public class Dine extends AppCompatActivity {
         builder.setMultiChoiceItems(groupSizes, checkedGroupSizes, new DialogInterface.OnMultiChoiceClickListener(){
             @Override
             public void onClick(DialogInterface dialogInterface, int i, boolean isChecked) {
-                //checkedGroupSizes[i] = isChecked;
+                checkedGroupSizes[i] = isChecked;
             }
         });
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -121,8 +122,8 @@ public class Dine extends AppCompatActivity {
                 for (int j = 0; j < checkedGroupSizes.length; j++) {
                     //userGroupSizes.put(groupSizes[j], checkedGroupSizes[j]);
                 }
+                // This is here so that we only progress if we are OK with our groupSize selection
                 selectDiningHalls();
-
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -136,22 +137,15 @@ public class Dine extends AppCompatActivity {
 
     // Selection menu for dining hall choices. Change the database names or formatted names as you see fit to match your database
     // Selections are saved in userDiningHalls instance variable
-    public void selectDiningHalls(){
-
-        // This is a local variable so that we only save globally if the user clicks OK.
-        //final boolean[] checkedItems = new boolean[checkedDiningHalls.length];
-        //System.arraycopy(checkedItems, 0, checkedDiningHalls, 0, checkedDiningHalls.length );
+    public void selectDiningHalls() {
 
         final AlertDialog diningHallSelection;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Select Dining Halls");
-        builder.setMultiChoiceItems(diningHallsFormatted, checkedDiningHalls, new DialogInterface.OnMultiChoiceClickListener(){
+        builder.setMultiChoiceItems(diningHallsFormatted, checkedDiningHalls, new DialogInterface.OnMultiChoiceClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i, boolean isChecked) {
-                // When user checks boxes, we choose to not do anything other than the default setting of the MultiChoice.
-                // Pros: Less overall changes
-                // Cons: bulk change at end
-                //checkedDiningHalls[i] = isChecked; // This may be done automatically
+                checkedDiningHalls[i] = isChecked; // This may be done automatically
 
             }
         });
@@ -159,10 +153,10 @@ public class Dine extends AppCompatActivity {
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int which) {
-                //System.arraycopy(checkedItems, 0, checkedDiningHalls, 0, checkedDiningHalls.length );
                 for (int j = 0; j < checkedDiningHalls.length; j++) {
-                    //userDiningHalls.put(diningHallsDatabaseNames[j], checkedDiningHalls[j]);
+                    //userPreferences.put(diningHallsDatabaseNames[j], checkedDiningHalls[j]);
                 }
+                //uploadPreferences();
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -172,19 +166,27 @@ public class Dine extends AppCompatActivity {
         });
         diningHallSelection = builder.create();
         diningHallSelection.show();
-
     }
 
-
+    public void uploadPreferences() {
+        userPreferenceRef.set(userPreferences)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(Dine.this, "Group size preferences saved...", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(Dine.this, "Save error: " + e.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
     public void startMatching(View v){
         // checks if user has entered preferences yet since listeners are asynchronous
         Toast.makeText(this, "Matching.", Toast.LENGTH_SHORT).show();
-/*
-        if(userDiningHalls.size() == 0 || userGroupSizes.size() == 0){
-            Toast.makeText(this, "Select preferences before matching.", Toast.LENGTH_SHORT).show();
-            setPreferences(v);
-        }
-        */
+
         //begin matching logic
     }
 
