@@ -19,6 +19,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class Dine extends AppCompatActivity {
@@ -46,7 +47,7 @@ public class Dine extends AppCompatActivity {
     private boolean hasChosenDiningHalls;
 
     // User items
-    private Map<String, Boolean> userPreferences;
+    private Map<String, Boolean> userPreferences = new HashMap<String, Boolean>();
 
     Button buttonPreferences;
     Button buttonMatch;
@@ -85,19 +86,19 @@ public class Dine extends AppCompatActivity {
         hasChosenGroupSizes = false;
         hasChosenDiningHalls = false;
 
-        /*
+        /* TODO: This will be useful if we move this to userRegistration, to preload db fields and default values.
         // Initializing user preference maps.
         for (int i = 0; i < groupSizes.length; i++) {
             userPreferences.put(groupSizes[i], false);
         }
-
         for (int i = 0; i < diningHallsDatabaseNames.length; i++) {
             userPreferences.put(diningHallsDatabaseNames[i], false);
         }
         */
     }
 
-    public void setPreferences(View v) {
+    public void setDinePreferences(View v) {
+        // TODO: Will cancelable = false help?
         // These are asynchronous listeners which means they won't wait for selections to be made to
         // return control, so we need to check that diningHallChoices and groupSizeChoices contain
         // values when we use them.
@@ -105,28 +106,34 @@ public class Dine extends AppCompatActivity {
     }
 
     // Selection menu for group size choices
-    // Selections are saved in groupSizeChoices instance variable
     public void selectGroupSizes(){
         final AlertDialog groupSizeSelection;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Select Preferred Group Sizes");
+        builder.setTitle(R.string.select_group_sizes_label);
         builder.setMultiChoiceItems(groupSizes, checkedGroupSizes, new DialogInterface.OnMultiChoiceClickListener(){
             @Override
             public void onClick(DialogInterface dialogInterface, int i, boolean isChecked) {
                 checkedGroupSizes[i] = isChecked;
             }
         });
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.ok_label, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+                hasChosenGroupSizes = false;
                 for (int j = 0; j < checkedGroupSizes.length; j++) {
-                    //userGroupSizes.put(groupSizes[j], checkedGroupSizes[j]);
+                    userPreferences.put(groupSizes[j], checkedGroupSizes[j]);
+                    hasChosenGroupSizes |= checkedGroupSizes[j];
                 }
-                // This is here so that we only progress if we are OK with our groupSize selection
-                selectDiningHalls();
+                if (hasChosenGroupSizes == false) {
+                    Toast.makeText(Dine.this, "Please make a selection", Toast.LENGTH_SHORT).show();
+                    selectGroupSizes();
+                } else {
+                    // This is here so that we only progress if we are OK with our groupSize selection
+                    selectDiningHalls();
+                }
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.cancel_label, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
             }
@@ -136,30 +143,35 @@ public class Dine extends AppCompatActivity {
     }
 
     // Selection menu for dining hall choices. Change the database names or formatted names as you see fit to match your database
-    // Selections are saved in userDiningHalls instance variable
     public void selectDiningHalls() {
 
         final AlertDialog diningHallSelection;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Select Dining Halls");
+        builder.setTitle(R.string.select_dining_halls_label);
         builder.setMultiChoiceItems(diningHallsFormatted, checkedDiningHalls, new DialogInterface.OnMultiChoiceClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i, boolean isChecked) {
-                checkedDiningHalls[i] = isChecked; // This may be done automatically
-
+                checkedDiningHalls[i] = isChecked;
             }
         });
         // Do we want preferences local to session or persistent? Chose persistent for now.
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.ok_label, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int which) {
+                hasChosenDiningHalls = false;
                 for (int j = 0; j < checkedDiningHalls.length; j++) {
-                    //userPreferences.put(diningHallsDatabaseNames[j], checkedDiningHalls[j]);
+                    userPreferences.put(diningHallsDatabaseNames[j], checkedDiningHalls[j]);
+                    hasChosenDiningHalls |= checkedDiningHalls[j];
                 }
-                //uploadPreferences();
+                if (hasChosenDiningHalls == false) {
+                    Toast.makeText(Dine.this, "Please make a selection", Toast.LENGTH_SHORT).show();
+                    selectDiningHalls();
+                } else {
+                    uploadPreferences();
+                }
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.cancel_label, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
             }
@@ -173,7 +185,7 @@ public class Dine extends AppCompatActivity {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Toast.makeText(Dine.this, "Group size preferences saved...", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Dine.this, "Preferences saved...", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -185,9 +197,11 @@ public class Dine extends AppCompatActivity {
     }
     public void startMatching(View v){
         // checks if user has entered preferences yet since listeners are asynchronous
+        if (!(hasChosenGroupSizes && hasChosenDiningHalls)) {
+            setDinePreferences(v);
+        }
         Toast.makeText(this, "Matching.", Toast.LENGTH_SHORT).show();
-
-        //begin matching logic
+        //TODO: begin matching logic
     }
 
     public void goToEditProfile(View v)
