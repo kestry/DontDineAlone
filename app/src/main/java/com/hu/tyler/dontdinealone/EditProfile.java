@@ -28,7 +28,7 @@ import java.util.Map;
 
 public class EditProfile extends AppCompatActivity {
 
-    // Field keys for Cloud Firestore
+    //Field keys for Cloud Firestore
     private static final String KEY_DISPLAY_NAME = "display_name";
     private static final String KEY_GENDER = "gender";
     private static final String KEY_ANIMAL = "animal";
@@ -41,7 +41,7 @@ public class EditProfile extends AppCompatActivity {
     private FirebaseFirestore db;
 
     //Reference to Firestore Document
-    private DocumentReference profileUserRef;
+    private DocumentReference userProfileRef;
 
     EditText editTextDisplayName;
     EditText editTextGender;
@@ -54,6 +54,10 @@ public class EditProfile extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
+
+        editTextDisplayName = findViewById(R.id.editTextDisplayName);
+        editTextGender = findViewById(R.id.editTextGender);
+        editTextAnimal = findViewById(R.id.editTextAnimal);
 
         //Initialize firebase auth object and user
         firebaseAuth = FirebaseAuth.getInstance();
@@ -69,7 +73,7 @@ public class EditProfile extends AppCompatActivity {
 
         // Initialize Cloud Firestore database
         db = FirebaseFirestore.getInstance();
-        profileUserRef = db.collection("Profiles").document(user.getUid());
+        userProfileRef = db.collection(user.getUid()).document("Profile");
 
         loadProfileInfo();
 
@@ -107,21 +111,17 @@ public class EditProfile extends AppCompatActivity {
     }
 
     public void saveProfileInfo(View v) {
-        editTextDisplayName = findViewById(R.id.editTextDisplayName);
-        editTextGender = findViewById(R.id.editTextGender);
-        editTextAnimal = findViewById(R.id.editTextAnimal);
-
         String displayName = editTextDisplayName.getText().toString().trim();
         String gender = editTextGender.getText().toString().trim();
         String animal = editTextAnimal.getText().toString().trim();
 
-        // Keys are fields in our database, Values are the user's info.
+        // Keys are fields in our database. Values are the user's info.
         Map<String, Object> profile = new HashMap<>();
         profile.put(KEY_DISPLAY_NAME, displayName);
         profile.put(KEY_GENDER, gender);
         profile.put(KEY_ANIMAL, animal);
 
-        profileUserRef.set(profile)
+        userProfileRef.set(profile)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -137,15 +137,12 @@ public class EditProfile extends AppCompatActivity {
     }
 
     public void loadProfileInfo() {
-        editTextDisplayName = findViewById(R.id.editTextDisplayName);
-        editTextGender = findViewById(R.id.editTextGender);
-        editTextAnimal = findViewById(R.id.editTextAnimal);
-
-        profileUserRef.get()
+        userProfileRef.get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()) {
+                            // We get the information from our Cloud Firestore db.
                             String displayName = documentSnapshot.getString(KEY_DISPLAY_NAME);
                             String gender = documentSnapshot.getString(KEY_GENDER);
                             String animal = documentSnapshot.getString(KEY_ANIMAL);
@@ -153,6 +150,7 @@ public class EditProfile extends AppCompatActivity {
                             // Alternative to above: can get entire document map instead of individual parts too
                             // Map<String, Object> profile = documentSnapshot.getData();
 
+                            // Sets the editText field with our db profile info.
                             editTextDisplayName.setText(displayName);
                             editTextGender.setText(gender);
                             editTextAnimal.setText(animal);
