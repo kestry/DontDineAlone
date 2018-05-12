@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.hu.tyler.dontdinealone.EditProfile"
+    tools:context="com.hu.tyler.dontdinealone.EditProfileActivity"
     tools:layout_editor_absoluteY="81dp">
 
     <ScrollView
@@ -270,7 +270,7 @@
                     android:fontFamily="casual"
                     android:text="OK"
                     android:textColor="#FFF"
-                    android:onClick="saveProfileInfo"
+                    android:onClick="saveProfile"
                     tools:layout_editor_absoluteX="296dp"
                     tools:layout_editor_absoluteY="521dp" />
 
@@ -283,7 +283,7 @@
                     android:fontFamily="casual"
                     android:text="cancel"
                     android:textColor="#FFF"
-                    android:onClick="backToDine"
+                    android:onClick="goToLobbyActivity"
                     tools:layout_editor_absoluteX="149dp"
                     tools:layout_editor_absoluteY="521dp" />
 

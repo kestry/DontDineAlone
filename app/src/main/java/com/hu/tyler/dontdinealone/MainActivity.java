@@ -4,27 +4,20 @@ package com.hu.tyler.dontdinealone;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.hu.tyler.dontdinealone.models.UserModel;
 
 public class MainActivity extends AppCompatActivity {
 
-    private FirebaseAuth mAuth;
+    private UserModel user;
     private ProgressDialog progressDialog;
     EditText editTextEmail;
     EditText editTextPW;
@@ -39,34 +32,29 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
         progressDialog = new ProgressDialog(this);
-        mAuth = FirebaseAuth.getInstance();
+        user = UserModel.getInstance();
         editTextEmail = findViewById(R.id.editTextEmail);
         editTextPW = findViewById(R.id.editTextPW);
     }
 
-    //Check if the user is already logged in.
     @Override
     public void onStart() {
         super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            String email = user.getEmail();
-            Toast.makeText(this, "Previously Log In: " + email, Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(getApplicationContext(), Dine.class));
+
+        //If the user is already logged in, go directly to lobby.
+        if (user.isSignedIn()) {
+            Toast.makeText(this, "Previously Logged In: " + user.getEmail(), Toast.LENGTH_SHORT).show();
+            goToLobbyActivity();
         }
     }
 
-    //This method goes to the Register page.
-    public void goToRegister(View v) {
-        Intent x = new Intent(MainActivity.this, Register.class);
-        finish();
-        startActivity(x);
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        user = null;
     }
 
-    //This method logs the user in
-    public void trylogin(View v) {
+    public void login(View v) {
         String email = editTextEmail.getText().toString().trim();
         String password = editTextPW.getText().toString();
 
@@ -75,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Email length is too short", Toast.LENGTH_SHORT).show();
             return;
         }
-
         //TODO: Uncomment this for final release
         //Take the last 8 chars of the string to ensure it's ucsc.edu:
 //        String domainCheck = email.substring(email.length() - 8, email.length());
@@ -83,42 +70,58 @@ public class MainActivity extends AppCompatActivity {
 //            Toast.makeText(this, "Registration is restricted to UCSC Domain", Toast.LENGTH_SHORT).show();
 //            return;
 //        }
-//END OF UNCOMMENT
+// END OF UNCOMMENT
+
         if (TextUtils.isEmpty(password)) {
             Toast.makeText(this, "Please Enter password", Toast.LENGTH_SHORT).show();
             return;
         }
+
         progressDialog.setMessage("Logging You In...");
         progressDialog.show();
-        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                progressDialog.dismiss();
 
-                if (task.isSuccessful()) {
-                    //TODO: Delete the 2 lines below later.
-                        finish();
-                        startActivity(new Intent(getApplicationContext(), Dine.class));
-
-
-                        //TODO: Uncomment for future releases
-//                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-//                    if (user.isEmailVerified()) {
-//                        Toast.makeText(MainActivity.this, "Email is verified", Toast.LENGTH_SHORT).show();
-//                        finish();
-//                        startActivity(new Intent(getApplicationContext(), Dine.class));
-//                    } else {
-//                        Toast.makeText(MainActivity.this, "Email is not verified", Toast.LENGTH_SHORT).show();
-//                    }
-                    //END OF UNCOMMENT
-
-                } else {
-                    Log.w("XXX", "signInWithEmail:failure ", task.getException());
-                    Log.w("XXX", "Failed Email: " + editTextEmail.getText().toString().trim());
-                    Toast.makeText(MainActivity.this, "Error: " + task.getException(), Toast.LENGTH_LONG).show();
-                }
-            }
-        });
+        user.signIn(email, password, new LoginSuccessRunnable(), new LoginFailureRunnable());
     }
 
+    public void goToRegisterActivity(View v) {
+        finish();
+        startActivity(new Intent(MainActivity.this, RegisterActivity.class));
+    }
+
+    void goToLobbyActivity() {
+        finish();
+        startActivity(new Intent(getApplicationContext(), LobbyActivity.class));
+    }
+
+    class LoginSuccessRunnable implements Runnable {
+
+        @Override
+        public void run() {
+            progressDialog.dismiss();
+
+            Toast.makeText(MainActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
+
+            //TODO: Uncomment for future releases
+//          if (user.isEmailVerified()) {
+//              Toast.makeText(MainActivity.this, "Email is verified", Toast.LENGTH_SHORT).show();
+                goToLobbyActivity();
+//          } else {
+//              Toast.makeText(MainActivity.this, "Email is not verified", Toast.LENGTH_SHORT).show();
+//          }
+//END OF UNCOMMENT
+
+        }
+    }
+
+    class LoginFailureRunnable implements Runnable {
+
+        @Override
+        public void run() {
+            progressDialog.dismiss();
+
+            Log.w("XXX", "signInWithEmail:failure ", user.getException());
+            Log.w("XXX", "Failed Email: " + editTextEmail.getText().toString().trim());
+            Toast.makeText(MainActivity.this, "Login Error: " + user.getException(), Toast.LENGTH_LONG).show();
+        }
+    }
 }

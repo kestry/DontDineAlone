@@ -17,16 +17,15 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.hu.tyler.dontdinealone.models.UserModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Dine extends AppCompatActivity {
+public class LobbyActivity extends AppCompatActivity {
 
-    // Firebase auth object and use
-    private FirebaseAuth firebaseAuth;
-    FirebaseUser user;
+    UserModel user;
 
     // Reference to Cloud Firestore Database
     private FirebaseFirestore db;
@@ -56,15 +55,13 @@ public class Dine extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_dine);
+        setContentView(R.layout.activity_lobby);
 //        progressDialog = new ProgressDialog(this)*/
 
-        //Initialize firebase auth object and user
-        firebaseAuth = FirebaseAuth.getInstance();
-        user = firebaseAuth.getCurrentUser();
+        user = UserModel.getInstance();
 
         //Check if user is not logged in
-        if (user == null) {
+        if (!user.isSignedIn()) {
             //Closing this activity
             finish();
             //Starting Main activity
@@ -97,6 +94,12 @@ public class Dine extends AppCompatActivity {
         */
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        user = null;
+    }
+
     public void setDinePreferences(View v) {
         // TODO: Will cancelable = false help?
         // These are asynchronous listeners which means they won't wait for selections to be made to
@@ -125,7 +128,7 @@ public class Dine extends AppCompatActivity {
                     hasChosenGroupSizes |= checkedGroupSizes[j];
                 }
                 if (hasChosenGroupSizes == false) {
-                    Toast.makeText(Dine.this, "Please make a selection", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LobbyActivity.this, "Please make a selection", Toast.LENGTH_SHORT).show();
                     selectGroupSizes();
                 } else {
                     // This is here so that we only progress if we are OK with our groupSize selection
@@ -164,7 +167,7 @@ public class Dine extends AppCompatActivity {
                     hasChosenDiningHalls |= checkedDiningHalls[j];
                 }
                 if (hasChosenDiningHalls == false) {
-                    Toast.makeText(Dine.this, "Please make a selection", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LobbyActivity.this, "Please make a selection", Toast.LENGTH_SHORT).show();
                     selectDiningHalls();
                 } else {
                     uploadPreferences();
@@ -185,13 +188,13 @@ public class Dine extends AppCompatActivity {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Toast.makeText(Dine.this, "Preferences saved...", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LobbyActivity.this, "Preferences saved...", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(Dine.this, "Save error: " + e.toString(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LobbyActivity.this, "Save error: " + e.toString(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -208,16 +211,17 @@ public class Dine extends AppCompatActivity {
     {
 //        progressDialog.setMessage("Loading Profile...");
 //        progressDialog.show();
-        Intent x = new Intent(this, EditProfile.class);
+        Intent x = new Intent(this, EditProfileActivity.class);
         startActivity(x);
     }
-    public void logout(View v) {
-        FirebaseAuth.getInstance().signOut();
-        Toast.makeText(this, "Logged Off.", Toast.LENGTH_SHORT).show();
+
+    public void goToMainActivity(View v) {
+        user.signOut();
+        Toast.makeText(this, "Logged Out.", Toast.LENGTH_SHORT).show();
         //Next time the app opens go to MainActivity
         Intent x = new Intent(this, MainActivity.class);
+        finish();
         startActivity(x);
         //Terminate the current activity
-        finish();
     }
 }

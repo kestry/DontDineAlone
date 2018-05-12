@@ -22,20 +22,19 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.hu.tyler.dontdinealone.models.UserModel;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class EditProfile extends AppCompatActivity {
+public class EditProfileActivity extends AppCompatActivity {
 
     //Field keys for Cloud Firestore
     private static final String KEY_DISPLAY_NAME = "display_name";
     private static final String KEY_GENDER = "gender";
     private static final String KEY_ANIMAL = "animal";
 
-    //Firebase auth object and use
-    private FirebaseAuth firebaseAuth;
-    FirebaseUser user;
+    private UserModel user;
 
     //Reference to Cloud Firestore Database
     private FirebaseFirestore db;
@@ -55,21 +54,19 @@ public class EditProfile extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
 
-        editTextDisplayName = findViewById(R.id.editTextDisplayName);
-        editTextGender = findViewById(R.id.editTextGender);
-        editTextAnimal = findViewById(R.id.editTextAnimal);
-
-        //Initialize firebase auth object and user
-        firebaseAuth = FirebaseAuth.getInstance();
-        user = firebaseAuth.getCurrentUser();
+        user = UserModel.getInstance();
 
         //Check if user is not logged in
-        if (user == null) {
+        if (!user.isSignedIn()) {
             //Closing this activity
             finish();
             //Starting Main activity
             startActivity(new Intent(this, MainActivity.class));
         }
+
+        editTextDisplayName = findViewById(R.id.editTextDisplayName);
+        editTextGender = findViewById(R.id.editTextGender);
+        editTextAnimal = findViewById(R.id.editTextAnimal);
 
         // Initialize Cloud Firestore database
         db = FirebaseFirestore.getInstance();
@@ -104,13 +101,19 @@ public class EditProfile extends AppCompatActivity {
                     currentAvatar.setBackgroundColor(00000000);
                     avaBtn[j].setBackgroundColor(Color.parseColor("#FF4081"));
                     currentAvatar = avaBtn[j];
-                    Toast.makeText(EditProfile.this, "#" + j, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EditProfileActivity.this, "#" + j, Toast.LENGTH_SHORT).show();
                 }
             });
         }
     }
 
-    public void saveProfileInfo(View v) {
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        user = null;
+    }
+
+    public void saveProfile(View v) {
         String displayName = editTextDisplayName.getText().toString().trim();
         String gender = editTextGender.getText().toString().trim();
         String animal = editTextAnimal.getText().toString().trim();
@@ -125,13 +128,14 @@ public class EditProfile extends AppCompatActivity {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Toast.makeText(EditProfile.this, "Profile saved...", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(EditProfileActivity.this, "Profile saved...", Toast.LENGTH_SHORT).show();
+                        goToLobbyActivity();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(EditProfile.this, "Profile error: " + e.toString(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(EditProfileActivity.this, "Profile error: " + e.toString(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -165,17 +169,15 @@ public class EditProfile extends AppCompatActivity {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(EditProfile.this, "Profile error: " + e.toString(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(EditProfileActivity.this, "Profile error: " + e.toString(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
-    // Goes back to the dine page.
-    public void backToDine(View v)
+    // Goes back to the lobby page.
+    public void goToLobbyActivity()
     {
-        Intent x = new Intent(this, Dine.class);
-        startActivity(x);
-        //Terminate the current activity
         finish();
+        startActivity(new Intent(this, LobbyActivity.class));
     }
 }

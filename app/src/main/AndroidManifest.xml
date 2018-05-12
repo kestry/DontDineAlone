@@ -26,12 +26,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Register"
+            android:name=".RegisterActivity"
             android:label="Register" />
         <activity
-            android:name=".Dine"
+            android:name=".LobbyActivity"
             android:label="Welcome" />
-        <activity android:name=".EditProfile"
+        <activity android:name=".EditProfileActivity"
             android:windowSoftInputMode="adjustNothing"
             android:label="Edit Profile"></activity>
     </application>
