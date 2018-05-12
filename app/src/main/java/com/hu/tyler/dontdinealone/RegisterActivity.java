@@ -59,6 +59,8 @@ public class RegisterActivity extends AppCompatActivity {
         user = null;
     }
 
+    // Presenter Methods ---------------------------------------------
+
     public void register(View v) {
 
         email = editTextEmail.getText().toString().trim();
@@ -101,6 +103,7 @@ public class RegisterActivity extends AppCompatActivity {
         user.register(email, password, new RegisterSuccessRunnable(), new RegisterFailureRunnable());
     }
 
+    // Navigation Methods --------------------------------------------
 
     public void goToMainActivity(View v) {
         Toast.makeText(this, "Back to Login.", Toast.LENGTH_SHORT).show();
@@ -108,7 +111,9 @@ public class RegisterActivity extends AppCompatActivity {
         startActivity(new Intent(this, MainActivity.class));
     }
 
-    class RegisterSuccessRunnable implements Runnable {
+    // Runnables -----------------------------------------------------
+
+    final class RegisterSuccessRunnable implements Runnable {
 
         @Override
         public void run() {
@@ -122,7 +127,7 @@ public class RegisterActivity extends AppCompatActivity {
         }
     }
 
-    class RegisterFailureRunnable implements Runnable {
+    final class RegisterFailureRunnable implements Runnable {
 
         @Override
         public void run() {

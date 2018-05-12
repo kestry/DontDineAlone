@@ -13,6 +13,7 @@ import android.view.Window;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.hu.tyler.dontdinealone.models.DatabaseModel;
 import com.hu.tyler.dontdinealone.models.UserModel;
 
 public class MainActivity extends AppCompatActivity {
@@ -25,14 +26,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         //remove titleBar
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 //        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 //                WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(R.layout.activity_main);
-        progressDialog = new ProgressDialog(this);
         user = UserModel.getInstance();
+
+        progressDialog = new ProgressDialog(this);
+
         editTextEmail = findViewById(R.id.editTextEmail);
         editTextPW = findViewById(R.id.editTextPW);
     }
@@ -40,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-
+        user = UserModel.getInstance();
         //If the user is already logged in, go directly to lobby.
         if (user.isSignedIn()) {
             Toast.makeText(this, "Previously Logged In: " + user.getEmail(), Toast.LENGTH_SHORT).show();
@@ -53,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         user = null;
     }
+    // Presenter Methods ---------------------------------------------
 
     public void login(View v) {
         String email = editTextEmail.getText().toString().trim();
@@ -83,6 +88,8 @@ public class MainActivity extends AppCompatActivity {
         user.signIn(email, password, new LoginSuccessRunnable(), new LoginFailureRunnable());
     }
 
+    // Navigation Methods --------------------------------------------
+
     public void goToRegisterActivity(View v) {
         finish();
         startActivity(new Intent(MainActivity.this, RegisterActivity.class));
@@ -93,7 +100,9 @@ public class MainActivity extends AppCompatActivity {
         startActivity(new Intent(getApplicationContext(), LobbyActivity.class));
     }
 
-    class LoginSuccessRunnable implements Runnable {
+    // Runnables -----------------------------------------------------
+
+    final class LoginSuccessRunnable implements Runnable {
 
         @Override
         public void run() {
@@ -113,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    class LoginFailureRunnable implements Runnable {
+    final class LoginFailureRunnable implements Runnable {
 
         @Override
         public void run() {

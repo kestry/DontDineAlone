@@ -8,87 +8,133 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.Map;
+
 public class UserModel {
-    private static UserModel obj;
-    private static FirebaseAuth mAuth;
-    private static FirebaseUser mUser;
-    private static String mEmail;
+
+    private DatabaseModel mDb;
+
+    // Firebase authentication related members
+    private static FirebaseAuth mFAuth;
+    private static FirebaseUser mFUser;
+
+    // Communicates exceptions back to the view
     private static Exception mException;
 
+    // This is an optimal way to make singletons both lazy and thread-safe.
+    // However singletons are considered bad, and so it would be good to look into other solutions:
+    // - SharedPreferences, ViewModel, Room, MVP
+    // source: https://en.wikipedia.org/wiki/Initialization-on-demand_holder_idiom
+    private static class UserModelHolder
+    {
+        private final static UserModel INSTANCE = new UserModel();
+    }
+
+    // Reference to self so there is only one instance of this class
+    public static UserModel getInstance()
+    {
+        return UserModelHolder.INSTANCE;
+    }
+
+    // Private constructor. Called once by the UserModelHolder
     private UserModel() {
-        mAuth = FirebaseAuth.getInstance();
-        mUser = mAuth.getCurrentUser();
-        mEmail = "";
+        mDb = DatabaseModel.getInstance();
+        // Init authentication
+        mFAuth = FirebaseAuth.getInstance();
+
+        // Init user info
+        setFUser();
         mException = null;
     }
 
-    public static UserModel getInstance() {
-        if (obj == null) {
-            obj = new UserModel();
+    private void setFUser() {
+        mFUser = mFAuth.getCurrentUser();
+        if (mFUser == null) {
+            mDb.setEmail("");
+            mDb.setUid("");
+            mDb.setLocalProfileToDefault();
+        } else {
+            mDb.setEmail(mFUser.getEmail());
+            mDb.setUid(mFUser.getUid());
+            mDb.loadProfile(null, null);
         }
-        return obj;
     }
+
+    // Authentication and FirebaseUser Section ---------------------------
 
     public Exception getException() {
         return mException;
     }
 
     public boolean isSignedIn() {
-        return mUser != null;
+        setFUser();
+        return mFUser != null;
     }
 
     public String getUid() {
-        return mUser.getUid();
+        return mDb.getUid();
     }
 
     // This may throw an Exception if firebaseUser is null (Todo: Test this?).
     public String getEmail() {
-        return mEmail;
+        return mDb.getEmail();
     }
 
     public boolean isEmailVerified() {
-        return mUser.isEmailVerified();
+        return mFUser.isEmailVerified();
     }
 
     public void signIn(String email, String password, final Runnable successRunnable, final Runnable failureRunnable) {
-        mEmail = email;
-        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+        mDb.setEmail(email);
+        mFAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    mUser = mAuth.getCurrentUser();
-                    successRunnable.run();
+                    setFUser();
+                    mDb.loadProfile(null, null);
+                    if (successRunnable != null) {
+                        successRunnable.run();
+                    }
                 } else {
                     mException = task.getException();
-                    failureRunnable.run();
+                    if (failureRunnable != null) {
+                        failureRunnable.run();
+                    }
                 }
             }
         });
     }
 
     public void signOut() {
-        mAuth.signOut();
-        mUser = null;
+        mFAuth.signOut();
+        // Need to manually set null, since we do not constantly get current user.
+        // May need to change if we begin to multithread?
+        setFUser();
         mException = null;
     }
 
     public void register(String email, String password, final Runnable successRunnable, final Runnable failureRunnable) {
-        mEmail = email;
-        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+        mFAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    mUser = mAuth.getCurrentUser();
+                    setFUser();
                     //TODO:UNCOMMENT FOR EMAIL VERIFICATION BELOW
                     //mUser.sendEmailVerification();
                     //Log out immediately to prevent illegal sign in without email confirmation
-                    obj.signOut();
-                    successRunnable.run();
+                    signOut();
+                    if (successRunnable != null) {
+                        successRunnable.run();
+                    }
                 } else {
-                    mException = task.getException();
-                    failureRunnable.run();
+                    if (failureRunnable != null) {
+                        mException = task.getException();
+                        failureRunnable.run();
+                    }
                 }
             }
         });
     }
+
+
 }

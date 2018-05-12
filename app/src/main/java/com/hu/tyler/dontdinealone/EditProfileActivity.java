@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -22,6 +23,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.hu.tyler.dontdinealone.models.DatabaseModel;
 import com.hu.tyler.dontdinealone.models.UserModel;
 
 import java.util.HashMap;
@@ -29,18 +31,8 @@ import java.util.Map;
 
 public class EditProfileActivity extends AppCompatActivity {
 
-    //Field keys for Cloud Firestore
-    private static final String KEY_DISPLAY_NAME = "display_name";
-    private static final String KEY_GENDER = "gender";
-    private static final String KEY_ANIMAL = "animal";
-
     private UserModel user;
-
-    //Reference to Cloud Firestore Database
-    private FirebaseFirestore db;
-
-    //Reference to Firestore Document
-    private DocumentReference userProfileRef;
+    private DatabaseModel dbModel;
 
     EditText editTextDisplayName;
     EditText editTextGender;
@@ -49,12 +41,17 @@ public class EditProfileActivity extends AppCompatActivity {
     ImageView avaBtn[] = new ImageView[x]; //this is for the avatars.
     ImageView currentAvatar;
 
+    private ProgressDialog progressDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
 
         user = UserModel.getInstance();
+        dbModel = DatabaseModel.getInstance();
+
+        progressDialog = new ProgressDialog(this);
 
         //Check if user is not logged in
         if (!user.isSignedIn()) {
@@ -68,11 +65,7 @@ public class EditProfileActivity extends AppCompatActivity {
         editTextGender = findViewById(R.id.editTextGender);
         editTextAnimal = findViewById(R.id.editTextAnimal);
 
-        // Initialize Cloud Firestore database
-        db = FirebaseFirestore.getInstance();
-        userProfileRef = db.collection(user.getUid()).document("Profile");
-
-        loadProfileInfo();
+        loadProfile();
 
         //Didn't figure out how to dynamically set buttons, so the below is temporary
         avaBtn[0] = findViewById(R.id.ava1);
@@ -111,73 +104,64 @@ public class EditProfileActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
         user = null;
+        dbModel = null;
     }
 
-    public void saveProfile(View v) {
-        String displayName = editTextDisplayName.getText().toString().trim();
-        String gender = editTextGender.getText().toString().trim();
-        String animal = editTextAnimal.getText().toString().trim();
+    // Presenter Methods ---------------------------------------------
 
-        // Keys are fields in our database. Values are the user's info.
-        Map<String, Object> profile = new HashMap<>();
-        profile.put(KEY_DISPLAY_NAME, displayName);
-        profile.put(KEY_GENDER, gender);
-        profile.put(KEY_ANIMAL, animal);
+    public void saveProfile(final View v) {
+        dbModel.setDisplayName(editTextDisplayName.getText().toString().trim());
+        dbModel.setGender(editTextGender.getText().toString().trim());
+        dbModel.setAnimal(editTextAnimal.getText().toString().trim());
 
-        userProfileRef.set(profile)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Toast.makeText(EditProfileActivity.this, "Profile saved...", Toast.LENGTH_SHORT).show();
-                        goToLobbyActivity();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(EditProfileActivity.this, "Profile error: " + e.toString(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+        progressDialog.setMessage("Saving Profile...");
+        progressDialog.show();
+        dbModel.storeProfile(new StoreSuccessRunnable(), new StoreFailureRunnable());
     }
 
-    public void loadProfileInfo() {
-        userProfileRef.get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if (documentSnapshot.exists()) {
-                            // We get the information from our Cloud Firestore db.
-                            String displayName = documentSnapshot.getString(KEY_DISPLAY_NAME);
-                            String gender = documentSnapshot.getString(KEY_GENDER);
-                            String animal = documentSnapshot.getString(KEY_ANIMAL);
-
-                            // Alternative to above: can get entire document map instead of individual parts too
-                            // Map<String, Object> profile = documentSnapshot.getData();
-
-                            // Sets the editText field with our db profile info.
-                            editTextDisplayName.setText(displayName);
-                            editTextGender.setText(gender);
-                            editTextAnimal.setText(animal);
-
-                        } else {
-                            editTextDisplayName.setHint("Patrick Star");
-                            editTextGender.setHint("Male,Female,etc.");
-                            editTextAnimal.setHint("Donkey, Monkey, Slug, etc.");
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(EditProfileActivity.this, "Profile error: " + e.toString(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+    public void loadProfile() {
+        // Sets the editText field with our db profile info.
+        editTextDisplayName.setText(dbModel.getDisplayName());
+        editTextGender.setText(dbModel.getGender());
+        editTextAnimal.setText(dbModel.getAnimal());
     }
+
+    public void goToLobbyActivity(View v)
+    {
+        goToLobbyActivity();
+    }
+
+    // Navigation Methods --------------------------------------------
 
     // Goes back to the lobby page.
     public void goToLobbyActivity()
     {
         finish();
         startActivity(new Intent(this, LobbyActivity.class));
+    }
+
+    // Runnables -----------------------------------------------------
+
+    final class StoreSuccessRunnable implements Runnable {
+
+        @Override
+        public void run() {
+            progressDialog.dismiss();
+
+            Toast.makeText(EditProfileActivity.this, "Profile saved successfully", Toast.LENGTH_SHORT).show();
+            goToLobbyActivity();
+        }
+    }
+
+    final class StoreFailureRunnable implements Runnable {
+
+        @Override
+        public void run() {
+            progressDialog.dismiss();
+
+            Log.w("XXX", "Save error: ", dbModel.getException());
+            Toast.makeText(EditProfileActivity.this, "Profile save failed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(EditProfileActivity.this, "Profile Save Error: " + dbModel.getException(), Toast.LENGTH_LONG).show();
+        }
     }
 }

@@ -99,6 +99,7 @@ public class LobbyActivity extends AppCompatActivity {
         super.onDestroy();
         user = null;
     }
+    // Presenter Methods ---------------------------------------------
 
     public void setDinePreferences(View v) {
         // TODO: Will cancelable = false help?
@@ -207,7 +208,9 @@ public class LobbyActivity extends AppCompatActivity {
         //TODO: begin matching logic
     }
 
-    public void goToEditProfile(View v)
+    // Navigation Methods --------------------------------------------
+
+    public void goToEditProfileActivity(View v)
     {
 //        progressDialog.setMessage("Loading Profile...");
 //        progressDialog.show();
@@ -224,4 +227,7 @@ public class LobbyActivity extends AppCompatActivity {
         startActivity(x);
         //Terminate the current activity
     }
+
+    // Runnables -----------------------------------------------------
+
 }
