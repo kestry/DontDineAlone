@@ -13,7 +13,6 @@ import android.view.Window;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.hu.tyler.dontdinealone.models.DatabaseModel;
 import com.hu.tyler.dontdinealone.models.UserModel;
 
 public class MainActivity extends AppCompatActivity {

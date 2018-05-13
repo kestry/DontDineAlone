@@ -2,17 +2,17 @@ package com.hu.tyler.dontdinealone.models;
 
 import android.support.annotation.NonNull;
 
-import com.firebase.ui.auth.data.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static java.lang.Boolean.FALSE;
 
 public class DatabaseModel {
 
@@ -29,8 +29,8 @@ public class DatabaseModel {
     private Map<String, Object> mPreferenceMap;
 
     // These dirty flags allows caller to decide when to remotely load and store data.
-    private static boolean mHasDirtyProfile;
-    private static boolean mHasDirtyPreference;
+    private static boolean mIsDirtyProfile;
+    private static boolean mIsDirtyPreference;
 
     // This is an optimal way to make singletons both lazy and thread-safe.
     // However singletons are considered bad, and so it would be good to look into other solutions:
@@ -54,8 +54,8 @@ public class DatabaseModel {
         mEmail = "";
         mUid = "";
 
-        mHasDirtyProfile = true;
-        mHasDirtyPreference = true;
+        mIsDirtyProfile = true;
+        mIsDirtyPreference = true;
 
         // Initialize Maps
         mProfileMap = new HashMap<String, Object>();
@@ -65,11 +65,11 @@ public class DatabaseModel {
     }
 
     public void setLocalProfileToDefault() {
-        mHasDirtyProfile = true;
+        mIsDirtyProfile = true;
         mProfileMap.clear();
-        mProfileMap.put(DatabaseKeys.DISPLAY_NAME, "");
-        mProfileMap.put(DatabaseKeys.GENDER, "");
-        mProfileMap.put(DatabaseKeys.ANIMAL, "");
+        mProfileMap.put(DatabaseKeys.Profile.DISPLAY_NAME, "");
+        mProfileMap.put(DatabaseKeys.Profile.GENDER, "");
+        mProfileMap.put(DatabaseKeys.Profile.ANIMAL, "");
     }
 
     public Exception getException() {
@@ -79,7 +79,7 @@ public class DatabaseModel {
     // Profile Section -----------------------------------------------
 
     public boolean hasDirtyProfile() {
-        return mHasDirtyProfile;
+        return mIsDirtyProfile;
     }
 
     public String getEmail() {
@@ -91,15 +91,15 @@ public class DatabaseModel {
     }
 
     public String getDisplayName() {
-        return (String) mProfileMap.get(DatabaseKeys.DISPLAY_NAME);
+        return (String) mProfileMap.get(DatabaseKeys.Profile.DISPLAY_NAME);
     }
 
     public String getGender() {
-        return (String) mProfileMap.get(DatabaseKeys.GENDER);
+        return (String) mProfileMap.get(DatabaseKeys.Profile.GENDER);
     }
 
     public String getAnimal() {
-        return (String) mProfileMap.get(DatabaseKeys.ANIMAL);
+        return (String) mProfileMap.get(DatabaseKeys.Profile.ANIMAL);
     }
 
     public void setEmail(String email) {
@@ -111,18 +111,18 @@ public class DatabaseModel {
     }
 
     public void setDisplayName(String displayName) {
-        mHasDirtyProfile = true;
-        mProfileMap.put(DatabaseKeys.DISPLAY_NAME, displayName);
+        mIsDirtyProfile = true;
+        mProfileMap.put(DatabaseKeys.Profile.DISPLAY_NAME, displayName);
     }
 
     public void setGender(String gender) {
-        mHasDirtyProfile = true;
-        mProfileMap.put(DatabaseKeys.GENDER, gender);
+        mIsDirtyProfile = true;
+        mProfileMap.put(DatabaseKeys.Profile.GENDER, gender);
     }
 
     public void setAnimal(String animal) {
-        mHasDirtyProfile = true;
-        mProfileMap.put(DatabaseKeys.ANIMAL, animal);
+        mIsDirtyProfile = true;
+        mProfileMap.put(DatabaseKeys.Profile.ANIMAL, animal);
     }
 
     public void storeProfile(final Runnable successRunnable, final Runnable failureRunnable) {
@@ -131,7 +131,7 @@ public class DatabaseModel {
                     @Override
                     public void onSuccess(Void aVoid) {
                         // This flag should set prior to the successRunnable function.
-                        mHasDirtyProfile = false;
+                        mIsDirtyProfile = false;
                         if (successRunnable != null) {
                             successRunnable.run();
                         }
@@ -163,7 +163,7 @@ public class DatabaseModel {
                             }
                             // This clean status should be set between setting the local profile to default
                             // and running the successRunnable function.
-                            mHasDirtyProfile = false;
+                            mIsDirtyProfile = false;
                             if (successRunnable != null) {
                                successRunnable.run();
                             }
@@ -179,9 +179,91 @@ public class DatabaseModel {
 
     // Preference Section -----------------------------------------------
 
-    public boolean hasDirtyPreference() {
-        return mHasDirtyPreference;
+    public boolean isDirtyPreference() {
+        return mIsDirtyPreference;
     }
 
+    public Boolean getGroupSizePreference(int index) {
+        mIsDirtyPreference = true;
+        return (Boolean) mPreferenceMap.get(DatabaseKeys.Preference.groupSizes[index]);
+    }
+
+    public Boolean getDiningHallPreference(int index) {
+        mIsDirtyPreference = true;
+        return (Boolean) mPreferenceMap.get(DatabaseKeys.Preference.diningHalls[index]);
+    }
+
+    public void setGroupSizePreference(int index, Boolean isPreferred) {
+        mIsDirtyPreference = true;
+        mPreferenceMap.put(DatabaseKeys.Preference.groupSizes[index], isPreferred);
+    }
+
+    public void setDiningHallPreference(int index, Boolean isPreferred) {
+        mIsDirtyPreference = true;
+        mPreferenceMap.put(DatabaseKeys.Preference.diningHalls[index], isPreferred);
+    }
+
+    public void setLocalPreferenceToDefault() {
+        mIsDirtyPreference = true;
+        mPreferenceMap.clear();
+        for (int i = 0; i < DatabaseKeys.Preference.groupSizes.length; i++) {
+            mPreferenceMap.put(DatabaseKeys.Preference.groupSizes[i], FALSE);
+        }
+        for (int i = 0; i < DatabaseKeys.Preference.diningHalls.length; i++) {
+            mPreferenceMap.put(DatabaseKeys.Preference.diningHalls[i], FALSE);
+        }
+    }
+
+    public void storePreference(final Runnable successRunnable, final Runnable failureRunnable) {
+        mDb.collection(mUid).document(DatabaseDocNames.PREFERENCE).set(mPreferenceMap)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        // This flag should set prior to the successRunnable function.
+                        mIsDirtyPreference = false;
+                        if (successRunnable != null) {
+                            successRunnable.run();
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        mException = e;
+                        if (failureRunnable != null) {
+                            failureRunnable.run();
+                        }
+                    }
+                });
+    }
+
+    public void loadPreference(final Runnable successRunnable, final Runnable failureRunnable) {
+        mDb.collection(mUid).document(DatabaseDocNames.PREFERENCE).get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                mPreferenceMap = document.getData();
+                            } else {
+                                // WARNING: Profile defaults unstored for performance. Store if they become needed.
+                                setLocalProfileToDefault();
+                            }
+                            // This clean status should be set between setting the local profile to default
+                            // and running the successRunnable function.
+                            mIsDirtyPreference = false;
+                            if (successRunnable != null) {
+                                successRunnable.run();
+                            }
+                        } else {
+                            mException = task.getException();
+                            if (failureRunnable != null) {
+                                failureRunnable.run();
+                            }
+                        }
+                    }
+                });
+    }
 }
 

@@ -15,31 +15,13 @@
         completions."
     </string>
 
-    <!-- Strings related to profile -->
-    <string name="key_display_name">displayName</string>
-    <string name="key_gender">gender</string>
-    <string name="key_animal">animal</string>
-
     <!-- Strings related to match preferences -->
-    <string-array name="groupSizes">
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>no preference</item>
-    </string-array>
     <string-array name="diningHallsFormatted">
         <item>Nine/Ten</item>
         <item>Cowell/Stevenson</item>
         <item>Crown/Merill</item>
         <item>Porter/Kresge</item>
         <item>Rachel Carson/Oaks</item>
-    </string-array>
-    <string-array name="diningHallsDatabaseNames">
-        <item>NineTen</item>
-        <item>CowellStevenson</item>
-        <item>CrownMerill</item>
-        <item>PorterKresge</item>
-        <item>RachelCarsonOaks</item>
     </string-array>
 
     <string name="title_activity_register">Register</string>
