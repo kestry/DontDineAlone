@@ -1,6 +1,4 @@
-package com.hu.tyler.dontdinealone.models;
-
-import com.hu.tyler.dontdinealone.R;
+package com.hu.tyler.dontdinealone.res;
 
 public interface DatabaseKeys {
     public interface Profile {
@@ -10,8 +8,8 @@ public interface DatabaseKeys {
     }
 
     public interface Preference {
-        public static String[] groupSizes = {"2", "3", "4"};
-        public static String[] diningHalls = { "NineTen", "CowellStevenson",
+        public static String[] GROUP_SIZES = {"2", "3", "4"};
+        public static String[] DINING_HALLS = { "NineTen", "CowellStevenson",
                 "CrownMerill", "PorterKresge", "RachelCarsonOaks"};
     }
 }

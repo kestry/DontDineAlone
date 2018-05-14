@@ -11,13 +11,15 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.hu.tyler.dontdinealone.models.DatabaseModel;
-import com.hu.tyler.dontdinealone.models.UserModel;
+import com.hu.tyler.dontdinealone.data.UserProfileRepo;
+import com.hu.tyler.dontdinealone.domain.User;
+import com.hu.tyler.dontdinealone.res.DatabaseKeys;
+import com.hu.tyler.dontdinealone.util.Callback;
 
 public class EditProfileActivity extends AppCompatActivity {
 
-    private UserModel user;
-    private DatabaseModel dbModel;
+    private User user;
+    private UserProfileRepo repo;
 
     EditText editTextDisplayName;
     EditText editTextGender;
@@ -33,8 +35,8 @@ public class EditProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
 
-        user = UserModel.getInstance();
-        dbModel = DatabaseModel.getInstance();
+        user = User.getInstance();
+        repo = UserProfileRepo.getInstance();
 
         progressDialog = new ProgressDialog(this);
 
@@ -89,26 +91,26 @@ public class EditProfileActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
         user = null;
-        dbModel = null;
+        repo = null;
     }
 
     // Presenter Methods ---------------------------------------------
 
     public void saveProfile(final View v) {
-        dbModel.setDisplayName(editTextDisplayName.getText().toString().trim());
-        dbModel.setGender(editTextGender.getText().toString().trim());
-        dbModel.setAnimal(editTextAnimal.getText().toString().trim());
+        repo.set(DatabaseKeys.Profile.DISPLAY_NAME, editTextDisplayName.getText().toString().trim());
+        repo.set(DatabaseKeys.Profile.GENDER, editTextGender.getText().toString().trim());
+        repo.set(DatabaseKeys.Profile.ANIMAL, editTextAnimal.getText().toString().trim());
 
         progressDialog.setMessage("Saving Profile...");
         progressDialog.show();
-        dbModel.storeProfile(new StoreSuccessRunnable(), new StoreFailureRunnable());
+        repo.store(new StoreCallback());
     }
 
     public void loadProfile() {
         // Sets the editText field with our db profile info.
-        editTextDisplayName.setText(dbModel.getDisplayName());
-        editTextGender.setText(dbModel.getGender());
-        editTextAnimal.setText(dbModel.getAnimal());
+        editTextDisplayName.setText((String) repo.get(DatabaseKeys.Profile.DISPLAY_NAME));
+        editTextGender.setText((String) repo.get(DatabaseKeys.Profile.GENDER));
+        editTextAnimal.setText((String) repo.get(DatabaseKeys.Profile.ANIMAL));
     }
 
     public void goToLobbyActivity(View v)
@@ -125,28 +127,25 @@ public class EditProfileActivity extends AppCompatActivity {
         startActivity(new Intent(this, LobbyActivity.class));
     }
 
-    // Runnables -----------------------------------------------------
+    // Callbacks -----------------------------------------------------
 
-    final class StoreSuccessRunnable implements Runnable {
+    final class StoreCallback implements Callback {
 
         @Override
-        public void run() {
+        public void onSuccess() {
             progressDialog.dismiss();
 
             Toast.makeText(EditProfileActivity.this, "Profile saved successfully", Toast.LENGTH_SHORT).show();
             goToLobbyActivity();
         }
-    }
-
-    final class StoreFailureRunnable implements Runnable {
 
         @Override
-        public void run() {
+        public void onFailure(Exception e) {
             progressDialog.dismiss();
 
-            Log.w("XXX", "Save error: ", dbModel.getException());
+            Log.w("XXX", "Save error: ", e);
             Toast.makeText(EditProfileActivity.this, "Profile save failed", Toast.LENGTH_SHORT).show();
-            Toast.makeText(EditProfileActivity.this, "Profile Save Error: " + dbModel.getException(), Toast.LENGTH_LONG).show();
+            Toast.makeText(EditProfileActivity.this, "Profile Save Error: " + e, Toast.LENGTH_LONG).show();
         }
     }
 }

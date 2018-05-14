@@ -13,11 +13,12 @@ import android.view.Window;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.hu.tyler.dontdinealone.models.UserModel;
+import com.hu.tyler.dontdinealone.domain.User;
+import com.hu.tyler.dontdinealone.util.Callback;
 
 public class MainActivity extends AppCompatActivity {
 
-    private UserModel user;
+    private User user;
     private ProgressDialog progressDialog;
     EditText editTextEmail;
     EditText editTextPW;
@@ -32,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
 //                WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(R.layout.activity_main);
-        user = UserModel.getInstance();
+        user = User.getInstance();
 
         progressDialog = new ProgressDialog(this);
 
@@ -43,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        user = UserModel.getInstance();
+        user = User.getInstance();
         //If the user is already logged in, go directly to lobby.
         if (user.isSignedIn()) {
             Toast.makeText(this, "Previously Logged In: " + user.getEmail(), Toast.LENGTH_SHORT).show();
@@ -84,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         progressDialog.setMessage("Logging You In...");
         progressDialog.show();
 
-        user.signIn(email, password, new LoginSuccessRunnable(), new LoginFailureRunnable());
+        user.signIn(email, password, new LoginCallback());
     }
 
     // Navigation Methods --------------------------------------------
@@ -99,12 +100,12 @@ public class MainActivity extends AppCompatActivity {
         startActivity(new Intent(getApplicationContext(), LobbyActivity.class));
     }
 
-    // Runnables -----------------------------------------------------
+    // Callbacks -----------------------------------------------------
 
-    final class LoginSuccessRunnable implements Runnable {
+    final class LoginCallback implements Callback {
 
         @Override
-        public void run() {
+        public void onSuccess() {
             progressDialog.dismiss();
 
             Toast.makeText(MainActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
@@ -119,17 +120,14 @@ public class MainActivity extends AppCompatActivity {
 //END OF UNCOMMENT
 
         }
-    }
-
-    final class LoginFailureRunnable implements Runnable {
 
         @Override
-        public void run() {
+        public void onFailure(Exception e) {
             progressDialog.dismiss();
 
-            Log.w("XXX", "signInWithEmail:failure ", user.getException());
+            Log.w("XXX", "signInWithEmail:failure ", e);
             Log.w("XXX", "Failed Email: " + editTextEmail.getText().toString().trim());
-            Toast.makeText(MainActivity.this, "Login Error: " + user.getException(), Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this, "Login Error: " + e, Toast.LENGTH_LONG).show();
         }
     }
 }

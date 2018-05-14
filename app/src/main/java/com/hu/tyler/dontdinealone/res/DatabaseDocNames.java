@@ -1,4 +1,4 @@
-package com.hu.tyler.dontdinealone.models;
+package com.hu.tyler.dontdinealone.res;
 
 public interface DatabaseDocNames {
     public static String PROFILE = "Profile";

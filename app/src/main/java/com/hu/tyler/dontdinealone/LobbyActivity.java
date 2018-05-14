@@ -3,7 +3,6 @@ package com.hu.tyler.dontdinealone;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,24 +11,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.hu.tyler.dontdinealone.models.DatabaseKeys;
-import com.hu.tyler.dontdinealone.models.DatabaseModel;
-import com.hu.tyler.dontdinealone.models.UserModel;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import com.hu.tyler.dontdinealone.data.MatchPreferenceRepo;
+import com.hu.tyler.dontdinealone.res.DatabaseKeys;
+import com.hu.tyler.dontdinealone.domain.User;
+import com.hu.tyler.dontdinealone.util.Callback;
 
 public class LobbyActivity extends AppCompatActivity {
 
-    private UserModel user;
-    private DatabaseModel db;
+    private User user;
+    private MatchPreferenceRepo repo;
 
     // List items
     private String[] diningHallsFormatted;
@@ -51,7 +41,7 @@ public class LobbyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lobby);
 
-        user = UserModel.getInstance();
+        user = User.getInstance();
 
         //Check if user is not logged in
         if (!user.isSignedIn()) {
@@ -62,15 +52,15 @@ public class LobbyActivity extends AppCompatActivity {
         }
 
         // Initialize Cloud Firestore database
-        db = DatabaseModel.getInstance();
+        repo = MatchPreferenceRepo.getInstance();
 
         progressDialog = new ProgressDialog(this);
 
         // List items are retrieved from "app/res/values/strings.xml"
         diningHallsFormatted = getResources().getStringArray(R.array.diningHallsFormatted);
 
-        isPreferredGroupSizes = new boolean[DatabaseKeys.Preference.groupSizes.length];
-        isPreferredDiningHalls = new boolean[DatabaseKeys.Preference.diningHalls.length];
+        isPreferredGroupSizes = new boolean[DatabaseKeys.Preference.GROUP_SIZES.length];
+        isPreferredDiningHalls = new boolean[DatabaseKeys.Preference.DINING_HALLS.length];
 
         hasChosenGroupSizes = false;
         hasChosenDiningHalls = false;
@@ -80,7 +70,7 @@ public class LobbyActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
         user = null;
-        db = null;
+        repo = null;
     }
 
     // Presenter Methods ---------------------------------------------
@@ -98,7 +88,7 @@ public class LobbyActivity extends AppCompatActivity {
         final AlertDialog groupSizeSelection;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.select_group_sizes_label);
-        builder.setMultiChoiceItems(DatabaseKeys.Preference.groupSizes, isPreferredGroupSizes, new DialogInterface.OnMultiChoiceClickListener(){
+        builder.setMultiChoiceItems(DatabaseKeys.Preference.GROUP_SIZES, isPreferredGroupSizes, new DialogInterface.OnMultiChoiceClickListener(){
             @Override
             public void onClick(DialogInterface dialogInterface, int i, boolean isChecked) {
                 isPreferredGroupSizes[i] = isChecked;
@@ -109,7 +99,7 @@ public class LobbyActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialogInterface, int i) {
                 hasChosenGroupSizes = false;
                 for (int j = 0; j < isPreferredGroupSizes.length; j++) {
-                    db.setGroupSizePreference(j, isPreferredGroupSizes[j]);
+                    repo.set(DatabaseKeys.Preference.GROUP_SIZES[j], isPreferredGroupSizes[j]);
                     hasChosenGroupSizes |= isPreferredGroupSizes[j];
                 }
                 // We only progress if the user chose at least one group
@@ -149,7 +139,7 @@ public class LobbyActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialogInterface, int which) {
                 hasChosenDiningHalls = false;
                 for (int j = 0; j < isPreferredDiningHalls.length; j++) {
-                    db.setDiningHallPreference(j, isPreferredDiningHalls[j]);
+                    repo.set(DatabaseKeys.Preference.DINING_HALLS[j], isPreferredDiningHalls[j]);
                     hasChosenDiningHalls |= isPreferredDiningHalls[j];
                 }
                 // We only store preferences if we've also chosen at least one dining hall
@@ -172,15 +162,14 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
     public void storeMatchPreferences() {
-        db.storePreference(new StoreSuccessRunnable(), new StoreFailureRunnable());
+        repo.store(new StoreCallback());
     }
 
     public void startMatching(View v){
         // checks if user has entered preferences yet since listeners are asynchronous
-        if (!(hasChosenGroupSizes && hasChosenDiningHalls)) {
+        //if (!(hasChosenGroupSizes && hasChosenDiningHalls)) {
             setMatchPreferences(v);
-        }
-        Toast.makeText(this, "Matching.", Toast.LENGTH_SHORT).show();
+        //}
         //TODO: begin matching logic
     }
 
@@ -204,27 +193,24 @@ public class LobbyActivity extends AppCompatActivity {
         //Terminate the current activity
     }
 
-    // Runnables -----------------------------------------------------
+    // Callbacks -----------------------------------------------------
 
-    final class StoreSuccessRunnable implements Runnable {
+    final class StoreCallback implements Callback {
 
         @Override
-        public void run() {
+        public void onSuccess() {
             progressDialog.dismiss();
 
-            Toast.makeText(LobbyActivity.this, "Preferences saved successfully", Toast.LENGTH_SHORT).show();
+            Toast.makeText(LobbyActivity.this, "Preferences saved. Beginning matching..", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    final class StoreFailureRunnable implements Runnable {
 
         @Override
-        public void run() {
+        public void onFailure(Exception e) {
             progressDialog.dismiss();
 
-            Log.w("XXX", "Save error: ", db.getException());
+            Log.w("XXX", "Save error: ", e);
             Toast.makeText(LobbyActivity.this, "Preference save failed", Toast.LENGTH_SHORT).show();
-            Toast.makeText(LobbyActivity.this, "Preference Save Error: " + db.getException(), Toast.LENGTH_LONG).show();
+            Toast.makeText(LobbyActivity.this, "Preference Save Error: " + e, Toast.LENGTH_LONG).show();
         }
     }
 }

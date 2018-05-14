@@ -9,11 +9,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-import com.hu.tyler.dontdinealone.models.UserModel;
+import com.hu.tyler.dontdinealone.domain.User;
+import com.hu.tyler.dontdinealone.util.Callback;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private UserModel user;
+    private User user;
 
     EditText editTextEmail;
     EditText editTextPw;
@@ -28,7 +29,7 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        user = UserModel.getInstance();
+        user = User.getInstance();
 
         editTextEmail = findViewById(R.id.xxxxReg);
         editTextPw = findViewById(R.id.xxxxPW);
@@ -85,7 +86,7 @@ public class RegisterActivity extends AppCompatActivity {
         progressDialog.show();
 
         //Try and Register:
-        user.register(email, password, new RegisterSuccessRunnable(), new RegisterFailureRunnable());
+        user.register(email, password, new RegisterCallback());
     }
 
     // Navigation Methods --------------------------------------------
@@ -96,12 +97,12 @@ public class RegisterActivity extends AppCompatActivity {
         startActivity(new Intent(this, MainActivity.class));
     }
 
-    // Runnables -----------------------------------------------------
+    // Callbacks -----------------------------------------------------
 
-    final class RegisterSuccessRunnable implements Runnable {
+    final class RegisterCallback implements Callback {
 
         @Override
-        public void run() {
+        public void onSuccess() {
             progressDialog.dismiss();
 
             Toast.makeText(RegisterActivity.this,
@@ -110,19 +111,16 @@ public class RegisterActivity extends AppCompatActivity {
 
             startActivity(x);
         }
-    }
-
-    final class RegisterFailureRunnable implements Runnable {
 
         @Override
-        public void run() {
+        public void onFailure(Exception e) {
             progressDialog.dismiss();
 
             Log.d("XXX", "mail " + email);
             Log.d("XXX", "pw " + password);
 
-            Log.w("XXX", "Registration error: ", user.getException());
-            Toast.makeText(RegisterActivity.this, "Registration Error: " + user.getException(), Toast.LENGTH_LONG).show();
+            Log.w("XXX", "Registration error: ", e);
+            Toast.makeText(RegisterActivity.this, "Registration Error: " + e, Toast.LENGTH_LONG).show();
         }
     }
 }
