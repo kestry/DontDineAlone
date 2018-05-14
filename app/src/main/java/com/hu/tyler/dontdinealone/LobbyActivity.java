@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.hu.tyler.dontdinealone.data.UserMatchInfoRepo;
+import com.hu.tyler.dontdinealone.data.UserProfileRepo;
 import com.hu.tyler.dontdinealone.res.DatabaseKeys;
 import com.hu.tyler.dontdinealone.domain.User;
 import com.hu.tyler.dontdinealone.util.Callback;
@@ -20,6 +21,7 @@ public class LobbyActivity extends AppCompatActivity {
 
     private User user;
     private UserMatchInfoRepo repo;
+    private UserProfileRepo profileRepo; // DELETE
 
     // List items
     private String[] diningHallsFormatted;
@@ -42,17 +44,18 @@ public class LobbyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_lobby);
 
         user = User.getInstance();
+        repo = UserMatchInfoRepo.getInstance();
+        profileRepo = UserProfileRepo.getInstance();  // DELETE
 
         //Check if user is not logged in
-        if (!user.isSignedIn()) {
+        if (!user.isSignedIn(new SignedInCallback())) {
             //Close this activity
             finish();
             //Start Main activity
             startActivity(new Intent(this, MainActivity.class));
         }
 
-        // Initialize Cloud Firestore database
-        repo = UserMatchInfoRepo.getInstance();
+        Toast.makeText(LobbyActivity.this, "Test1: Hello " + profileRepo.get(DatabaseKeys.Profile.DISPLAY_NAME), Toast.LENGTH_SHORT).show();  // DELETE
 
         progressDialog = new ProgressDialog(this);
 
@@ -211,6 +214,20 @@ public class LobbyActivity extends AppCompatActivity {
             Log.w("XXX", "Save error: ", e);
             Toast.makeText(LobbyActivity.this, "Preference save failed", Toast.LENGTH_SHORT).show();
             Toast.makeText(LobbyActivity.this, "Preference Save Error: " + e, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    final class SignedInCallback implements Callback {
+
+        @Override
+        public void onSuccess() {
+            progressDialog.dismiss();
+
+            Toast.makeText(LobbyActivity.this, "Test2: Hello " + profileRepo.get(DatabaseKeys.Profile.DISPLAY_NAME), Toast.LENGTH_SHORT).show();  // DELETE
+        }
+
+        @Override
+        public void onFailure(Exception e) {
         }
     }
 }

@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.hu.tyler.dontdinealone.domain.User;
 import com.hu.tyler.dontdinealone.util.Callback;
+import com.hu.tyler.dontdinealone.util.NullCallback;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -46,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         user = User.getInstance();
         //If the user is already logged in, go directly to lobby.
-        if (user.isSignedIn()) {
+        if (user.isSignedIn(NullCallback.getInstance())) {
             Toast.makeText(this, "Previously Logged In: " + user.getEmail(), Toast.LENGTH_SHORT).show();
             goToLobbyActivity();
         }

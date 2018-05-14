@@ -1,6 +1,7 @@
 package com.hu.tyler.dontdinealone.domain;
 
 import android.support.annotation.NonNull;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -28,6 +29,8 @@ public class User implements UserInterface {
     private static FirebaseAuth mFAuth;
     private static FirebaseUser mFUser;
 
+    private NullCallback nullCallback = NullCallback.getInstance();
+
     // Singleton Holder that creates a single instance of this class.
     private static class UserSingletonHolder
     {
@@ -46,22 +49,23 @@ public class User implements UserInterface {
         mFAuth = FirebaseAuth.getInstance();
 
         // Init user info
-        setFUser();
+        setFUser(nullCallback);
     }
 
-    private void setFUser() {
+    private void setFUser(Callback callback) {
         mFUser = mFAuth.getCurrentUser();
         if (mFUser == null) {
             repo.setToDefault();
+            callback.onFailure(null);
         } else {
-            repo.load(NullCallback.getInstance());
+            repo.load(callback);
         }
     }
 
     // Authentication and FirebaseUser Section ---------------------------
 
-    public boolean isSignedIn() {
-        setFUser();
+    public boolean isSignedIn(final Callback callback) {
+        setFUser(callback);
         return mFUser != null;
     }
 
@@ -82,7 +86,7 @@ public class User implements UserInterface {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    setFUser();
+                    setFUser(nullCallback);
                     //TODO:UNCOMMENT FOR EMAIL VERIFICATION BELOW
                     //mUser.sendEmailVerification();
                     //Log out immediately to prevent illegal sign in without email confirmation
@@ -100,7 +104,7 @@ public class User implements UserInterface {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    setFUser();
+                    setFUser(nullCallback);
                     repo.load(NullCallback.getInstance());
                     callback.onSuccess();
                 } else {
@@ -114,7 +118,7 @@ public class User implements UserInterface {
         mFAuth.signOut();
         // Need to manually set null, since we do not constantly get current user.
         // May need to change if we begin to multithread?
-        setFUser();
+        setFUser(nullCallback);
     }
 
 }

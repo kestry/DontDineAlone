@@ -15,6 +15,7 @@ import com.hu.tyler.dontdinealone.data.UserProfileRepo;
 import com.hu.tyler.dontdinealone.domain.User;
 import com.hu.tyler.dontdinealone.res.DatabaseKeys;
 import com.hu.tyler.dontdinealone.util.Callback;
+import com.hu.tyler.dontdinealone.util.NullCallback;
 
 public class EditProfileActivity extends AppCompatActivity {
 
@@ -41,7 +42,7 @@ public class EditProfileActivity extends AppCompatActivity {
         progressDialog = new ProgressDialog(this);
 
         //Check if user is not logged in
-        if (!user.isSignedIn()) {
+        if (!user.isSignedIn(NullCallback.getInstance())) {
             //Closing this activity
             finish();
             //Starting Main activity
