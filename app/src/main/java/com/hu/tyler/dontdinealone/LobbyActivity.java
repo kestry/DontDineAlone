@@ -11,7 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.hu.tyler.dontdinealone.data.MatchPreferenceRepo;
+import com.hu.tyler.dontdinealone.data.UserMatchInfoRepo;
 import com.hu.tyler.dontdinealone.res.DatabaseKeys;
 import com.hu.tyler.dontdinealone.domain.User;
 import com.hu.tyler.dontdinealone.util.Callback;
@@ -19,7 +19,7 @@ import com.hu.tyler.dontdinealone.util.Callback;
 public class LobbyActivity extends AppCompatActivity {
 
     private User user;
-    private MatchPreferenceRepo repo;
+    private UserMatchInfoRepo repo;
 
     // List items
     private String[] diningHallsFormatted;
@@ -52,7 +52,7 @@ public class LobbyActivity extends AppCompatActivity {
         }
 
         // Initialize Cloud Firestore database
-        repo = MatchPreferenceRepo.getInstance();
+        repo = UserMatchInfoRepo.getInstance();
 
         progressDialog = new ProgressDialog(this);
 

@@ -1,5 +1,6 @@
 package com.hu.tyler.dontdinealone.data;
 
+import com.google.firebase.firestore.FieldValue;
 import com.hu.tyler.dontdinealone.res.DatabaseDocNames;
 import com.hu.tyler.dontdinealone.res.DatabaseKeys;
 
@@ -7,19 +8,19 @@ import com.hu.tyler.dontdinealone.res.DatabaseKeys;
 import static java.lang.Boolean.FALSE;
 
 
-public class MatchPreferenceRepo extends BaseRepo {
+public class MatchRepo extends BaseRepo {
 
     // Singleton Holder that creates a single instance of this class.
-    private static class MatchPreferenceRepoHolder {
-        private final static MatchPreferenceRepo INSTANCE = new MatchPreferenceRepo();
+    private static class MatchRepoHolder {
+        private final static MatchRepo INSTANCE = new MatchRepo();
     }
 
     // Reference to self so there is only one instance of this class
-    public static MatchPreferenceRepo getInstance() {
-        return MatchPreferenceRepoHolder.INSTANCE;
+    public static MatchRepo getInstance() {
+        return MatchRepoHolder.INSTANCE;
     }
 
-    private MatchPreferenceRepo() {
+    private MatchRepo() {
         super(DatabaseDocNames.PREFERENCE);
 
         setToDefault();
@@ -37,5 +38,6 @@ public class MatchPreferenceRepo extends BaseRepo {
         for (int i = 0; i < DatabaseKeys.Preference.DINING_HALLS.length; i++) {
             mCache.put(DatabaseKeys.Preference.DINING_HALLS[i], FALSE);
         }
+        mCache.put("timestamp", FieldValue.serverTimestamp());
     }
 }
