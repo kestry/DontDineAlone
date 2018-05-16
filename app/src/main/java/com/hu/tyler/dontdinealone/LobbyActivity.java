@@ -68,7 +68,7 @@ public class LobbyActivity extends AppCompatActivity {
         user = User.getInstance();
         repo = UserMatchInfoRepo.getInstance();
         profileRepo = UserProfileRepo.getInstance();  // DELETE
-        removeDups();
+        removeDups(); // Remove Duplicates from crashes
         //Check if user is not logged in
         if (!user.isSignedIn(new SignedInCallback())) {
             //Close this activity
@@ -98,7 +98,14 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    protected void onPause(){
+        super.onPause();
 
+//        Log.d("XXX", "onPaused uID: " + u.getDocumentId().toString());
+        if(u != null)
+        onlineUsers.document(u.getDocumentId().toString()).update("status", 0);
+    }
 
     ///////////TYLERS EDITS/////////
     @Override
@@ -114,9 +121,9 @@ public class LobbyActivity extends AppCompatActivity {
                 }
 
                 String data = "Online Users:\n\n";
-                Toast.makeText(LobbyActivity.this, "Inside loadOnlineUsers().Sucess", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(LobbyActivity.this, "Inside loadOnlineUsers().Sucess", Toast.LENGTH_SHORT).show();
                 List<DocumentSnapshot> x= queryDocumentSnapshots.getDocuments();
-                Toast.makeText(LobbyActivity.this, "Online x size" + x.size(), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(LobbyActivity.this, "Number of Users: " + x.size(), Toast.LENGTH_SHORT).show();
                 for(int i = 0; i < x.size(); i++)
                 {
                     OnlineUser j = x.get(i).toObject(OnlineUser.class);
@@ -130,6 +137,10 @@ public class LobbyActivity extends AppCompatActivity {
                 onlineCount.setText(data);
             }
         });
+
+//        Log.d("XXX", "onStart uID: " + u.getDocumentId().toString());
+        if(u != null)
+        onlineUsers.document(u.getDocumentId().toString()).update("status", 1);
     }
 
 

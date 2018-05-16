@@ -53,7 +53,7 @@ public class EditProfileActivity extends AppCompatActivity {
         editTextGender = findViewById(R.id.editTextGender);
         editTextAnimal = findViewById(R.id.editTextAnimal);
 
-        loadProfile();
+        loadProfile(); //Load Data from server
 
         //Didn't figure out how to dynamically set buttons, so the below is temporary
         avaBtn[0] = findViewById(R.id.ava1);
@@ -93,7 +93,6 @@ public class EditProfileActivity extends AppCompatActivity {
         super.onDestroy();
         user = null;
         repo = null;
-        //Tyler Edits:
 
     }
 
