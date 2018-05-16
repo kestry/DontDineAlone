@@ -19,7 +19,7 @@
         android:layout_marginStart="70dp"
         android:layout_marginTop="253dp"
         android:ems="10"
-        android:typeface="monospace"
+        android:fontFamily="casual"
         android:inputType="textEmailAddress"
         android:hint="UCSC Email"
         app:layout_constraintEnd_toEndOf="parent"
@@ -28,7 +28,7 @@
 
     <EditText
         android:id="@+id/editTextPW"
-        android:typeface="monospace"
+        android:fontFamily="casual"
         android:textColor="#fff"
         android:textColorHint="#fff"
         android:layout_width="0dp"

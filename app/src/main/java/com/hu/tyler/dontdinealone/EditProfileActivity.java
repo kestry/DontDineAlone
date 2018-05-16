@@ -93,6 +93,8 @@ public class EditProfileActivity extends AppCompatActivity {
         super.onDestroy();
         user = null;
         repo = null;
+        //Tyler Edits:
+
     }
 
     // Presenter Methods ---------------------------------------------

@@ -31,9 +31,11 @@
         <activity
             android:name=".LobbyActivity"
             android:label="Welcome" />
-        <activity android:name=".EditProfileActivity"
-            android:windowSoftInputMode="adjustNothing"
-            android:label="Edit Profile"></activity>
+        <activity
+            android:name=".EditProfileActivity"
+            android:label="Edit Profile"
+            android:windowSoftInputMode="adjustNothing" />
+        <activity android:name=".MatchingActivty"></activity>
     </application>
 
 </manifest>

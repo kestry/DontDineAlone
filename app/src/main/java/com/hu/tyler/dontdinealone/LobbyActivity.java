@@ -9,19 +9,40 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.hu.tyler.dontdinealone.data.UserMatchInfoRepo;
 import com.hu.tyler.dontdinealone.data.UserProfileRepo;
 import com.hu.tyler.dontdinealone.res.DatabaseKeys;
 import com.hu.tyler.dontdinealone.domain.User;
 import com.hu.tyler.dontdinealone.util.Callback;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
 public class LobbyActivity extends AppCompatActivity {
 
     private User user;
     private UserMatchInfoRepo repo;
     private UserProfileRepo profileRepo; // DELETE
+
+    ///Tyler Edits: 5/15
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private CollectionReference onlineUsers = db.collection("Online"); // for group items
+    TextView hiTxt;
+    OnlineUser u;
+    ///////////////////
 
     // List items
     private String[] diningHallsFormatted;
@@ -43,6 +64,7 @@ public class LobbyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lobby);
 
+
         user = User.getInstance();
         repo = UserMatchInfoRepo.getInstance();
         profileRepo = UserProfileRepo.getInstance();  // DELETE
@@ -55,13 +77,14 @@ public class LobbyActivity extends AppCompatActivity {
             startActivity(new Intent(this, MainActivity.class));
         }
 
-        Toast.makeText(LobbyActivity.this, "Test1: Hello " + profileRepo.get(DatabaseKeys.Profile.DISPLAY_NAME), Toast.LENGTH_SHORT).show();  // DELETE
+
+//        Toast.makeText(LobbyActivity.this, "Test1: Hello " + profileRepo.get(DatabaseKeys.Profile.DISPLAY_NAME), Toast.LENGTH_SHORT).show();  // DELETE
 
         progressDialog = new ProgressDialog(this);
 
         // List items are retrieved from "app/res/values/strings.xml"
-        diningHallsFormatted = getResources().getStringArray(R.array.diningHallsFormatted);
 
+        diningHallsFormatted = getResources().getStringArray(R.array.diningHallsFormatted);
         isPreferredGroupSizes = new boolean[DatabaseKeys.Preference.GROUP_SIZES.length];
         isPreferredDiningHalls = new boolean[DatabaseKeys.Preference.DINING_HALLS.length];
 
@@ -70,11 +93,101 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+
+
+
+    ///////////TYLERS EDITS/////////
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        onlineUsers.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
+
+                if(e!=null){
+                    return;
+                }
+
+                String data = "Online Users:\n";
+                removeDups();
+                Toast.makeText(LobbyActivity.this, "Inside loadOnlineUsers().Sucess", Toast.LENGTH_SHORT).show();
+                List<DocumentSnapshot> x= queryDocumentSnapshots.getDocuments();
+                Toast.makeText(LobbyActivity.this, "Online x size" + x.size(), Toast.LENGTH_SHORT).show();
+                for(int i = 0; i < x.size(); i++)
+                {
+                    OnlineUser j = x.get(i).toObject(OnlineUser.class);
+                    Log.d("XXX", "for loop users"+i + ": " + j.getname());
+                    j.setDocumentId(x.get(i).getId());
+                    data += j.getname() +"\n";
+                }
+                TextView onlineCount = findViewById(R.id.onlineCount);
+                onlineCount.setText(data);
+            }
+        });
+    }
+
+
+    /////////////////////////////
+    @Override
     public void onDestroy() {
         super.onDestroy();
         user = null;
         repo = null;
+        DocumentReference ref =  onlineUsers.document(u.getDocumentId());
+        ref.delete();
     }
+
+
+    //Removes duplicate accounts log in with the same email...
+    private void removeDups(){
+         onlineUsers.whereEqualTo("email", user.getEmail()).get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot documentSnapshots) {
+                        List<DocumentSnapshot> x= documentSnapshots.getDocuments();
+
+                        for(int i = 0; i < x.size()-1; i++)
+                        {
+                            //remove the element that has a identical email
+                            db.collection("Online").document(x.get(i).getId()).delete();
+                        }
+                    }
+                });
+    }
+
+    public void loadOnlineUsers(){
+        onlineUsers.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot documentSnapshots) {
+                String data = "Online Users:\n";
+                removeDups();
+                Toast.makeText(LobbyActivity.this, "Inside loadOnlineUsers().Sucess", Toast.LENGTH_SHORT).show();
+                List<DocumentSnapshot> x= documentSnapshots.getDocuments();
+                Toast.makeText(LobbyActivity.this, "Online x size" + x.size(), Toast.LENGTH_SHORT).show();
+                for(int i = 0; i < x.size(); i++)
+                {
+                    Log.d("XXX", "for loop "+i);
+                    OnlineUser j = x.get(i).toObject(OnlineUser.class);
+                    j.setDocumentId(x.get(i).getId());
+                    data += j.getname() +"\n";
+                }
+                TextView onlineCount = findViewById(R.id.onlineCount);
+                onlineCount.setText(data);
+//                for(QueryDocumentSnapshot documentSnapshot: x){
+//                    OnlineUser x = documentSnapshot.toObject(OnlineUser.class);
+//                }
+
+
+            }
+        });
+    }
+
+
 
     // Presenter Methods ---------------------------------------------
 
@@ -169,11 +282,14 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
     public void startMatching(View v){
+
+
         // checks if user has entered preferences yet since listeners are asynchronous
         //if (!(hasChosenGroupSizes && hasChosenDiningHalls)) {
-            setMatchPreferences(v);
+//            setMatchPreferences(v);
         //}
         //TODO: begin matching logic
+
     }
 
     // Navigation Methods --------------------------------------------
@@ -223,7 +339,30 @@ public class LobbyActivity extends AppCompatActivity {
         public void onSuccess() {
             progressDialog.dismiss();
 
+
+
+            ////////////Tyler's Edits
             Toast.makeText(LobbyActivity.this, "Test2: Hello " + profileRepo.get(DatabaseKeys.Profile.DISPLAY_NAME), Toast.LENGTH_SHORT).show();  // DELETE
+
+
+            hiTxt = findViewById(R.id.textViewTitle);
+            hiTxt.setText("Welcome " + profileRepo.get(DatabaseKeys.Profile.DISPLAY_NAME));
+            SimpleDateFormat s = new SimpleDateFormat("ddMMyyyyhhmmss");
+            String date = s.format(new Date());
+
+            //Lets get online users
+            u = new OnlineUser(user.getEmail(),(String) profileRepo.get(DatabaseKeys.Profile.DISPLAY_NAME),
+                    (String) profileRepo.get( DatabaseKeys.Profile.ANIMAL),1 , date);
+            onlineUsers.add(u).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                @Override
+                public void onSuccess(DocumentReference documentReference) {
+                    u.setDocumentId(documentReference.getId());
+                    Log.d("XXX", "DocID for this instance: " + u.getDocumentId());
+                    loadOnlineUsers();
+                }
+            });
+
+            ///////////////////// End of Tylers Edit
         }
 
         @Override

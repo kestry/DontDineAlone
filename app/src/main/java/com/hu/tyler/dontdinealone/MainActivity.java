@@ -87,6 +87,9 @@ public class MainActivity extends AppCompatActivity {
         progressDialog.show();
 
         user.signIn(email, password, new LoginCallback());
+//        Test statment
+        Toast.makeText(this, "After user.signIn", Toast.LENGTH_SHORT).show();
+
     }
 
     // Navigation Methods --------------------------------------------
