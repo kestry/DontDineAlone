@@ -68,7 +68,7 @@ public class LobbyActivity extends AppCompatActivity {
         user = User.getInstance();
         repo = UserMatchInfoRepo.getInstance();
         profileRepo = UserProfileRepo.getInstance();  // DELETE
-
+        removeDups();
         //Check if user is not logged in
         if (!user.isSignedIn(new SignedInCallback())) {
             //Close this activity
@@ -81,7 +81,7 @@ public class LobbyActivity extends AppCompatActivity {
 //        Toast.makeText(LobbyActivity.this, "Test1: Hello " + profileRepo.get(DatabaseKeys.Profile.DISPLAY_NAME), Toast.LENGTH_SHORT).show();  // DELETE
 
         progressDialog = new ProgressDialog(this);
-
+         // Delete duplicates from crashes
         // List items are retrieved from "app/res/values/strings.xml"
 
         diningHallsFormatted = getResources().getStringArray(R.array.diningHallsFormatted);
@@ -113,8 +113,7 @@ public class LobbyActivity extends AppCompatActivity {
                     return;
                 }
 
-                String data = "Online Users:\n";
-                removeDups();
+                String data = "Online Users:\n\n";
                 Toast.makeText(LobbyActivity.this, "Inside loadOnlineUsers().Sucess", Toast.LENGTH_SHORT).show();
                 List<DocumentSnapshot> x= queryDocumentSnapshots.getDocuments();
                 Toast.makeText(LobbyActivity.this, "Online x size" + x.size(), Toast.LENGTH_SHORT).show();
@@ -123,7 +122,9 @@ public class LobbyActivity extends AppCompatActivity {
                     OnlineUser j = x.get(i).toObject(OnlineUser.class);
                     Log.d("XXX", "for loop users"+i + ": " + j.getname());
                     j.setDocumentId(x.get(i).getId());
-                    data += j.getname() +"\n";
+                    data += j.getname() +"\n" + user.getEmail() +
+                            "\nStatus Code: " + j.getstatus() +
+                            "\nDocID: " + j.getDocumentId() + "\n\n";
                 }
                 TextView onlineCount = findViewById(R.id.onlineCount);
                 onlineCount.setText(data);
@@ -151,10 +152,15 @@ public class LobbyActivity extends AppCompatActivity {
                     public void onSuccess(QuerySnapshot documentSnapshots) {
                         List<DocumentSnapshot> x= documentSnapshots.getDocuments();
 
-                        for(int i = 0; i < x.size()-1; i++)
+                        for(int i = 0; i < x.size(); i++)
                         {
                             //remove the element that has a identical email
-                            db.collection("Online").document(x.get(i).getId()).delete();
+//                            if(x.get(i).getId() != u.getDocumentId() )
+//                            {
+                                Log.d("XXX", "Deleted Duplicate: " + x.get(i).getString("email") +
+                                "id: " + x.get(i).getId());
+                                db.collection("Online").document(x.get(i).getId()).delete();
+//                            }
                         }
                     }
                 });
@@ -164,8 +170,8 @@ public class LobbyActivity extends AppCompatActivity {
         onlineUsers.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot documentSnapshots) {
-                String data = "Online Users:\n";
-                removeDups();
+                String data = "Online Users:\n\n";
+
                 Toast.makeText(LobbyActivity.this, "Inside loadOnlineUsers().Sucess", Toast.LENGTH_SHORT).show();
                 List<DocumentSnapshot> x= documentSnapshots.getDocuments();
                 Toast.makeText(LobbyActivity.this, "Online x size" + x.size(), Toast.LENGTH_SHORT).show();
@@ -174,7 +180,9 @@ public class LobbyActivity extends AppCompatActivity {
                     Log.d("XXX", "for loop "+i);
                     OnlineUser j = x.get(i).toObject(OnlineUser.class);
                     j.setDocumentId(x.get(i).getId());
-                    data += j.getname() +"\n";
+                    data += j.getname() +"\n" + j.getEmail() +
+                            "\nStatus Code: " + j.getstatus() +
+                            "\nDocID: " + j.getDocumentId() + "\n\n";
                 }
                 TextView onlineCount = findViewById(R.id.onlineCount);
                 onlineCount.setText(data);
@@ -186,8 +194,6 @@ public class LobbyActivity extends AppCompatActivity {
             }
         });
     }
-
-
 
     // Presenter Methods ---------------------------------------------
 
@@ -299,6 +305,7 @@ public class LobbyActivity extends AppCompatActivity {
 //        progressDialog.setMessage("Loading Profile...");
 //        progressDialog.show();
         Intent x = new Intent(this, EditProfileActivity.class);
+        finish();
         startActivity(x);
     }
 
