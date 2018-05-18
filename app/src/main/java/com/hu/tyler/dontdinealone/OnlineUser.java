@@ -2,6 +2,7 @@ package com.hu.tyler.dontdinealone;
 
 import com.google.firebase.firestore.Exclude;
 
+
 /**
  * Created by tyler on 5/15/2018.
  */
@@ -9,6 +10,7 @@ import com.google.firebase.firestore.Exclude;
 public class OnlineUser {
 
     private String documentId;
+    private String newDoc;
     private String name;
     private String description;
     private String email;
@@ -51,6 +53,14 @@ public class OnlineUser {
         this.documentId = documentId;
     }
 
+    @Exclude
+    public String getNewDoc() {
+        return newDoc;
+    }
+
+    public void setNewDoc(String newDoc) {
+        this.newDoc = newDoc;
+    }
 
 
     //these names have to match the FireBase Parts

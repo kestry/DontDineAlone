@@ -1,11 +1,14 @@
 package com.hu.tyler.dontdinealone;
+/*
+*
+Deleting Duplicates isn't working properly right now because it gets deleted the first time around*/
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -13,7 +16,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -23,25 +25,29 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.hu.tyler.dontdinealone.data.UserMatchInfoRepo;
 import com.hu.tyler.dontdinealone.data.UserProfileRepo;
-import com.hu.tyler.dontdinealone.res.DatabaseKeys;
 import com.hu.tyler.dontdinealone.domain.User;
+import com.hu.tyler.dontdinealone.res.DatabaseKeys;
 import com.hu.tyler.dontdinealone.util.Callback;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class LobbyActivity extends AppCompatActivity {
 
     private User user;
     private UserMatchInfoRepo repo;
     private UserProfileRepo profileRepo; // DELETE
-
+    private int findingMatch = 0; //variable to indicate on going search
+    private int goToMatching = 0; // prevents MatchingActivity from running twice
     ///Tyler Edits: 5/15
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference onlineUsers = db.collection("Online"); // for group items
+    private CollectionReference MatchUsers = db.collection("Matched");
+    private DocumentReference tempUse;
     TextView hiTxt;
-    OnlineUser u;
+    OnlineUser u; // object to hold user info
     ///////////////////
 
     // List items
@@ -56,7 +62,7 @@ public class LobbyActivity extends AppCompatActivity {
 
     Button buttonPreferences;
     Button buttonMatch;
-
+    String transitionID = "0"; //this will hold the document ID for 2 matches
     private ProgressDialog progressDialog;
 
     @Override
@@ -65,10 +71,15 @@ public class LobbyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_lobby);
 
 
+        buttonMatch = findViewById(R.id.buttonMatch); //assigning variable to button
         user = User.getInstance();
         repo = UserMatchInfoRepo.getInstance();
         profileRepo = UserProfileRepo.getInstance();  // DELETE
-        removeDups(); // Remove Duplicates from crashes
+
+        // Remove Duplicates from crashes, this is not fully working bc of the asynchronously runnin
+        // function creating the OnlineUser, it unfortunately deletes it.
+        removeDups();
+
         //Check if user is not logged in
         if (!user.isSignedIn(new SignedInCallback())) {
             //Close this activity
@@ -103,33 +114,51 @@ public class LobbyActivity extends AppCompatActivity {
         super.onPause();
 
 //        Log.d("XXX", "onPaused uID: " + u.getDocumentId().toString());
-        if(u != null)
-        onlineUsers.document(u.getDocumentId().toString()).update("status", 0);
+        if(findingMatch == 0)
+        {if (u != null)
+                onlineUsers.document(u.getDocumentId()).update("status", 0);
+        }
     }
 
     ///////////TYLERS EDITS/////////
     @Override
     protected void onStart() {
         super.onStart();
+        Log.d("XXX", "transitionID @ onStart: " + transitionID);
 
         onlineUsers.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
+
+                Log.d("XXX", "transitionID @ onStart @ addSnapshotListener: " + transitionID);
 
                 if(e!=null){
                     return;
                 }
 
                 String data = "Online Users:\n\n";
-//                Toast.makeText(LobbyActivity.this, "Inside loadOnlineUsers().Sucess", Toast.LENGTH_SHORT).show();
                 List<DocumentSnapshot> x= queryDocumentSnapshots.getDocuments();
-//                Toast.makeText(LobbyActivity.this, "Number of Users: " + x.size(), Toast.LENGTH_SHORT).show();
                 for(int i = 0; i < x.size(); i++)
                 {
                     OnlineUser j = x.get(i).toObject(OnlineUser.class);
                     Log.d("XXX", "for loop users"+i + ": " + j.getname());
                     j.setDocumentId(x.get(i).getId());
-                    data += j.getname() +"\n" + user.getEmail() +
+                    if(u != null && x.get(i).get("chatID") != null)
+                    if(x.get(i).getId().equals(u.getDocumentId()))
+                    {
+                        //User has been match
+                        if(!x.get(i).get("chatID").toString().equals("0"))
+                        {
+                            transitionID = x.get(i).get("chatID").toString();
+                            if(goToMatching == 0)
+                            {
+                                goToMatching = 1;// prevents 2x execution
+                                goToMatchingActivity();
+
+                            }
+                        }
+                    }
+                    data += j.getname() +"\n" + j.getEmail() +
                             "\nStatus Code: " + j.getstatus() +
                             "\nDocID: " + j.getDocumentId() + "\n\n";
                 }
@@ -138,40 +167,136 @@ public class LobbyActivity extends AppCompatActivity {
             }
         });
 
-//        Log.d("XXX", "onStart uID: " + u.getDocumentId().toString());
+        removeDups();
+        if(findingMatch == 1) // user is currently matching
+        {
+            return;
+        }
+
         if(u != null)
-        onlineUsers.document(u.getDocumentId().toString()).update("status", 1);
+        onlineUsers.document(u.getDocumentId()).update("status", 1);
     }
 
 
-    /////////////////////////////
+
+    public void startMatching(View v){
+
+        // checks if user has entered preferences yet since listeners are asynchronous
+        //if (!(hasChosenGroupSizes && hasChosenDiningHalls)) {
+//            setMatchPreferences(v);
+        //}
+        //TODO: begin matching logic
+        if(u != null && findingMatch == 0){
+            onlineUsers.document(u.getDocumentId()).update("status", 2);
+            findingMatch = 1;
+            buttonMatch.setText("Stop Matching");
+            lookingFortheHungry();
+            return;
+        }
+
+        onlineUsers.document(u.getDocumentId()).update("status", 1);
+        findingMatch = 0;
+        buttonMatch.setText("Start Matching");
+    }
+
+
+    protected void lookingFortheHungry(){
+        // Look for other people and we can distinguishe them b/c there status code is 2.
+        onlineUsers.whereEqualTo("status", 2)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot documentSnapshots) {
+                        List<DocumentSnapshot> x= documentSnapshots.getDocuments();
+                        for(int i = 0; i < x.size(); i++)
+                        {
+//                            remove the element that has a identical email
+                            String id = x.get(i).getId();
+                            String uId = u.getDocumentId();
+
+                            if(!id.equalsIgnoreCase(uId))
+                            {
+                                Toast.makeText(LobbyActivity.this, "Match Found!", Toast.LENGTH_SHORT).show();
+                                //TODO: probably should check whether someone already changed your status before proceeding further.
+                                onlineUsers.document(u.getDocumentId()).update("status", 3); //update my status
+                                db.collection("Online").document(x.get(i).getId()).update("status", 3);
+
+                                //Get the user we are matched with
+                                tempUse = db.collection("Online").document(x.get(i).getId());
+                                Log.d("XXX","x.get(i).getId().equals(u.getDocumentId():" + x.get(i).getId().equals(u.getDocumentId()));
+                                Log.d("XXX", "id: "+ x.get(i).getId()+ " Matched Email: " + x.get(i).getString("email"));
+                                final Chat mchat = new Chat(u.getname(),"Ready",2);
+                                 MatchUsers.add(mchat).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                     @Override
+                                     public void onSuccess(DocumentReference documentReference) {
+                                         mchat.setDocumentId(documentReference.getId());
+                                         transitionID = mchat.getDocumentId();
+                                         Log.d("XXX", "TransitionID @ lookingFortheHungry" + transitionID);
+                                         tempUse.update("chatID",transitionID); //update the chatID of the matched person
+                                         u.setNewDoc(transitionID);
+                                         onlineUsers.document(u.getDocumentId()).update("chatID", transitionID);
+                                         findingMatch = 0;
+                                         goToMatching = 1;
+                                         goToMatchingActivity();
+                                     }
+                                 });
+                            }
+                        }
+                    }
+                });
+    }
+
+    public void goToMatchingActivity(){
+        Intent myIntent = new Intent(this, MatchingActivty.class);
+        finish();
+        myIntent.putExtra("key", transitionID); //Optional parameters
+        myIntent.putExtra("name", u.getname()); //Optional parameters
+
+        this.startActivity(myIntent);
+
+    }
+    /////////////////////////////End of Tylers Edit
     @Override
     public void onDestroy() {
         super.onDestroy();
         user = null;
         repo = null;
+        if(u == null)
+            return;
         DocumentReference ref =  onlineUsers.document(u.getDocumentId());
         ref.delete();
+
     }
 
 
-    //Removes duplicate accounts log in with the same email...
+    //Removes duplicate accounts log in with the same email, this is currently a bad way to do it
     private void removeDups(){
+        if(user == null)
+            return;
+
+        if(u == null)
+            return;
          onlineUsers.whereEqualTo("email", user.getEmail()).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot documentSnapshots) {
                         List<DocumentSnapshot> x= documentSnapshots.getDocuments();
 
+
                         for(int i = 0; i < x.size(); i++)
                         {
-                            //remove the element that has a identical email
-//                            if(x.get(i).getId() != u.getDocumentId() )
-//                            {
-                                Log.d("XXX", "Deleted Duplicate: " + x.get(i).getString("email") +
-                                "id: " + x.get(i).getId());
+//                            remove the element that has a identical email
+                            String id = x.get(i).getId();
+                            String uId = u.getDocumentId();
+                            Log.d("XXX","duplicate found DocID:" + x.get(i).getId().equals(u.getDocumentId()));
+
+                            if(!id.equalsIgnoreCase(uId))
+                            {
+                                Log.d("XXX","x.get(i).getId().equals(u.getDocumentId():" + x.get(i).getId().equals(u.getDocumentId()));
+                                Log.d("XXX", "id: "+ x.get(i).getId()+ " Deleted Duplicate: " + x.get(i).getString("email") +
+                                " id: " + x.get(i).getId());
                                 db.collection("Online").document(x.get(i).getId()).delete();
-//                            }
+                            }
                         }
                     }
                 });
@@ -185,7 +310,7 @@ public class LobbyActivity extends AppCompatActivity {
 
                 Toast.makeText(LobbyActivity.this, "Inside loadOnlineUsers().Sucess", Toast.LENGTH_SHORT).show();
                 List<DocumentSnapshot> x= documentSnapshots.getDocuments();
-                Toast.makeText(LobbyActivity.this, "Online x size" + x.size(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(LobbyActivity.this, "# of people online" + x.size(), Toast.LENGTH_SHORT).show();
                 for(int i = 0; i < x.size(); i++)
                 {
                     Log.d("XXX", "for loop "+i);
@@ -200,8 +325,6 @@ public class LobbyActivity extends AppCompatActivity {
 //                for(QueryDocumentSnapshot documentSnapshot: x){
 //                    OnlineUser x = documentSnapshot.toObject(OnlineUser.class);
 //                }
-
-
             }
         });
     }
@@ -236,7 +359,7 @@ public class LobbyActivity extends AppCompatActivity {
                     hasChosenGroupSizes |= isPreferredGroupSizes[j];
                 }
                 // We only progress if the user chose at least one group
-                if (hasChosenGroupSizes == true) {
+                if (hasChosenGroupSizes) {
                     // We choose dining halls next.
                     checkBoxDiningHallPreferences();
                 } else {
@@ -276,7 +399,7 @@ public class LobbyActivity extends AppCompatActivity {
                     hasChosenDiningHalls |= isPreferredDiningHalls[j];
                 }
                 // We only store preferences if we've also chosen at least one dining hall
-                if (hasChosenDiningHalls == true) {
+                if (hasChosenDiningHalls) {
                     storeMatchPreferences();
                 } else {
                     Toast.makeText(LobbyActivity.this, "Please make a selection", Toast.LENGTH_SHORT).show();
@@ -298,16 +421,7 @@ public class LobbyActivity extends AppCompatActivity {
         repo.store(new StoreCallback());
     }
 
-    public void startMatching(View v){
 
-
-        // checks if user has entered preferences yet since listeners are asynchronous
-        //if (!(hasChosenGroupSizes && hasChosenDiningHalls)) {
-//            setMatchPreferences(v);
-        //}
-        //TODO: begin matching logic
-
-    }
 
     // Navigation Methods --------------------------------------------
 
@@ -360,14 +474,16 @@ public class LobbyActivity extends AppCompatActivity {
 
 
             ////////////Tyler's Edits
-            Toast.makeText(LobbyActivity.this, "Test2: Hello " + profileRepo.get(DatabaseKeys.Profile.DISPLAY_NAME), Toast.LENGTH_SHORT).show();  // DELETE
+//            Toast.makeText(LobbyActivity.this, "Test2: Hello " + profileRepo.get(DatabaseKeys.Profile.DISPLAY_NAME), Toast.LENGTH_SHORT).show();  // DELETE
 
 
             hiTxt = findViewById(R.id.textViewTitle);
-            hiTxt.setText("Welcome " + profileRepo.get(DatabaseKeys.Profile.DISPLAY_NAME));
-            SimpleDateFormat s = new SimpleDateFormat("ddMMyyyyhhmmss");
+            String g = "Welcome " + profileRepo.get(DatabaseKeys.Profile.DISPLAY_NAME);
+            hiTxt.setText(g);
+            SimpleDateFormat s = new SimpleDateFormat("ddMMyyyyhhmmss", Locale.US);
             String date = s.format(new Date());
-
+            if(user == null)
+                return;
             //Lets get online users
             u = new OnlineUser(user.getEmail(),(String) profileRepo.get(DatabaseKeys.Profile.DISPLAY_NAME),
                     (String) profileRepo.get( DatabaseKeys.Profile.ANIMAL),1 , date);
