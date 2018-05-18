@@ -14,7 +14,6 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.hu.tyler.dontdinealone.data.UserProfileRepo;
 
 import java.util.List;
 
@@ -25,7 +24,6 @@ public class MatchingActivty extends AppCompatActivity {
     private CollectionReference MatchUsers = db.collection("Matched"); // User to extend to chatty Collection where users can chat with one an other
     private CollectionReference DeleteMe = db.collection("Matched"); // reference for deleting onDestroy
 
-    private UserProfileRepo profileRepo;
     Chat text;
     String docID,displayName; //Just strings for
     TextView key;

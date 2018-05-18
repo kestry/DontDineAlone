@@ -23,8 +23,9 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.hu.tyler.dontdinealone.data.UserMatchInfoRepo;
-import com.hu.tyler.dontdinealone.data.UserProfileRepo;
+import com.hu.tyler.dontdinealone.data.Repo;
+import com.hu.tyler.dontdinealone.data.RepoContainer;
+import com.hu.tyler.dontdinealone.domain.Documents;
 import com.hu.tyler.dontdinealone.domain.User;
 import com.hu.tyler.dontdinealone.res.DatabaseKeys;
 import com.hu.tyler.dontdinealone.util.Callback;
@@ -36,9 +37,10 @@ import java.util.Locale;
 
 public class LobbyActivity extends AppCompatActivity {
 
+    private Documents documents;
     private User user;
-    private UserMatchInfoRepo repo;
-    private UserProfileRepo profileRepo; // DELETE
+    private Repo preferenceRepo;
+    private Repo profileRepo; // DELETE
     private int findingMatch = 0; //variable to indicate on going search
     private int goToMatching = 0; // prevents MatchingActivity from running twice
     ///Tyler Edits: 5/15
@@ -73,8 +75,8 @@ public class LobbyActivity extends AppCompatActivity {
 
         buttonMatch = findViewById(R.id.buttonMatch); //assigning variable to button
         user = User.getInstance();
-        repo = UserMatchInfoRepo.getInstance();
-        profileRepo = UserProfileRepo.getInstance();  // DELETE
+        preferenceRepo = RepoContainer.preferenceRepo;
+        profileRepo = RepoContainer.profileRepo;  // DELETE
 
         // Remove Duplicates from crashes, this is not fully working bc of the asynchronously runnin
         // function creating the OnlineUser, it unfortunately deletes it.
@@ -259,11 +261,11 @@ public class LobbyActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        documents = null;
         user = null;
-        repo = null;
         if(u == null)
             return;
-        DocumentReference ref =  onlineUsers.document(u.getDocumentId());
+        DocumentReference ref = onlineUsers.document(u.getDocumentId());
         ref.delete();
 
     }
@@ -355,7 +357,7 @@ public class LobbyActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialogInterface, int i) {
                 hasChosenGroupSizes = false;
                 for (int j = 0; j < isPreferredGroupSizes.length; j++) {
-                    repo.set(DatabaseKeys.Preference.GROUP_SIZES[j], isPreferredGroupSizes[j]);
+                    preferenceRepo.set(DatabaseKeys.Preference.GROUP_SIZES[j], isPreferredGroupSizes[j]);
                     hasChosenGroupSizes |= isPreferredGroupSizes[j];
                 }
                 // We only progress if the user chose at least one group
@@ -395,7 +397,7 @@ public class LobbyActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialogInterface, int which) {
                 hasChosenDiningHalls = false;
                 for (int j = 0; j < isPreferredDiningHalls.length; j++) {
-                    repo.set(DatabaseKeys.Preference.DINING_HALLS[j], isPreferredDiningHalls[j]);
+                    preferenceRepo.set(DatabaseKeys.Preference.DINING_HALLS[j], isPreferredDiningHalls[j]);
                     hasChosenDiningHalls |= isPreferredDiningHalls[j];
                 }
                 // We only store preferences if we've also chosen at least one dining hall
@@ -418,7 +420,7 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
     public void storeMatchPreferences() {
-        repo.store(new StoreCallback());
+        preferenceRepo.store(documents.getPreferenceDocRef(), new StoreCallback());
     }
 
 

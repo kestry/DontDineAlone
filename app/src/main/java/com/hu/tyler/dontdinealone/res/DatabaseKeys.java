@@ -1,17 +1,17 @@
 package com.hu.tyler.dontdinealone.res;
 
 public interface DatabaseKeys {
-    public static String TIMESTAMP = "timestamp";
+    String TIMESTAMP = "timestamp";
 
-    public interface Profile {
-        public static String DISPLAY_NAME = "display_name";
-        public static String GENDER = "gender";
-        public static String ANIMAL = "animal";
+    interface Profile {
+        String DISPLAY_NAME = "display_name";
+        String GENDER = "gender";
+        String ANIMAL = "animal";
     }
 
-    public interface Preference {
-        public static String[] GROUP_SIZES = {"2", "3", "4"};
-        public static String[] DINING_HALLS = { "NineTen", "CowellStevenson",
+    interface Preference {
+        String[] GROUP_SIZES = {"2", "3", "4"};
+        String[] DINING_HALLS = { "NineTen", "CowellStevenson",
                 "CrownMerill", "PorterKresge", "RachelCarsonOaks"};
     }
 }

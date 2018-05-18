@@ -1,14 +1,13 @@
 package com.hu.tyler.dontdinealone.domain;
 
 import android.support.annotation.NonNull;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.hu.tyler.dontdinealone.data.UserProfileRepo;
+import com.hu.tyler.dontdinealone.data.RepoContainer;
 import com.hu.tyler.dontdinealone.util.Callback;
 import com.hu.tyler.dontdinealone.util.NullCallback;
 
@@ -23,11 +22,11 @@ import com.hu.tyler.dontdinealone.util.NullCallback;
 
 public class User implements UserInterface {
 
-    public UserProfileRepo repo;
+    private Documents documents;
 
     // Firebase authentication related members
-    private static FirebaseAuth mFAuth;
-    private static FirebaseUser mFUser;
+    private FirebaseAuth mFAuth;
+    private FirebaseUser mFUser;
 
     private NullCallback nullCallback = NullCallback.getInstance();
 
@@ -45,8 +44,9 @@ public class User implements UserInterface {
 
     // Private constructor. Called once by the UserModelHolder
     private User() {
-        repo = UserProfileRepo.getInstance();
+        documents = Documents.getInstance();
         mFAuth = FirebaseAuth.getInstance();
+        nullCallback = NullCallback.getInstance();
 
         // Init user info
         setFUser(nullCallback);
@@ -55,10 +55,10 @@ public class User implements UserInterface {
     private void setFUser(Callback callback) {
         mFUser = mFAuth.getCurrentUser();
         if (mFUser == null) {
-            repo.setToDefault();
             callback.onFailure(null);
         } else {
-            repo.load(callback);
+            documents.setUid(mFUser.getUid());
+            RepoContainer.profileRepo.load(documents.getProfileDocRef(), callback);
         }
     }
 
@@ -105,7 +105,7 @@ public class User implements UserInterface {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
                     setFUser(nullCallback);
-                    repo.load(NullCallback.getInstance());
+                    RepoContainer.profileRepo.load(documents.getProfileDocRef(), NullCallback.getInstance());
                     callback.onSuccess();
                 } else {
                     callback.onFailure(task.getException());

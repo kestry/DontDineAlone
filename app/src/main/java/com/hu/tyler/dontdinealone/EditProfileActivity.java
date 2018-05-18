@@ -11,7 +11,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.hu.tyler.dontdinealone.data.UserProfileRepo;
+import com.hu.tyler.dontdinealone.data.Repo;
+import com.hu.tyler.dontdinealone.domain.Documents;
+import com.hu.tyler.dontdinealone.data.RepoContainer;
 import com.hu.tyler.dontdinealone.domain.User;
 import com.hu.tyler.dontdinealone.res.DatabaseKeys;
 import com.hu.tyler.dontdinealone.util.Callback;
@@ -19,8 +21,9 @@ import com.hu.tyler.dontdinealone.util.NullCallback;
 
 public class EditProfileActivity extends AppCompatActivity {
 
+    private Documents documents;
     private User user;
-    private UserProfileRepo repo;
+    private Repo repo;
 
     EditText editTextDisplayName;
     EditText editTextGender;
@@ -36,8 +39,9 @@ public class EditProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
 
+        documents = Documents.getInstance();
         user = User.getInstance();
-        repo = UserProfileRepo.getInstance();
+        repo = RepoContainer.profileRepo;
 
         progressDialog = new ProgressDialog(this);
 
@@ -105,7 +109,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
         progressDialog.setMessage("Saving Profile...");
         progressDialog.show();
-        repo.store(new StoreCallback());
+        repo.store(documents.getProfileDocRef(), new StoreCallback());
     }
 
     public void loadProfile() {
