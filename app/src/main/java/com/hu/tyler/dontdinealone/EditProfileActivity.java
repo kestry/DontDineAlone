@@ -39,6 +39,10 @@ public class EditProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
 
+        editTextDisplayName = findViewById(R.id.editTextDisplayName);
+        editTextGender = findViewById(R.id.editTextGender);
+        editTextAnimal = findViewById(R.id.editTextAnimal);
+
         documents = Documents.getInstance();
         user = User.getInstance();
         repo = RepoContainer.profileRepo;
@@ -46,18 +50,14 @@ public class EditProfileActivity extends AppCompatActivity {
         progressDialog = new ProgressDialog(this);
 
         //Check if user is not logged in
-        if (!user.isSignedIn(NullCallback.getInstance())) {
+        progressDialog.setMessage("Checking Sign-in...");
+        progressDialog.show();
+        if (!user.isSignedIn(new SignedInCallback())) {
             //Closing this activity
             finish();
             //Starting Main activity
             startActivity(new Intent(this, MainActivity.class));
         }
-
-        editTextDisplayName = findViewById(R.id.editTextDisplayName);
-        editTextGender = findViewById(R.id.editTextGender);
-        editTextAnimal = findViewById(R.id.editTextAnimal);
-
-        loadProfile(); //Load Data from server
 
         //Didn't figure out how to dynamically set buttons, so the below is temporary
         avaBtn[0] = findViewById(R.id.ava1);
@@ -152,6 +152,24 @@ public class EditProfileActivity extends AppCompatActivity {
             Log.w("XXX", "Save error: ", e);
             Toast.makeText(EditProfileActivity.this, "Profile save failed", Toast.LENGTH_SHORT).show();
             Toast.makeText(EditProfileActivity.this, "Profile Save Error: " + e, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    final class SignedInCallback implements Callback {
+
+        @Override
+        public void onSuccess() {
+            progressDialog.dismiss();
+
+            Toast.makeText(EditProfileActivity.this, "Profile loaded successfully", Toast.LENGTH_SHORT).show();
+            loadProfile();
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+            progressDialog.dismiss();
+            Toast.makeText(EditProfileActivity.this, "Not Signed In", Toast.LENGTH_SHORT).show();
+
         }
     }
 }

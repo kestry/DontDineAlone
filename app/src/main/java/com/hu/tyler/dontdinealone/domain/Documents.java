@@ -32,6 +32,6 @@ public class Documents {
     }
 
     public DocumentReference getPreferenceDocRef() {
-        return mDb.collection(mUid).document(DatabaseDocNames.PROFILE);
+        return mDb.collection("Matching").document("Users").collection(mUid).document(DatabaseDocNames.PREFERENCE);
     }
 }

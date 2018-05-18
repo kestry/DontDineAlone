@@ -74,6 +74,8 @@ public class LobbyActivity extends AppCompatActivity {
 
 
         buttonMatch = findViewById(R.id.buttonMatch); //assigning variable to button
+
+        documents = Documents.getInstance();
         user = User.getInstance();
         preferenceRepo = RepoContainer.preferenceRepo;
         profileRepo = RepoContainer.profileRepo;  // DELETE
@@ -179,7 +181,14 @@ public class LobbyActivity extends AppCompatActivity {
         onlineUsers.document(u.getDocumentId()).update("status", 1);
     }
 
+    public void startMatching2(View v){
 
+        // checks if user has entered preferences yet since listeners are asynchronous
+        if (!(hasChosenGroupSizes && hasChosenDiningHalls)) {
+            setMatchPreferences(v);
+        }
+
+    }
 
     public void startMatching(View v){
 

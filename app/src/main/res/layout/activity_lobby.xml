@@ -87,20 +87,18 @@
             android:textColor="#000"
             android:textSize="15dp" />
     </ScrollView>
-    <!--
+
     <Button
-        android:id="@+id/buttonPreferences"
+        android:id="@+id/buttonMatch2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="43dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="18dp"
         android:background="#FF9900"
         android:fontFamily="casual"
-        android:text="Preferences"
-        android:onClick="setMatchPreferences"
-        app:layout_constraintBottom_toTopOf="@+id/buttonPreferences"
-        app:layout_constraintEnd_toEndOf="parent" />
-    -->
+        android:onClick="startMatching2"
+        android:text="Start Matching 2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonMatch" />
 
 </android.support.constraint.ConstraintLayout>

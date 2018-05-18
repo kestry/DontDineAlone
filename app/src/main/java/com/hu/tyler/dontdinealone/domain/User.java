@@ -104,9 +104,8 @@ public class User implements UserInterface {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    setFUser(nullCallback);
-                    RepoContainer.profileRepo.load(documents.getProfileDocRef(), NullCallback.getInstance());
-                    callback.onSuccess();
+                    setFUser(callback);
+                    //RepoContainer.profileRepo.load(documents.getProfileDocRef(), callback);
                 } else {
                     callback.onFailure(task.getException());
                 }
