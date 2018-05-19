@@ -39,7 +39,7 @@ public class MatchingActivty extends AppCompatActivity {
 //    DocumentReference chatRef;
     int textCounter = 0;
     TextView key;
-    EditText TarunSucks;
+    EditText messageBoard;
     Boolean addtoCounter = true;
     TextView messages;
     Button leaveButton; //button to go back to Lobby Activity
@@ -73,7 +73,7 @@ public class MatchingActivty extends AppCompatActivity {
 //            }
 //        });
 
-        TarunSucks = findViewById(R.id.matchingActivityEditText);
+        messageBoard = findViewById(R.id.matchingActivityEditText);
         leaveButton = findViewById(R.id.matching_leave);
         leaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,14 +86,14 @@ public class MatchingActivty extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                String text = TarunSucks.getText().toString();
+                String text = messageBoard.getText().toString();
                 textCounter++;
                 SimpleDateFormat s = new SimpleDateFormat("ddMMyyyyhhmmss", Locale.US);
                 String date = s.format(new Date());
                 x = new Chat(displayName, text, textCounter, date);
                 addtoCounter = false;
                 MatchUsers.add(x);
-                TarunSucks.setText("");
+                messageBoard.setText("");
             }
         });
     }

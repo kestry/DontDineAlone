@@ -6,6 +6,7 @@ Deleting Duplicates isn't working properly right now because it gets deleted the
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -116,8 +117,6 @@ public class LobbyActivity extends AppCompatActivity {
     @Override
     protected void onPause(){
         super.onPause();
-
-//        Log.d("XXX", "onPaused uID: " + u.getDocumentId().toString());
         if(findingMatch == 0)
         {if (u != null)
                 onlineUsers.document(u.getDocumentId()).update("status", 0);
@@ -189,21 +188,22 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
     public void startMatching(View v){
-
         if(u == null)
             return; //
         //TODO: begin matching logic
         if(u != null && findingMatch == 0){
             onlineUsers.document(u.getDocumentId()).update("status", 2);
             findingMatch = 1;
+            buttonMatch.setBackgroundColor(Color.parseColor("#FF4081"));
             buttonMatch.setText("Stop Matching");
             lookingFortheHungry();
             return;
         }
-
         onlineUsers.document(u.getDocumentId()).update("status", 1);
         findingMatch = 0;
         buttonMatch.setText("Start Matching");
+        buttonMatch.setBackgroundColor(Color.parseColor("#FF9900"));
+
     }
 
 
@@ -224,7 +224,15 @@ public class LobbyActivity extends AppCompatActivity {
                             if(!id.equalsIgnoreCase(uId))
                             {
                                 Toast.makeText(LobbyActivity.this, "Match Found!", Toast.LENGTH_SHORT).show();
-                                //TODO: probably should check whether someone already changed your status before proceeding further.
+                                //TODO: probably should check whether someone already changed your status before proceeding further.]
+                                //PRECAUTION SLOWDOWNS
+                                if(transitionID != "0" )
+                                    return;
+                                if(u.getstatus() == 3)
+                                    return;
+                                ////////////END OF EXTRA PRECAUTIONS
+
+
                                 onlineUsers.document(u.getDocumentId()).update("status", 3); //update my status
                                 db.collection("Online").document(x.get(i).getId()).update("status", 3);
 

@@ -59,6 +59,7 @@
         android:layout_marginTop="18dp"
         android:background="#FF9900"
         android:fontFamily="casual"
+        android:padding="5dp"
         android:onClick="startMatching"
         android:text="Start Matching"
         app:layout_constraintStart_toStartOf="parent"
@@ -95,6 +96,8 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="18dp"
         android:background="#FF9900"
+        android:padding="5dp"
+
         android:fontFamily="casual"
         android:onClick="startMatching2"
         android:text="Start Matching 2"
