@@ -147,7 +147,7 @@ public class LobbyActivity extends AppCompatActivity {
                     OnlineUser j = x.get(i).toObject(OnlineUser.class);
                     Log.d("XXX", "for loop users"+i + ": " + j.getname());
                     j.setDocumentId(x.get(i).getId());
-                    if(u != null && x.get(i).get("chatID") != null)
+                    if(u != null && x.get(i).get("chatID") != null) // Check object validity before procedding matching
                     if(x.get(i).getId().equals(u.getDocumentId()))
                     {
                         //User has been match
@@ -182,20 +182,16 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
     public void startMatching2(View v){
-
         // checks if user has entered preferences yet since listeners are asynchronous
         if (!(hasChosenGroupSizes && hasChosenDiningHalls)) {
             setMatchPreferences(v);
         }
-
     }
 
     public void startMatching(View v){
 
-        // checks if user has entered preferences yet since listeners are asynchronous
-        //if (!(hasChosenGroupSizes && hasChosenDiningHalls)) {
-//            setMatchPreferences(v);
-        //}
+        if(u == null)
+            return; //
         //TODO: begin matching logic
         if(u != null && findingMatch == 0){
             onlineUsers.document(u.getDocumentId()).update("status", 2);
@@ -236,7 +232,10 @@ public class LobbyActivity extends AppCompatActivity {
                                 tempUse = db.collection("Online").document(x.get(i).getId());
                                 Log.d("XXX","x.get(i).getId().equals(u.getDocumentId():" + x.get(i).getId().equals(u.getDocumentId()));
                                 Log.d("XXX", "id: "+ x.get(i).getId()+ " Matched Email: " + x.get(i).getString("email"));
-                                final Chat mchat = new Chat(u.getname(),"Ready",2);
+
+                                SimpleDateFormat s = new SimpleDateFormat("ddMMyyyyhhmmss", Locale.US);
+                                String date = s.format(new Date());
+                                final Chat mchat = new Chat(u.getname(),"Ready",2,date);
                                  MatchUsers.add(mchat).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                      @Override
                                      public void onSuccess(DocumentReference documentReference) {
