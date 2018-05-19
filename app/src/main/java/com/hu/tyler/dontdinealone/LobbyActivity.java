@@ -25,12 +25,14 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.hu.tyler.dontdinealone.data.Repo;
 import com.hu.tyler.dontdinealone.data.RepoContainer;
 import com.hu.tyler.dontdinealone.domain.Documents;
+import com.hu.tyler.dontdinealone.domain.Queue;
 import com.hu.tyler.dontdinealone.domain.User;
 import com.hu.tyler.dontdinealone.res.DatabaseKeys;
 import com.hu.tyler.dontdinealone.res.DatabaseStatuses;
@@ -198,6 +200,8 @@ public class LobbyActivity extends AppCompatActivity {
         //TODO: begin matching logic
         if(u != null && findingMatch == 0){
             onlineUsers.document(u.getDocumentId()).update("status", DatabaseStatuses.OnlineUser.queued);
+            onlineUsers.document(u.getDocumentId()).update("queueTimestamp", FieldValue.serverTimestamp());
+            Queue.queue(u, documents.getQueueCollRef());
             findingMatch = 1;
             buttonMatch.setBackgroundColor(Color.parseColor("#FF4081"));
             buttonMatch.setText("Stop Matching");

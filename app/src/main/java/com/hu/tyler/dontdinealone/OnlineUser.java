@@ -1,7 +1,10 @@
 package com.hu.tyler.dontdinealone;
 
 import com.google.firebase.firestore.Exclude;
+import com.google.firebase.firestore.FieldValue;
 import com.hu.tyler.dontdinealone.res.DatabaseStatuses;
+
+import java.util.Date;
 
 
 /**
@@ -16,6 +19,8 @@ public class OnlineUser {
     private String description;
     private String email;
     private String status = DatabaseStatuses.OnlineUser.online;
+    private Date timestamp;
+    private Date queueTimestamp;
     private String time = "0";
     public OnlineUser(){
         //public no-arg constructor needed
@@ -76,7 +81,15 @@ public class OnlineUser {
         return status;
     }
 
-    public void setstatus(String status) {
+    public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public Date getQueueTimestamp() {
+        return queueTimestamp;
     }
 }

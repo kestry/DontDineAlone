@@ -1,5 +1,6 @@
 package com.hu.tyler.dontdinealone.domain;
 
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.hu.tyler.dontdinealone.res.DatabaseDocNames;
@@ -37,5 +38,9 @@ public class Documents {
 
     public DocumentReference getOnlineUserDocRef() {
         return mDb.collection("Online").document(mUid);
+    }
+
+    public CollectionReference getQueueCollRef() {
+        return mDb.collection("Queue");
     }
 }
