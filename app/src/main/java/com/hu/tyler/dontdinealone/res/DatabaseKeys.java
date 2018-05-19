@@ -14,4 +14,8 @@ public interface DatabaseKeys {
         String[] DINING_HALLS = { "NineTen", "CowellStevenson",
                 "CrownMerill", "PorterKresge", "RachelCarsonOaks"};
     }
+
+    interface OnlineUser {
+        String status = "status";
+    }
 }

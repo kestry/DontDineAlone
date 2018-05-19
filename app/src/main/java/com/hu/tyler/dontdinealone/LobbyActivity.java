@@ -3,6 +3,10 @@ package com.hu.tyler.dontdinealone;
 *
 Deleting Duplicates isn't working properly right now because it gets deleted the first time around*/
 
+/* Jean -
+ * Duplicates should be fixed now with the unique Firebase UID being used for online users
+ * but people will still show up as online on forced quits.
+ */
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -29,6 +33,7 @@ import com.hu.tyler.dontdinealone.data.RepoContainer;
 import com.hu.tyler.dontdinealone.domain.Documents;
 import com.hu.tyler.dontdinealone.domain.User;
 import com.hu.tyler.dontdinealone.res.DatabaseKeys;
+import com.hu.tyler.dontdinealone.res.DatabaseStatuses;
 import com.hu.tyler.dontdinealone.util.Callback;
 
 import java.text.SimpleDateFormat;
@@ -63,7 +68,6 @@ public class LobbyActivity extends AppCompatActivity {
     private boolean hasChosenGroupSizes;
     private boolean hasChosenDiningHalls;
 
-    Button buttonPreferences;
     Button buttonMatch;
     String transitionID = "0"; //this will hold the document ID for 2 matches
     private ProgressDialog progressDialog;
@@ -83,7 +87,7 @@ public class LobbyActivity extends AppCompatActivity {
 
         // Remove Duplicates from crashes, this is not fully working bc of the asynchronously runnin
         // function creating the OnlineUser, it unfortunately deletes it.
-        removeDups();
+        // removeDups();
 
         //Check if user is not logged in
         if (!user.isSignedIn(new SignedInCallback())) {
@@ -92,7 +96,6 @@ public class LobbyActivity extends AppCompatActivity {
             //Start Main activity
             startActivity(new Intent(this, MainActivity.class));
         }
-
 
 //        Toast.makeText(LobbyActivity.this, "Test1: Hello " + profileRepo.get(DatabaseKeys.Profile.DISPLAY_NAME), Toast.LENGTH_SHORT).show();  // DELETE
 
@@ -119,7 +122,7 @@ public class LobbyActivity extends AppCompatActivity {
         super.onPause();
         if(findingMatch == 0)
         {if (u != null)
-                onlineUsers.document(u.getDocumentId()).update("status", 0);
+                onlineUsers.document(u.getDocumentId()).update("status", DatabaseStatuses.OnlineUser.offline);
         }
     }
 
@@ -140,11 +143,11 @@ public class LobbyActivity extends AppCompatActivity {
                 }
 
                 String data = "Online Users:\n\n";
-                List<DocumentSnapshot> x= queryDocumentSnapshots.getDocuments();
+                List<DocumentSnapshot> x = queryDocumentSnapshots.getDocuments();
                 for(int i = 0; i < x.size(); i++)
                 {
                     OnlineUser j = x.get(i).toObject(OnlineUser.class);
-                    Log.d("XXX", "for loop users"+i + ": " + j.getname());
+                    Log.d("XXX", "for loop users"+i + ": " + j.getName());
                     j.setDocumentId(x.get(i).getId());
                     if(u != null && x.get(i).get("chatID") != null) // Check object validity before procedding matching
                     if(x.get(i).getId().equals(u.getDocumentId()))
@@ -161,8 +164,8 @@ public class LobbyActivity extends AppCompatActivity {
                             }
                         }
                     }
-                    data += j.getname() +"\n" + j.getEmail() +
-                            "\nStatus Code: " + j.getstatus() +
+                    data += j.getName() +"\n" + j.getEmail() +
+                            "\nStatus Code: " + j.getStatus() +
                             "\nDocID: " + j.getDocumentId() + "\n\n";
                 }
                 TextView onlineCount = findViewById(R.id.onlineCount);
@@ -170,14 +173,16 @@ public class LobbyActivity extends AppCompatActivity {
             }
         });
 
+        /*
         removeDups();
         if(findingMatch == 1) // user is currently matching
         {
             return;
         }
+        */
 
         if(u != null)
-        onlineUsers.document(u.getDocumentId()).update("status", 1);
+        onlineUsers.document(u.getDocumentId()).update("status", DatabaseStatuses.OnlineUser.online);
     }
 
     public void startMatching2(View v){
@@ -192,14 +197,14 @@ public class LobbyActivity extends AppCompatActivity {
             return; //
         //TODO: begin matching logic
         if(u != null && findingMatch == 0){
-            onlineUsers.document(u.getDocumentId()).update("status", 2);
+            onlineUsers.document(u.getDocumentId()).update("status", DatabaseStatuses.OnlineUser.queued);
             findingMatch = 1;
             buttonMatch.setBackgroundColor(Color.parseColor("#FF4081"));
             buttonMatch.setText("Stop Matching");
             lookingFortheHungry();
             return;
         }
-        onlineUsers.document(u.getDocumentId()).update("status", 1);
+        onlineUsers.document(u.getDocumentId()).update("status", DatabaseStatuses.OnlineUser.online);
         findingMatch = 0;
         buttonMatch.setText("Start Matching");
         buttonMatch.setBackgroundColor(Color.parseColor("#FF9900"));
@@ -208,8 +213,8 @@ public class LobbyActivity extends AppCompatActivity {
 
 
     protected void lookingFortheHungry(){
-        // Look for other people and we can distinguishe them b/c there status code is 2.
-        onlineUsers.whereEqualTo("status", 2)
+        // Look for other people and we can distinguishe them b/c there status code is "waiting".
+        onlineUsers.whereEqualTo("status", DatabaseStatuses.OnlineUser.queued)
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
@@ -228,13 +233,13 @@ public class LobbyActivity extends AppCompatActivity {
                                 //PRECAUTION SLOWDOWNS
                                 if(transitionID != "0" )
                                     return;
-                                if(u.getstatus() == 3)
+                                if(u.getStatus() == DatabaseStatuses.OnlineUser.matched)
                                     return;
                                 ////////////END OF EXTRA PRECAUTIONS
 
 
-                                onlineUsers.document(u.getDocumentId()).update("status", 3); //update my status
-                                db.collection("Online").document(x.get(i).getId()).update("status", 3);
+                                onlineUsers.document(u.getDocumentId()).update("status", DatabaseStatuses.OnlineUser.matched); //update my status
+                                db.collection("Online").document(x.get(i).getId()).update("status", DatabaseStatuses.OnlineUser.matched);
 
                                 //Get the user we are matched with
                                 tempUse = db.collection("Online").document(x.get(i).getId());
@@ -243,7 +248,7 @@ public class LobbyActivity extends AppCompatActivity {
 
                                 SimpleDateFormat s = new SimpleDateFormat("ddMMyyyyhhmmss", Locale.US);
                                 String date = s.format(new Date());
-                                final Chat mchat = new Chat(u.getname(),"Ready",2,date);
+                                final Chat mchat = new Chat(u.getName(),"Ready",2,date);
                                  MatchUsers.add(mchat).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                      @Override
                                      public void onSuccess(DocumentReference documentReference) {
@@ -268,7 +273,7 @@ public class LobbyActivity extends AppCompatActivity {
         Intent myIntent = new Intent(this, MatchingActivty.class);
         finish();
         myIntent.putExtra("key", transitionID); //Optional parameters
-        myIntent.putExtra("name", u.getname()); //Optional parameters
+        myIntent.putExtra("name", u.getName()); //Optional parameters
 
         this.startActivity(myIntent);
 
@@ -283,10 +288,9 @@ public class LobbyActivity extends AppCompatActivity {
             return;
         DocumentReference ref = onlineUsers.document(u.getDocumentId());
         ref.delete();
-
     }
 
-
+    /*
     //Removes duplicate accounts log in with the same email, this is currently a bad way to do it
     private void removeDups(){
         if(user == null)
@@ -319,6 +323,7 @@ public class LobbyActivity extends AppCompatActivity {
                     }
                 });
     }
+    */
 
     public void loadOnlineUsers(){
         onlineUsers.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -334,8 +339,8 @@ public class LobbyActivity extends AppCompatActivity {
                     Log.d("XXX", "for loop "+i);
                     OnlineUser j = x.get(i).toObject(OnlineUser.class);
                     j.setDocumentId(x.get(i).getId());
-                    data += j.getname() +"\n" + j.getEmail() +
-                            "\nStatus Code: " + j.getstatus() +
+                    data += j.getName() +"\n" + j.getEmail() +
+                            "\nStatus Code: " + j.getStatus() +
                             "\nDocID: " + j.getDocumentId() + "\n\n";
                 }
                 TextView onlineCount = findViewById(R.id.onlineCount);
@@ -504,11 +509,11 @@ public class LobbyActivity extends AppCompatActivity {
                 return;
             //Lets get online users
             u = new OnlineUser(user.getEmail(),(String) profileRepo.get(DatabaseKeys.Profile.DISPLAY_NAME),
-                    (String) profileRepo.get( DatabaseKeys.Profile.ANIMAL),1 , date);
-            onlineUsers.add(u).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    (String) profileRepo.get( DatabaseKeys.Profile.ANIMAL),"online", date);
+            onlineUsers.document(user.getUid()).set(u).addOnSuccessListener(new OnSuccessListener<Void>()  {
                 @Override
-                public void onSuccess(DocumentReference documentReference) {
-                    u.setDocumentId(documentReference.getId());
+                public void onSuccess(Void aVoid) {
+                    u.setDocumentId(user.getUid());
                     Log.d("XXX", "DocID for this instance: " + u.getDocumentId());
                     loadOnlineUsers();
                 }

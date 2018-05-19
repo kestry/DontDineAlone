@@ -34,4 +34,8 @@ public class Documents {
     public DocumentReference getPreferenceDocRef() {
         return mDb.collection("Matching").document("Users").collection(mUid).document(DatabaseDocNames.PREFERENCE);
     }
+
+    public DocumentReference getOnlineUserDocRef() {
+        return mDb.collection("Online").document(mUid);
+    }
 }

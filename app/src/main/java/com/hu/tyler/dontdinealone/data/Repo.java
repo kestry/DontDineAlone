@@ -1,17 +1,18 @@
 package com.hu.tyler.dontdinealone.data;
 
-import android.support.annotation.NonNull;
+        import android.support.annotation.NonNull;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.hu.tyler.dontdinealone.data.Cache;
-import com.hu.tyler.dontdinealone.util.Callback;
+        import com.google.android.gms.tasks.OnCompleteListener;
+        import com.google.android.gms.tasks.OnFailureListener;
+        import com.google.android.gms.tasks.OnSuccessListener;
+        import com.google.android.gms.tasks.Task;
+        import com.google.firebase.firestore.DocumentReference;
+        import com.google.firebase.firestore.DocumentSnapshot;
+        import com.google.firebase.firestore.SetOptions;
+        import com.hu.tyler.dontdinealone.data.Cache;
+        import com.hu.tyler.dontdinealone.util.Callback;
 
-import java.util.Map;
+        import java.util.Map;
 
 public class Repo {
     // Local cache
@@ -48,6 +49,63 @@ public class Repo {
 
     public void store(DocumentReference docRef, @NonNull final Callback callback) {
         docRef.set(mCache)
+
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        // This flag should set prior to the callback function.
+                        mIsDirty = false;
+                        callback.onSuccess();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callback.onFailure(e);
+                    }
+                });
+    }
+
+    public void overwrite(DocumentReference docRef, @NonNull final Callback callback) {
+        docRef.set(mCache)
+
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        // This flag should set prior to the callback function.
+                        mIsDirty = false;
+                        callback.onSuccess();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callback.onFailure(e);
+                    }
+                });
+    }
+
+    public void merge(Map<String, Object> partialMap, DocumentReference docRef, @NonNull final Callback callback) {
+        docRef.set(partialMap, SetOptions.merge())
+
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        // This flag should set prior to the callback function.
+                        mIsDirty = false;
+                        callback.onSuccess();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callback.onFailure(e);
+                    }
+                });
+    }
+
+    public void update(Map<String, Object> partialMap, DocumentReference docRef, @NonNull final Callback callback) {
+        docRef.update(partialMap)
 
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override

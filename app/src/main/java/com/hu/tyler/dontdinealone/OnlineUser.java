@@ -1,6 +1,7 @@
 package com.hu.tyler.dontdinealone;
 
 import com.google.firebase.firestore.Exclude;
+import com.hu.tyler.dontdinealone.res.DatabaseStatuses;
 
 
 /**
@@ -14,21 +15,21 @@ public class OnlineUser {
     private String name;
     private String description;
     private String email;
-    private int status = 0;
+    private String status = DatabaseStatuses.OnlineUser.online;
     private String time = "0";
     public OnlineUser(){
         //public no-arg constructor needed
     }
 
 
-    public OnlineUser(String email, String name, String description, int status){
+    public OnlineUser(String email, String name, String description, String status){
         this.name = name;
         this.email = email;
         this.description = description;
         this.status = status;
     }
 
-    public OnlineUser(String email, String name, String description, int status, String time){
+    public OnlineUser(String email, String name, String description, String status, String time){
         this.name = name;
         this.email = email;
         this.description = description;
@@ -64,18 +65,18 @@ public class OnlineUser {
 
 
     //these names have to match the FireBase Parts
-    public String getname(){
+    public String getName(){
         return name;}
 
     public String getDescription(){
         return description;
     }
 
-    public int getstatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setstatus(int status) {
+    public void setstatus(String status) {
         this.status = status;
     }
 }
