@@ -247,8 +247,8 @@ public class LobbyActivity extends AppCompatActivity {
                                          tempUse.update("chatID",transitionID); //update the chatID of the matched person
                                          u.setNewDoc(transitionID);
                                          onlineUsers.document(u.getDocumentId()).update("chatID", transitionID);
-                                         findingMatch = 0;
-                                         goToMatching = 1;
+                                         findingMatch = 0; //no longer finding matches
+                                         goToMatching = 1; //transitioning to a new activity
                                          goToMatchingActivity();
                                      }
                                  });

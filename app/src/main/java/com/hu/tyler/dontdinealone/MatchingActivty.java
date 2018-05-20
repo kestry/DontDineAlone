@@ -61,7 +61,7 @@ public class MatchingActivty extends AppCompatActivity {
         key.setText(docID);
         messages = findViewById(R.id.matchingChatting);
 
-        SimpleDateFormat s = new SimpleDateFormat("ddMMyyyyhhmmss", Locale.US);
+        SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US);
         String date = s.format(new Date());
         displayName = intent.getStringExtra("name");
 
@@ -96,7 +96,7 @@ public class MatchingActivty extends AppCompatActivity {
 
                 String text = messageBoard.getText().toString();
                 textCounter++;
-                SimpleDateFormat s = new SimpleDateFormat("ddMMyyyyhhmmss", Locale.US);
+                SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US);
                 String date = s.format(new Date());
                 x = new Chat(displayName, text, textCounter, date);
                 addtoCounter = false;
@@ -155,6 +155,14 @@ public class MatchingActivty extends AppCompatActivity {
 
     public void leaveMatching()
     {
+        textCounter++;
+        SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US);
+        String date = s.format(new Date());
+        x = new Chat(displayName, "GoodBye!\n\n" + displayName + "Has Left the Room", textCounter, date);
+
+        addtoCounter = false;
+        MatchUsers.add(x);
+        messageBoard.setText("");
         finish();
         startActivity(new Intent(getApplicationContext(), LobbyActivity.class));
     }
