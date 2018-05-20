@@ -16,7 +16,7 @@ import java.util.Map;
 
 
 public abstract class Queue {
-    public static void queue(final Callback callback) {
+    public static void queueUser(final Callback callback) {
         Documents.getInstance().getQueuedUserDocRef().set(Entity.queuedUser)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -46,7 +46,7 @@ public abstract class Queue {
                 });
     }
 
-    public static void deque() {
+    public static void dequeUser() {
         Documents.getInstance().getQueuedUserDocRef().delete();
     }
 }

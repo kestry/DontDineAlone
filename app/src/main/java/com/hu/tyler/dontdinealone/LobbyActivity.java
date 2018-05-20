@@ -99,18 +99,26 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
-
-    @Override
     protected void onPause(){
         super.onPause();
         if(findingMatch == 0)
         {if (u != null)
                 onlineUsers.document(u.getDocumentId()).update("status", DatabaseStatuses.OnlineUser.offline);
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(u == null)
+            return;
+        Queue.dequeUser();
+        onlineUsers.document(u.getDocumentId()).delete();
     }
 
     ///////////TYLERS EDITS/////////
@@ -178,14 +186,14 @@ public class LobbyActivity extends AppCompatActivity {
         if(u != null && findingMatch == 0){
             onlineUsers.document(u.getDocumentId()).update("status", DatabaseStatuses.OnlineUser.queued);
             onlineUsers.document(u.getDocumentId()).update("queueTimestamp", FieldValue.serverTimestamp());
-            Queue.queue(new StoreCallback()
-            );
+            setMatchPreferences(v);
             findingMatch = 1;
             buttonMatch.setBackgroundColor(Color.parseColor("#FF4081"));
             buttonMatch.setText("Stop Matching");
             lookingFortheHungry();
             return;
         }
+        Queue.dequeUser();
         onlineUsers.document(u.getDocumentId()).update("status", DatabaseStatuses.OnlineUser.online);
         findingMatch = 0;
         buttonMatch.setText("Start Matching");
@@ -260,14 +268,7 @@ public class LobbyActivity extends AppCompatActivity {
 
     }
     /////////////////////////////End of Tylers Edit
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if(u == null)
-            return;
-        DocumentReference ref = onlineUsers.document(u.getDocumentId());
-        ref.delete();
-    }
+
 
     public void loadOnlineUsers(){
         onlineUsers.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -367,7 +368,7 @@ public class LobbyActivity extends AppCompatActivity {
                 }
                 // We only store preferences if we've also chosen at least one dining hall
                 if (hasChosenDiningHalls) {
-                    Queue.queue(new StoreCallback());
+                    Queue.queueUser(new StoreCallback());
                 } else {
                     Toast.makeText(LobbyActivity.this, "Please make a selection", Toast.LENGTH_SHORT).show();
                     checkBoxDiningHallPreferences();

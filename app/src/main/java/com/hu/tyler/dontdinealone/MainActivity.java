@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
     }
+
     // Presenter Methods ---------------------------------------------
 
     public void login(View v) {
