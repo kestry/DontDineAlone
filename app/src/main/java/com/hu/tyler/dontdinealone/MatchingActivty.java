@@ -30,8 +30,13 @@ import java.util.Locale;
 public class MatchingActivty extends AppCompatActivity {
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private CollectionReference MatchUsers = db.collection("Matched"); // User to extend to chatty Collection where users can chat with one an other
-    private CollectionReference DeleteMe = db.collection("Matched"); // reference for deleting onDestroy
+
+    // User to extend to chatty Collection where users can chat with one an other
+    private CollectionReference MatchUsers = db.collection("Matched");
+
+    // reference for deleting onDestroy
+    private CollectionReference DeleteMe = db.collection("Matched");
+
     Button sendMessage;
     Chat text , x;
     String docID,displayName; //Just strings for
@@ -43,6 +48,9 @@ public class MatchingActivty extends AppCompatActivity {
     Boolean addtoCounter = true;
     TextView messages;
     Button leaveButton; //button to go back to Lobby Activity
+
+    // Lifecycle Methods -------------------------------------------------------------------------
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -142,6 +150,8 @@ public class MatchingActivty extends AppCompatActivity {
 //        ref.delete();
 
     }
+
+    // Presenter Methods -------------------------------------------------------------------------
 
     public void leaveMatching()
     {

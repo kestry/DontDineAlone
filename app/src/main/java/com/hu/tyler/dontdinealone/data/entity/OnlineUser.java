@@ -1,7 +1,6 @@
 package com.hu.tyler.dontdinealone.data.entity;
 
 import com.google.firebase.firestore.Exclude;
-import com.google.firebase.firestore.FieldValue;
 import com.hu.tyler.dontdinealone.res.DatabaseStatuses;
 
 import java.util.Date;
@@ -18,7 +17,7 @@ public class OnlineUser {
     private String name;
     private String description;
     private String email;
-    private String status = DatabaseStatuses.OnlineUser.online;
+    private String status = DatabaseStatuses.User.online;
     private Date timestamp;
     private Date queueTimestamp;
     private String time = "0";

@@ -1,9 +1,6 @@
 package com.hu.tyler.dontdinealone.domain;
 
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.hu.tyler.dontdinealone.res.DatabaseDocNames;
 
 public class Documents {
     private Collections collections;
@@ -27,10 +24,23 @@ public class Documents {
     }
 
     public DocumentReference getQueuedUserDocRef() {
-        return collections.getQueueCRef().document(collections.getUid());
+        return collections.getQueuedUsersCRef().document(collections.getUid());
     }
 
     public DocumentReference getOnlineUserDocRef() {
-        return collections.getOnlineCRef().document(collections.getUid());
+        return collections.getOnlineUsersCRef().document(collections.getUid());
+    }
+
+
+    public DocumentReference getMatchInfoDocRef() {
+        return collections.getMatchCRef().document("Info");
+    }
+
+    public DocumentReference getMatchUserDocRef() {
+        return collections.getMatchCRef().document("User");
+    }
+
+    public DocumentReference getMatchGroupDocRef() {
+        return collections.getMatchCRef().document("Group");
     }
 }

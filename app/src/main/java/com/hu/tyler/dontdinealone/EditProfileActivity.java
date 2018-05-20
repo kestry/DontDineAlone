@@ -31,6 +31,8 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private ProgressDialog progressDialog;
 
+    // Lifecycle Methods -------------------------------------------------------------------------
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,20 +83,14 @@ public class EditProfileActivity extends AppCompatActivity {
                     currentAvatar.setBackgroundColor(00000000);
                     avaBtn[j].setBackgroundColor(Color.parseColor("#FF4081"));
                     currentAvatar = avaBtn[j];
-                    Toast.makeText(EditProfileActivity.this, "#" + j, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EditProfileActivity.this,
+                            "#" + j, Toast.LENGTH_SHORT).show();
                 }
             });
         }
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        //repo = null;
-
-    }
-
-    // Presenter Methods ---------------------------------------------
+    // Presenter Methods -------------------------------------------------------------------------
 
     public void saveProfile(final View v) {
         Entity.user.setDisplayName(editTextDisplayName.getText().toString().trim());
@@ -109,7 +105,8 @@ public class EditProfileActivity extends AppCompatActivity {
                     public void onSuccess(Void aVoid) {
                         progressDialog.dismiss();
 
-                        Toast.makeText(EditProfileActivity.this, "Profile saved successfully", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(EditProfileActivity.this,
+                                "Profile saved successfully", Toast.LENGTH_SHORT).show();
                         goToLobbyActivity();
 
                     }
@@ -120,10 +117,13 @@ public class EditProfileActivity extends AppCompatActivity {
                         progressDialog.dismiss();
 
                         Log.w("XXX", "Save error: ", e);
-                        Toast.makeText(EditProfileActivity.this, "Profile save failed", Toast.LENGTH_SHORT).show();
-                        Toast.makeText(EditProfileActivity.this, "Profile Save Error: " + e, Toast.LENGTH_LONG).show();
+                        Toast.makeText(EditProfileActivity.this,
+                                "Profile save failed", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(EditProfileActivity.this,
+                                "Profile save error: " + e, Toast.LENGTH_LONG).show();
                     }
                 });
+
     }
 
     public void loadProfile() {
@@ -138,7 +138,7 @@ public class EditProfileActivity extends AppCompatActivity {
         goToLobbyActivity();
     }
 
-    // Navigation Methods --------------------------------------------
+    // Navigation Methods ------------------------------------------------------------------------
 
     // Goes back to the lobby page.
     public void goToLobbyActivity()
@@ -147,7 +147,7 @@ public class EditProfileActivity extends AppCompatActivity {
         startActivity(new Intent(this, LobbyActivity.class));
     }
 
-    // Callbacks -----------------------------------------------------
+    // Callbacks ---------------------------------------------------------------------------------
 
     final class StoreCallback implements Callback {
 
@@ -155,7 +155,8 @@ public class EditProfileActivity extends AppCompatActivity {
         public void onSuccess() {
             progressDialog.dismiss();
 
-            Toast.makeText(EditProfileActivity.this, "Profile saved successfully", Toast.LENGTH_SHORT).show();
+            Toast.makeText(EditProfileActivity.this,
+                    "Profile saved successfully", Toast.LENGTH_SHORT).show();
             goToLobbyActivity();
         }
 
@@ -164,8 +165,10 @@ public class EditProfileActivity extends AppCompatActivity {
             progressDialog.dismiss();
 
             Log.w("XXX", "Save error: ", e);
-            Toast.makeText(EditProfileActivity.this, "Profile save failed", Toast.LENGTH_SHORT).show();
-            Toast.makeText(EditProfileActivity.this, "Profile Save Error: " + e, Toast.LENGTH_LONG).show();
+            Toast.makeText(EditProfileActivity.this,
+                    "Profile save failed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(EditProfileActivity.this,
+                    "Profile save error: " + e, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -175,14 +178,16 @@ public class EditProfileActivity extends AppCompatActivity {
         public void onSuccess() {
             progressDialog.dismiss();
 
-            Toast.makeText(EditProfileActivity.this, "Profile loaded successfully", Toast.LENGTH_SHORT).show();
+            Toast.makeText(EditProfileActivity.this,
+                    "Profile loaded successfully", Toast.LENGTH_SHORT).show();
             loadProfile();
         }
 
         @Override
         public void onFailure(Exception e) {
             progressDialog.dismiss();
-            Toast.makeText(EditProfileActivity.this, "Not Signed In", Toast.LENGTH_SHORT).show();
+            Toast.makeText(EditProfileActivity.this,
+                    "Not Signed In", Toast.LENGTH_SHORT).show();
 
         }
     }

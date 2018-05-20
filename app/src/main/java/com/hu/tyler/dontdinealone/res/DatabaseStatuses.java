@@ -2,7 +2,7 @@ package com.hu.tyler.dontdinealone.res;
 
 public interface DatabaseStatuses {
 
-    public interface OnlineUser {
+    public interface User {
         String online = "online";
         String queued = "queued";
         String matched = "matched";

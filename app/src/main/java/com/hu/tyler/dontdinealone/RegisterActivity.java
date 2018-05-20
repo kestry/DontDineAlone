@@ -24,6 +24,8 @@ public class RegisterActivity extends AppCompatActivity {
     String password;
     String passwordConfirm;
 
+    // Lifecycle Methods -------------------------------------------------------------------------
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,12 +39,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
-    // Presenter Methods ---------------------------------------------
+    // Presenter Methods -------------------------------------------------------------------------
 
     public void register(View v) {
 
@@ -53,7 +50,8 @@ public class RegisterActivity extends AppCompatActivity {
 
         //Ensure that the email entered is proper length
         if (email.length() < 8) {
-            Toast.makeText(this, "Email length is too short", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,
+                    "Email length is too short", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -68,13 +66,15 @@ public class RegisterActivity extends AppCompatActivity {
 
         //Verify if a password was entered
         if (TextUtils.isEmpty(password)) {
-            Toast.makeText(this, "Please enter password", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,
+                    "Please enter password", Toast.LENGTH_SHORT).show();
             return;
         }
 
         //Verify that passwords entered match
         if (!password.equals(passwordConfirm)) {
-            Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,
+                    "Passwords do not match", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -103,7 +103,8 @@ public class RegisterActivity extends AppCompatActivity {
             progressDialog.dismiss();
 
             Toast.makeText(RegisterActivity.this,
-                    "Registered Successfully: Check your Email for Confirmation", Toast.LENGTH_LONG).show();
+                    "Registered Successfully: Check Email for Confirmation",
+                    Toast.LENGTH_LONG).show();
             Intent x = new Intent(RegisterActivity.this, MainActivity.class);
 
             startActivity(x);
@@ -117,7 +118,8 @@ public class RegisterActivity extends AppCompatActivity {
             Log.d("XXX", "pw " + password);
 
             Log.w("XXX", "Registration error: ", e);
-            Toast.makeText(RegisterActivity.this, "Registration Error: " + e, Toast.LENGTH_LONG).show();
+            Toast.makeText(RegisterActivity.this,
+                    "Registration Error: " + e, Toast.LENGTH_LONG).show();
         }
     }
 }

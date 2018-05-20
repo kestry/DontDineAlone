@@ -88,21 +88,5 @@
             android:textColor="#000"
             android:textSize="15dp" />
     </ScrollView>
-    
-    <!--
-    <Button
-        android:id="@+id/buttonMatch2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="18dp"
-        android:background="#FF9900"
-        android:padding="5dp"
 
-        android:fontFamily="casual"
-        android:onClick="startMatching2"
-        android:text="Start Matching 2"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonMatch" />
-    -->
 </android.support.constraint.ConstraintLayout>

@@ -21,6 +21,18 @@ public class User {
         animal = user.animal;
     }
 
+    public String getDisplayNameKey() {
+        return "displayName";
+    }
+
+    public String getGenderKey() {
+        return "gender";
+    }
+
+    public String getAnimalKey() {
+        return "animal";
+    }
+
     public String getDisplayName() {
         return displayName;
     }
@@ -32,6 +44,7 @@ public class User {
     public String getAnimal() {
         return animal;
     }
+
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;

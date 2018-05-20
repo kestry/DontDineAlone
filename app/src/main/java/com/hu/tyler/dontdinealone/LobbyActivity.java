@@ -4,6 +4,7 @@ package com.hu.tyler.dontdinealone;
  * Duplicates should be fixed now with the unique Firebase UID being used for online users
  * but people will still show up as online on forced quits.
  */
+
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -60,6 +61,7 @@ public class LobbyActivity extends AppCompatActivity {
     private boolean[] isPreferredGroupSizes;
     private boolean[] isPreferredDiningHalls;
 
+    // This is to make sure at least one preference has been chosen
     private boolean hasChosenGroupSizes;
     private boolean hasChosenDiningHalls;
 
@@ -67,11 +69,12 @@ public class LobbyActivity extends AppCompatActivity {
     String transitionID = "0"; //this will hold the document ID for 2 matches
     private ProgressDialog progressDialog;
 
+    // Lifecycle Methods -------------------------------------------------------------------------
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lobby);
-
 
         buttonMatch = findViewById(R.id.buttonMatch); //assigning variable to button
 
@@ -85,8 +88,6 @@ public class LobbyActivity extends AppCompatActivity {
             startActivity(new Intent(this, MainActivity.class));
         }
 
-//        Toast.makeText(LobbyActivity.this, "Test1: Hello " + Entity.user.getDisplayName(), Toast.LENGTH_SHORT).show();  // DELETE
-
         progressDialog = new ProgressDialog(this);
         // List items are retrieved from "app/res/values/strings.xml"
 
@@ -96,29 +97,6 @@ public class LobbyActivity extends AppCompatActivity {
 
         hasChosenGroupSizes = false;
         hasChosenDiningHalls = false;
-    }
-
-    @Override
-    protected void onPause(){
-        super.onPause();
-        if(findingMatch == 0)
-        {if (u != null)
-                onlineUsers.document(u.getDocumentId()).update("status", DatabaseStatuses.OnlineUser.offline);
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if(u == null)
-            return;
-        Queue.dequeUser();
-        onlineUsers.document(u.getDocumentId()).delete();
     }
 
     ///////////TYLERS EDITS/////////
@@ -144,7 +122,7 @@ public class LobbyActivity extends AppCompatActivity {
                     OnlineUser j = x.get(i).toObject(OnlineUser.class);
                     Log.d("XXX", "for loop users"+i + ": " + j.getName());
                     j.setDocumentId(x.get(i).getId());
-                    if(u != null && x.get(i).get("chatID") != null) // Check object validity before procedding matching
+                    if(u != null && x.get(i).get("chatID") != null) // Check object validity before proceeding matching
                     if(x.get(i).getId().equals(u.getDocumentId()))
                     {
                         //User has been match
@@ -169,41 +147,63 @@ public class LobbyActivity extends AppCompatActivity {
         });
 
         if(u != null)
-        onlineUsers.document(u.getDocumentId()).update("status", DatabaseStatuses.OnlineUser.online);
+        onlineUsers.document(u.getDocumentId()).update("status", DatabaseStatuses.User.online);
     }
 
-    public void startMatching2(View v){
-        // checks if user has entered preferences yet since listeners are asynchronous
-        if (!(hasChosenGroupSizes && hasChosenDiningHalls)) {
-            setMatchPreferences(v);
+    @Override
+    protected void onPause(){
+        super.onPause();
+        if(findingMatch == 0)
+        {if (u != null)
+            onlineUsers.document(u.getDocumentId()).update("status", DatabaseStatuses.User.offline);
         }
     }
 
-    public void startMatching(View v){
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         if(u == null)
+            return;
+        Queue.dequeUser();
+        onlineUsers.document(u.getDocumentId()).delete();
+    }
+
+    // Presenter Methods -------------------------------------------------------------------------
+
+    public void startMatching(View v) {
+        if(u == null) {
             return; //
+        }
         //TODO: begin matching logic
-        if(u != null && findingMatch == 0){
-            onlineUsers.document(u.getDocumentId()).update("status", DatabaseStatuses.OnlineUser.queued);
-            onlineUsers.document(u.getDocumentId()).update("queueTimestamp", FieldValue.serverTimestamp());
-            setMatchPreferences(v);
-            findingMatch = 1;
-            buttonMatch.setBackgroundColor(Color.parseColor("#FF4081"));
-            buttonMatch.setText("Stop Matching");
-            lookingFortheHungry();
+        if (findingMatch != 0) {
+            Queue.dequeUser();
+            onlineUsers.document(u.getDocumentId()).update("status", DatabaseStatuses.User.online);
+            findingMatch = 0;
+            buttonMatch.setText("Start Matching");
+            buttonMatch.setBackgroundColor(Color.parseColor("#FF9900"));
             return;
         }
-        Queue.dequeUser();
-        onlineUsers.document(u.getDocumentId()).update("status", DatabaseStatuses.OnlineUser.online);
-        findingMatch = 0;
-        buttonMatch.setText("Start Matching");
-        buttonMatch.setBackgroundColor(Color.parseColor("#FF9900"));
-
+        setMatchPreferences(v);
     }
 
-    protected void lookingFortheHungry(){
+    public void queueUser() {
+        onlineUsers.document(u.getDocumentId()).update("status", DatabaseStatuses.User.queued);
+        onlineUsers.document(u.getDocumentId()).update("queueTimestamp", FieldValue.serverTimestamp());
+        Queue.queueUser(new StoreCallback());
+        findingMatch = 1;
+        buttonMatch.setBackgroundColor(Color.parseColor("#FF4081"));
+        buttonMatch.setText("Stop Matching");
+        lookingFortheHungry();
+    }
+
+    protected void lookingFortheHungry() {
         // Look for other people and we can distinguishe them b/c there status code is "waiting".
-        onlineUsers.whereEqualTo("status", DatabaseStatuses.OnlineUser.queued)
+        onlineUsers.whereEqualTo("status", DatabaseStatuses.User.queued)
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
@@ -222,13 +222,13 @@ public class LobbyActivity extends AppCompatActivity {
                                 //PRECAUTION SLOWDOWNS
                                 if(transitionID != "0" )
                                     return;
-                                if(u.getStatus() == DatabaseStatuses.OnlineUser.matched)
+                                if(u.getStatus() == DatabaseStatuses.User.matched)
                                     return;
                                 ////////////END OF EXTRA PRECAUTIONS
 
 
-                                onlineUsers.document(u.getDocumentId()).update("status", DatabaseStatuses.OnlineUser.matched); //update my status
-                                db.collection("Online").document(x.get(i).getId()).update("status", DatabaseStatuses.OnlineUser.matched);
+                                onlineUsers.document(u.getDocumentId()).update("status", DatabaseStatuses.User.matched); //update my status
+                                db.collection("Online").document(x.get(i).getId()).update("status", DatabaseStatuses.User.matched);
 
                                 //Get the user we are matched with
                                 tempUse = db.collection("Online").document(x.get(i).getId());
@@ -258,7 +258,7 @@ public class LobbyActivity extends AppCompatActivity {
                 });
     }
 
-    public void goToMatchingActivity(){
+    public void goToMatchingActivity() {
         Intent myIntent = new Intent(this, MatchingActivty.class);
         finish();
         myIntent.putExtra("key", transitionID); //Optional parameters
@@ -270,7 +270,7 @@ public class LobbyActivity extends AppCompatActivity {
     /////////////////////////////End of Tylers Edit
 
 
-    public void loadOnlineUsers(){
+    public void loadOnlineUsers() {
         onlineUsers.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot documentSnapshots) {
@@ -297,7 +297,6 @@ public class LobbyActivity extends AppCompatActivity {
         });
     }
 
-    // Presenter Methods ---------------------------------------------
 
     public void setMatchPreferences(View v) {
         // TODO: Will cancelable = false help?
@@ -308,7 +307,7 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
     // Selection menu for group size choices
-    public void checkBoxGroupSizePreferences(){
+    public void checkBoxGroupSizePreferences() {
         final AlertDialog groupSizeSelection;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.select_group_sizes_label);
@@ -346,7 +345,7 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
     // Selection menu for dining hall choices. Change the database names or formatted names as you see fit to match your database
-    public void checkBoxDiningHallPreferences(){
+    public void checkBoxDiningHallPreferences() {
 
         final AlertDialog diningHallSelection;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -368,7 +367,7 @@ public class LobbyActivity extends AppCompatActivity {
                 }
                 // We only store preferences if we've also chosen at least one dining hall
                 if (hasChosenDiningHalls) {
-                    Queue.queueUser(new StoreCallback());
+                    queueUser();
                 } else {
                     Toast.makeText(LobbyActivity.this, "Please make a selection", Toast.LENGTH_SHORT).show();
                     checkBoxDiningHallPreferences();
@@ -379,6 +378,7 @@ public class LobbyActivity extends AppCompatActivity {
         builder.setNegativeButton(R.string.cancel_label, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+
             }
         });
         diningHallSelection = builder.create();
@@ -386,11 +386,9 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
 
+    // Navigation Methods ------------------------------------------------------------------------
 
-    // Navigation Methods --------------------------------------------
-
-    public void goToEditProfileActivity(View v)
-    {
+    public void goToEditProfileActivity(View v) {
 //        progressDialog.setMessage("Loading Profile...");
 //        progressDialog.show();
         Intent x = new Intent(this, EditProfileActivity.class);
@@ -408,7 +406,7 @@ public class LobbyActivity extends AppCompatActivity {
         //Terminate the current activity
     }
 
-    // Callbacks -----------------------------------------------------
+    // Callbacks ---------------------------------------------------------------------------------
 
     final class StoreCallback implements Callback {
 

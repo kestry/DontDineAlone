@@ -22,7 +22,7 @@ public abstract class Queue {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Map<String, Object> data = new HashMap<>();
-                        data.put("timestamp", FieldValue.serverTimestamp());
+                        data.put(Entity.queuedUser.getLastCreatedKey(), FieldValue.serverTimestamp());
                         Documents.getInstance().getQueuedUserDocRef().update(data)
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override

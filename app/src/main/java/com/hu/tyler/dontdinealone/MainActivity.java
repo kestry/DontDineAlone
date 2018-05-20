@@ -23,6 +23,8 @@ public class MainActivity extends AppCompatActivity {
     EditText editTextEmail;
     EditText editTextPW;
 
+    // Lifecycle Methods -------------------------------------------------------------------------
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,7 +47,9 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         //If the user is already logged in, go directly to lobby.
         if (Entity.authUser.isSignedIn(NullCallback.getInstance())) {
-            Toast.makeText(this, "Previously Logged In: " + Entity.authUser.getEmail(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,
+                    "Previously Logged In: " + Entity.authUser.getEmail(),
+                    Toast.LENGTH_SHORT).show();
             goToLobbyActivity();
         }
     }
@@ -55,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    // Presenter Methods ---------------------------------------------
+    // Presenter Methods -------------------------------------------------------------------------
 
     public void login(View v) {
         String email = editTextEmail.getText().toString().trim();
@@ -63,7 +67,8 @@ public class MainActivity extends AppCompatActivity {
 
         //Ensure that the email entered is proper length
         if (editTextEmail.length() < 8) {
-            Toast.makeText(this, "Email length is too short", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,
+                    "Email length is too short", Toast.LENGTH_SHORT).show();
             return;
         }
         //TODO: Uncomment this for final release
@@ -89,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    // Navigation Methods --------------------------------------------
+    // Navigation Methods ------------------------------------------------------------------------
 
     public void goToRegisterActivity(View v) {
         finish();
@@ -101,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(new Intent(getApplicationContext(), LobbyActivity.class));
     }
 
-    // Callbacks -----------------------------------------------------
+    // Callbacks ---------------------------------------------------------------------------------
 
     final class LoginCallback implements Callback {
 
@@ -109,7 +114,8 @@ public class MainActivity extends AppCompatActivity {
         public void onSuccess() {
             progressDialog.dismiss();
 
-            Toast.makeText(MainActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this,
+                    "Login Successful", Toast.LENGTH_SHORT).show();
 
             //TODO: Uncomment for future releases
 //          if (user.isEmailVerified()) {
@@ -128,7 +134,8 @@ public class MainActivity extends AppCompatActivity {
 
             Log.w("XXX", "signInWithEmail:failure ", e);
             Log.w("XXX", "Failed Email: " + editTextEmail.getText().toString().trim());
-            Toast.makeText(MainActivity.this, "Login Error: " + e, Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this,
+                    "Login Error: " + e, Toast.LENGTH_LONG).show();
         }
     }
 }

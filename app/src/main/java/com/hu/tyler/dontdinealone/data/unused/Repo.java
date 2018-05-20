@@ -1,18 +1,20 @@
-package com.hu.tyler.dontdinealone.data;
+package com.hu.tyler.dontdinealone.data.unused;
 
-        import android.support.annotation.NonNull;
+import android.support.annotation.NonNull;
 
-        import com.google.android.gms.tasks.OnCompleteListener;
-        import com.google.android.gms.tasks.OnFailureListener;
-        import com.google.android.gms.tasks.OnSuccessListener;
-        import com.google.android.gms.tasks.Task;
-        import com.google.firebase.firestore.DocumentReference;
-        import com.google.firebase.firestore.DocumentSnapshot;
-        import com.google.firebase.firestore.SetOptions;
-        import com.hu.tyler.dontdinealone.data.Cache;
-        import com.hu.tyler.dontdinealone.util.Callback;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.SetOptions;
+import com.hu.tyler.dontdinealone.data.unused.Cache;
+import com.hu.tyler.dontdinealone.util.Callback;
 
-        import java.util.Map;
+import java.util.Map;
+
+/* Keeping this for now, because it might help later. */
 
 public class Repo {
     // Local cache

@@ -30,18 +30,38 @@ public class Collections {
         mUid = uid;
     }
 
+    // For Match system
+    public CollectionReference getMatchCRef() {
+        return mDb.collection("Match");
+    }
     // For persistent user info
     public CollectionReference getUsersCRef() {
         return mDb.collection("Users");
     }
 
     // For online users
-    public CollectionReference getOnlineCRef() {
+    public CollectionReference getOnlineUsersCRef() {
         return mDb.collection("Online");
     }
 
     // For queued users
-    public CollectionReference getQueueCRef() {
-        return mDb.collection("Queue");
+    public CollectionReference getQueuedUsersCRef() {
+        return getMatchCRef().document("User").collection("Queue");
     }
+
+    // For pending groups
+    public CollectionReference getPendingGroupsCRef() {
+        return getMatchCRef().document("Group").collection("Pending");
+    }
+
+    // For confirmed groups
+    public CollectionReference getConfirmedGroupsCRef() {
+        return getMatchCRef().document("Group").collection("Confirmed");
+    }
+
+    // For Matched
+    public CollectionReference getMatchedCRef() {
+        return mDb.collection("Matched");
+    }
+
 }
