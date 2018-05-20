@@ -1,4 +1,4 @@
-package com.hu.tyler.dontdinealone;
+package com.hu.tyler.dontdinealone.data.entity;
 
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.FieldValue;

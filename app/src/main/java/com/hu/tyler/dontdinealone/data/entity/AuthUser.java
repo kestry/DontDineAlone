@@ -1,4 +1,4 @@
-package com.hu.tyler.dontdinealone.domain;
+package com.hu.tyler.dontdinealone.data.entity;
 
 import android.support.annotation.NonNull;
 
@@ -7,7 +7,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.hu.tyler.dontdinealone.data.RepoContainer;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.hu.tyler.dontdinealone.data.Entity;
+import com.hu.tyler.dontdinealone.domain.Collections;
+import com.hu.tyler.dontdinealone.domain.Documents;
 import com.hu.tyler.dontdinealone.util.Callback;
 import com.hu.tyler.dontdinealone.util.NullCallback;
 
@@ -20,8 +23,9 @@ import com.hu.tyler.dontdinealone.util.NullCallback;
 // Reason for Runnables: This is a quick start to separating things out from the UI until we have
 // a better solution and setup.
 
-public class User implements UserInterface {
+public class AuthUser {
 
+    private Collections collections;
     private Documents documents;
 
     // Firebase authentication related members
@@ -30,20 +34,8 @@ public class User implements UserInterface {
 
     private NullCallback nullCallback = NullCallback.getInstance();
 
-    // Singleton Holder that creates a single instance of this class.
-    private static class UserSingletonHolder
-    {
-        private final static User INSTANCE = new User();
-    }
-
-    // Reference to self so there is only one instance of this class
-    public static User getInstance()
-    {
-        return UserSingletonHolder.INSTANCE;
-    }
-
-    // Private constructor. Called once by the UserModelHolder
-    private User() {
+    public AuthUser() {
+        collections = Collections.getInstance();
         documents = Documents.getInstance();
         mFAuth = FirebaseAuth.getInstance();
         nullCallback = NullCallback.getInstance();
@@ -52,13 +44,29 @@ public class User implements UserInterface {
         setFUser(nullCallback);
     }
 
-    private void setFUser(Callback callback) {
+    private void setFUser(final Callback callback) {
         mFUser = mFAuth.getCurrentUser();
         if (mFUser == null) {
             callback.onFailure(null);
         } else {
-            documents.setUid(mFUser.getUid());
-            RepoContainer.profileRepo.load(documents.getProfileDocRef(), callback);
+            collections.setUid(mFUser.getUid());
+            documents.getUserDocRef().get()
+                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot document = task.getResult();
+                                if (document.exists()) {
+                                    Entity.user.set(document.toObject(Entity.user.getClass()));
+                                } else {
+                                    Entity.user.setToDefault();
+                                }
+                                callback.onSuccess();
+                            } else {
+                                callback.onFailure(task.getException());
+                            }
+                        }
+                    });
         }
     }
 

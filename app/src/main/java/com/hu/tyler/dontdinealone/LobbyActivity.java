@@ -1,7 +1,4 @@
 package com.hu.tyler.dontdinealone;
-/*
-*
-Deleting Duplicates isn't working properly right now because it gets deleted the first time around*/
 
 /* Jean -
  * Duplicates should be fixed now with the unique Firebase UID being used for online users
@@ -29,11 +26,10 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.hu.tyler.dontdinealone.data.Repo;
-import com.hu.tyler.dontdinealone.data.RepoContainer;
+import com.hu.tyler.dontdinealone.data.Entity;
+import com.hu.tyler.dontdinealone.data.entity.OnlineUser;
 import com.hu.tyler.dontdinealone.domain.Documents;
 import com.hu.tyler.dontdinealone.domain.Queue;
-import com.hu.tyler.dontdinealone.domain.User;
 import com.hu.tyler.dontdinealone.res.DatabaseKeys;
 import com.hu.tyler.dontdinealone.res.DatabaseStatuses;
 import com.hu.tyler.dontdinealone.util.Callback;
@@ -46,9 +42,6 @@ import java.util.Locale;
 public class LobbyActivity extends AppCompatActivity {
 
     private Documents documents;
-    private User user;
-    private Repo preferenceRepo;
-    private Repo profileRepo; // DELETE
     private int findingMatch = 0; //variable to indicate on going search
     private int goToMatching = 0; // prevents MatchingActivity from running twice
     ///Tyler Edits: 5/15
@@ -83,26 +76,18 @@ public class LobbyActivity extends AppCompatActivity {
         buttonMatch = findViewById(R.id.buttonMatch); //assigning variable to button
 
         documents = Documents.getInstance();
-        user = User.getInstance();
-        preferenceRepo = RepoContainer.preferenceRepo;
-        profileRepo = RepoContainer.profileRepo;  // DELETE
-
-        // Remove Duplicates from crashes, this is not fully working bc of the asynchronously runnin
-        // function creating the OnlineUser, it unfortunately deletes it.
-        // removeDups();
 
         //Check if user is not logged in
-        if (!user.isSignedIn(new SignedInCallback())) {
+        if (!Entity.authUser.isSignedIn(new SignedInCallback())) {
             //Close this activity
             finish();
             //Start Main activity
             startActivity(new Intent(this, MainActivity.class));
         }
 
-//        Toast.makeText(LobbyActivity.this, "Test1: Hello " + profileRepo.get(DatabaseKeys.Profile.DISPLAY_NAME), Toast.LENGTH_SHORT).show();  // DELETE
+//        Toast.makeText(LobbyActivity.this, "Test1: Hello " + Entity.user.getDisplayName(), Toast.LENGTH_SHORT).show();  // DELETE
 
         progressDialog = new ProgressDialog(this);
-         // Delete duplicates from crashes
         // List items are retrieved from "app/res/values/strings.xml"
 
         diningHallsFormatted = getResources().getStringArray(R.array.diningHallsFormatted);
@@ -175,14 +160,6 @@ public class LobbyActivity extends AppCompatActivity {
             }
         });
 
-        /*
-        removeDups();
-        if(findingMatch == 1) // user is currently matching
-        {
-            return;
-        }
-        */
-
         if(u != null)
         onlineUsers.document(u.getDocumentId()).update("status", DatabaseStatuses.OnlineUser.online);
     }
@@ -201,7 +178,8 @@ public class LobbyActivity extends AppCompatActivity {
         if(u != null && findingMatch == 0){
             onlineUsers.document(u.getDocumentId()).update("status", DatabaseStatuses.OnlineUser.queued);
             onlineUsers.document(u.getDocumentId()).update("queueTimestamp", FieldValue.serverTimestamp());
-            Queue.queue(u, documents.getQueueCollRef());
+            Queue.queue(new StoreCallback()
+            );
             findingMatch = 1;
             buttonMatch.setBackgroundColor(Color.parseColor("#FF4081"));
             buttonMatch.setText("Stop Matching");
@@ -214,7 +192,6 @@ public class LobbyActivity extends AppCompatActivity {
         buttonMatch.setBackgroundColor(Color.parseColor("#FF9900"));
 
     }
-
 
     protected void lookingFortheHungry(){
         // Look for other people and we can distinguishe them b/c there status code is "waiting".
@@ -286,48 +263,11 @@ public class LobbyActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        documents = null;
-        user = null;
         if(u == null)
             return;
         DocumentReference ref = onlineUsers.document(u.getDocumentId());
         ref.delete();
     }
-
-    /*
-    //Removes duplicate accounts log in with the same email, this is currently a bad way to do it
-    private void removeDups(){
-        if(user == null)
-            return;
-
-        if(u == null)
-            return;
-         onlineUsers.whereEqualTo("email", user.getEmail()).get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot documentSnapshots) {
-                        List<DocumentSnapshot> x= documentSnapshots.getDocuments();
-
-
-                        for(int i = 0; i < x.size(); i++)
-                        {
-//                            remove the element that has a identical email
-                            String id = x.get(i).getId();
-                            String uId = u.getDocumentId();
-                            Log.d("XXX","duplicate found DocID:" + x.get(i).getId().equals(u.getDocumentId()));
-
-                            if(!id.equalsIgnoreCase(uId))
-                            {
-                                Log.d("XXX","x.get(i).getId().equals(u.getDocumentId():" + x.get(i).getId().equals(u.getDocumentId()));
-                                Log.d("XXX", "id: "+ x.get(i).getId()+ " Deleted Duplicate: " + x.get(i).getString("email") +
-                                " id: " + x.get(i).getId());
-                                db.collection("Online").document(x.get(i).getId()).delete();
-                            }
-                        }
-                    }
-                });
-    }
-    */
 
     public void loadOnlineUsers(){
         onlineUsers.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -382,7 +322,7 @@ public class LobbyActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialogInterface, int i) {
                 hasChosenGroupSizes = false;
                 for (int j = 0; j < isPreferredGroupSizes.length; j++) {
-                    preferenceRepo.set(DatabaseKeys.Preference.GROUP_SIZES[j], isPreferredGroupSizes[j]);
+                    Entity.queuedUser.setGroupSizePreferencesFromArray(isPreferredGroupSizes);
                     hasChosenGroupSizes |= isPreferredGroupSizes[j];
                 }
                 // We only progress if the user chose at least one group
@@ -422,12 +362,12 @@ public class LobbyActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialogInterface, int which) {
                 hasChosenDiningHalls = false;
                 for (int j = 0; j < isPreferredDiningHalls.length; j++) {
-                    preferenceRepo.set(DatabaseKeys.Preference.DINING_HALLS[j], isPreferredDiningHalls[j]);
+                    Entity.queuedUser.setDiningHallPreferencesFromArray(isPreferredDiningHalls);
                     hasChosenDiningHalls |= isPreferredDiningHalls[j];
                 }
                 // We only store preferences if we've also chosen at least one dining hall
                 if (hasChosenDiningHalls) {
-                    storeMatchPreferences();
+                    Queue.queue(new StoreCallback());
                 } else {
                     Toast.makeText(LobbyActivity.this, "Please make a selection", Toast.LENGTH_SHORT).show();
                     checkBoxDiningHallPreferences();
@@ -444,10 +384,6 @@ public class LobbyActivity extends AppCompatActivity {
         diningHallSelection.show();
     }
 
-    public void storeMatchPreferences() {
-        preferenceRepo.store(documents.getPreferenceDocRef(), new StoreCallback());
-    }
-
 
 
     // Navigation Methods --------------------------------------------
@@ -462,7 +398,7 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
     public void goToMainActivity(View v) {
-        user.signOut();
+        Entity.authUser.signOut();
         Toast.makeText(this, "Logged Out.", Toast.LENGTH_SHORT).show();
         //Next time the app opens go to MainActivity
         Intent x = new Intent(this, MainActivity.class);
@@ -478,7 +414,6 @@ public class LobbyActivity extends AppCompatActivity {
         @Override
         public void onSuccess() {
             progressDialog.dismiss();
-
             Toast.makeText(LobbyActivity.this, "Preferences saved. Beginning matching..", Toast.LENGTH_SHORT).show();
         }
 
@@ -501,23 +436,23 @@ public class LobbyActivity extends AppCompatActivity {
 
 
             ////////////Tyler's Edits
-//            Toast.makeText(LobbyActivity.this, "Test2: Hello " + profileRepo.get(DatabaseKeys.Profile.DISPLAY_NAME), Toast.LENGTH_SHORT).show();  // DELETE
+//            Toast.makeText(LobbyActivity.this, "Test2: Hello " + Entity.user.getDisplayName(), Toast.LENGTH_SHORT).show();  // DELETE
 
 
             hiTxt = findViewById(R.id.textViewTitle);
-            String g = "Welcome " + profileRepo.get(DatabaseKeys.Profile.DISPLAY_NAME);
+            String g = "Welcome " + Entity.user.getDisplayName();
             hiTxt.setText(g);
             SimpleDateFormat s = new SimpleDateFormat("ddMMyyyyhhmmss", Locale.US);
             String date = s.format(new Date());
-            if(user == null)
+            if(Entity.authUser == null)
                 return;
             //Lets get online users
-            u = new OnlineUser(user.getEmail(),(String) profileRepo.get(DatabaseKeys.Profile.DISPLAY_NAME),
-                    (String) profileRepo.get( DatabaseKeys.Profile.ANIMAL),"online", date);
-            onlineUsers.document(user.getUid()).set(u).addOnSuccessListener(new OnSuccessListener<Void>()  {
+            u = new OnlineUser(Entity.authUser.getEmail(), Entity.user.getDisplayName(),
+                    Entity.user.getAnimal(),"online", date);
+            onlineUsers.document(Entity.authUser.getUid()).set(u).addOnSuccessListener(new OnSuccessListener<Void>()  {
                 @Override
                 public void onSuccess(Void aVoid) {
-                    u.setDocumentId(user.getUid());
+                    u.setDocumentId(Entity.authUser.getUid());
                     Log.d("XXX", "DocID for this instance: " + u.getDocumentId());
                     loadOnlineUsers();
                 }

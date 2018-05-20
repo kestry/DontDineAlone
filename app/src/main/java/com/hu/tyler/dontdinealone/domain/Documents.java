@@ -6,8 +6,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.hu.tyler.dontdinealone.res.DatabaseDocNames;
 
 public class Documents {
-    private FirebaseFirestore mDb;
-    private String mUid;
+    private Collections collections;
 
     // Singleton Holder that creates a single instance of this class.
     private static class DocumentsHolder {
@@ -20,27 +19,18 @@ public class Documents {
     }
 
     private Documents() {
-        mDb = FirebaseFirestore.getInstance();
-        mUid = "";
+        collections = Collections.getInstance();
     }
 
-    public void setUid(String uid) {
-        mUid = uid;
+    public DocumentReference getUserDocRef() {
+        return collections.getUsersCRef().document(collections.getUid());
     }
 
-    public DocumentReference getProfileDocRef() {
-        return mDb.collection(mUid).document(DatabaseDocNames.PROFILE);
-    }
-
-    public DocumentReference getPreferenceDocRef() {
-        return mDb.collection("Matching").document("Users").collection(mUid).document(DatabaseDocNames.PREFERENCE);
+    public DocumentReference getQueuedUserDocRef() {
+        return collections.getQueueCRef().document(collections.getUid());
     }
 
     public DocumentReference getOnlineUserDocRef() {
-        return mDb.collection("Online").document(mUid);
-    }
-
-    public CollectionReference getQueueCollRef() {
-        return mDb.collection("Queue");
+        return collections.getOnlineCRef().document(collections.getUid());
     }
 }

@@ -13,13 +13,12 @@ import android.view.Window;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.hu.tyler.dontdinealone.domain.User;
+import com.hu.tyler.dontdinealone.data.Entity;
 import com.hu.tyler.dontdinealone.util.Callback;
 import com.hu.tyler.dontdinealone.util.NullCallback;
 
 public class MainActivity extends AppCompatActivity {
 
-    private User user;
     private ProgressDialog progressDialog;
     EditText editTextEmail;
     EditText editTextPW;
@@ -34,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
 //                WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(R.layout.activity_main);
-        user = User.getInstance();
 
         progressDialog = new ProgressDialog(this);
 
@@ -45,10 +43,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        user = User.getInstance();
         //If the user is already logged in, go directly to lobby.
-        if (user.isSignedIn(NullCallback.getInstance())) {
-            Toast.makeText(this, "Previously Logged In: " + user.getEmail(), Toast.LENGTH_SHORT).show();
+        if (Entity.authUser.isSignedIn(NullCallback.getInstance())) {
+            Toast.makeText(this, "Previously Logged In: " + Entity.authUser.getEmail(), Toast.LENGTH_SHORT).show();
             goToLobbyActivity();
         }
     }
@@ -56,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        user = null;
     }
     // Presenter Methods ---------------------------------------------
 
@@ -86,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
         progressDialog.setMessage("Logging You In...");
         progressDialog.show();
 
-        user.signIn(email, password, new LoginCallback());
+        Entity.authUser.signIn(email, password, new LoginCallback());
 //        Test statment
         Toast.makeText(this, "After user.signIn", Toast.LENGTH_SHORT).show();
 

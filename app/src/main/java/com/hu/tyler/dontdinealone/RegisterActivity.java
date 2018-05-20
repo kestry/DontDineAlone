@@ -9,12 +9,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-import com.hu.tyler.dontdinealone.domain.User;
+
+import com.hu.tyler.dontdinealone.data.Entity;
 import com.hu.tyler.dontdinealone.util.Callback;
 
 public class RegisterActivity extends AppCompatActivity {
-
-    private User user;
 
     EditText editTextEmail;
     EditText editTextPw;
@@ -29,7 +28,6 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        user = User.getInstance();
 
         editTextEmail = findViewById(R.id.xxxxReg);
         editTextPw = findViewById(R.id.xxxxPW);
@@ -42,7 +40,6 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        user = null;
     }
 
     // Presenter Methods ---------------------------------------------
@@ -86,7 +83,7 @@ public class RegisterActivity extends AppCompatActivity {
         progressDialog.show();
 
         //Try and Register:
-        user.register(email, password, new RegisterCallback());
+        Entity.authUser.register(email, password, new RegisterCallback());
     }
 
     // Navigation Methods --------------------------------------------

@@ -3,6 +3,7 @@ package com.hu.tyler.dontdinealone;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,19 +12,15 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.hu.tyler.dontdinealone.data.Repo;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.hu.tyler.dontdinealone.data.Entity;
 import com.hu.tyler.dontdinealone.domain.Documents;
-import com.hu.tyler.dontdinealone.data.RepoContainer;
-import com.hu.tyler.dontdinealone.domain.User;
-import com.hu.tyler.dontdinealone.res.DatabaseKeys;
 import com.hu.tyler.dontdinealone.util.Callback;
-import com.hu.tyler.dontdinealone.util.NullCallback;
 
 public class EditProfileActivity extends AppCompatActivity {
 
     private Documents documents;
-    private User user;
-    private Repo repo;
 
     EditText editTextDisplayName;
     EditText editTextGender;
@@ -44,15 +41,13 @@ public class EditProfileActivity extends AppCompatActivity {
         editTextAnimal = findViewById(R.id.editTextAnimal);
 
         documents = Documents.getInstance();
-        user = User.getInstance();
-        repo = RepoContainer.profileRepo;
 
         progressDialog = new ProgressDialog(this);
 
         //Check if user is not logged in
         progressDialog.setMessage("Checking Sign-in...");
         progressDialog.show();
-        if (!user.isSignedIn(new SignedInCallback())) {
+        if (!Entity.authUser.isSignedIn(new SignedInCallback())) {
             //Closing this activity
             finish();
             //Starting Main activity
@@ -95,28 +90,47 @@ public class EditProfileActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        user = null;
-        repo = null;
+        //repo = null;
 
     }
 
     // Presenter Methods ---------------------------------------------
 
     public void saveProfile(final View v) {
-        repo.set(DatabaseKeys.Profile.DISPLAY_NAME, editTextDisplayName.getText().toString().trim());
-        repo.set(DatabaseKeys.Profile.GENDER, editTextGender.getText().toString().trim());
-        repo.set(DatabaseKeys.Profile.ANIMAL, editTextAnimal.getText().toString().trim());
+        Entity.user.setDisplayName(editTextDisplayName.getText().toString().trim());
+        Entity.user.setGender(editTextGender.getText().toString().trim());
+        Entity.user.setAnimal(editTextAnimal.getText().toString().trim());
 
         progressDialog.setMessage("Saving Profile...");
         progressDialog.show();
-        repo.store(documents.getProfileDocRef(), new StoreCallback());
+        documents.getUserDocRef().set(Entity.user)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        progressDialog.dismiss();
+
+                        Toast.makeText(EditProfileActivity.this, "Profile saved successfully", Toast.LENGTH_SHORT).show();
+                        goToLobbyActivity();
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        progressDialog.dismiss();
+
+                        Log.w("XXX", "Save error: ", e);
+                        Toast.makeText(EditProfileActivity.this, "Profile save failed", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(EditProfileActivity.this, "Profile Save Error: " + e, Toast.LENGTH_LONG).show();
+                    }
+                });
     }
 
     public void loadProfile() {
         // Sets the editText field with our db profile info.
-        editTextDisplayName.setText((String) repo.get(DatabaseKeys.Profile.DISPLAY_NAME));
-        editTextGender.setText((String) repo.get(DatabaseKeys.Profile.GENDER));
-        editTextAnimal.setText((String) repo.get(DatabaseKeys.Profile.ANIMAL));
+        editTextDisplayName.setText(Entity.user.getDisplayName());
+        editTextGender.setText(Entity.user.getGender());
+        editTextAnimal.setText(Entity.user.getAnimal());
     }
 
     public void goToLobbyActivity(View v)

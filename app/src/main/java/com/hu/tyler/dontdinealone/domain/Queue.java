@@ -1,22 +1,53 @@
 package com.hu.tyler.dontdinealone.domain;
 
+import android.support.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
-import com.hu.tyler.dontdinealone.OnlineUser;
+import com.google.firebase.firestore.SetOptions;
+import com.hu.tyler.dontdinealone.data.Entity;
+import com.hu.tyler.dontdinealone.data.entity.OnlineUser;
+import com.hu.tyler.dontdinealone.util.Callback;
 
 import java.util.HashMap;
 import java.util.Map;
 
 
 public abstract class Queue {
-    public static void queue(OnlineUser user, CollectionReference collectionRef) {
-        Map<String, Object> data = new HashMap<>();
-        data.put("timestamp", FieldValue.serverTimestamp());
-        collectionRef.document(user.getDocumentId()).set(data);
+    public static void queue(final Callback callback) {
+        Documents.getInstance().getQueuedUserDocRef().set(Entity.queuedUser)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Map<String, Object> data = new HashMap<>();
+                        data.put("timestamp", FieldValue.serverTimestamp());
+                        Documents.getInstance().getQueuedUserDocRef().update(data)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        callback.onSuccess();
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        callback.onFailure(e);
+                                    }
+                                });
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callback.onFailure(e);
+                    }
+                });
     }
-    public static void deque(OnlineUser user, CollectionReference collectionRef) {
-        collectionRef.document(user.getDocumentId()).delete();
+
+    public static void deque() {
+        Documents.getInstance().getQueuedUserDocRef().delete();
     }
 }
 
