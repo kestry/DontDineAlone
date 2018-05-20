@@ -1,4 +1,4 @@
-package com.hu.tyler.dontdinealone.domain;
+package com.hu.tyler.dontdinealone.data;
 
 import com.google.firebase.firestore.DocumentReference;
 

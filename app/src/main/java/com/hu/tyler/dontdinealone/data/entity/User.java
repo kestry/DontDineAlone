@@ -21,39 +21,32 @@ public class User {
         animal = user.animal;
     }
 
-    public String getDisplayNameKey() {
+    public String displayNameKey() {
         return "displayName";
     }
-
-    public String getGenderKey() {
-        return "gender";
-    }
-
-    public String getAnimalKey() {
-        return "animal";
-    }
-
     public String getDisplayName() {
         return displayName;
     }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public String getAnimal() {
-        return animal;
-    }
-
-
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
     }
 
+    public String genderKey() {
+        return "gender";
+    }
+    public String getGender() {
+        return gender;
+    }
     public void setGender(String gender) {
         this.gender = gender;
     }
 
+    public String animalKey() {
+        return "animal";
+    }
+    public String getAnimal() {
+        return animal;
+    }
     public void setAnimal(String animal) {
         this.animal = animal;
     }

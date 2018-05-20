@@ -1,6 +1,8 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
-import { QuerySnapshot } from '@google-cloud/firestore';
+import { QuerySnapshot } from '@google-cloud/firestore'; // This needs to be listed as a dependency
+
+import {Group} from './group'
 
 admin.initializeApp()
 
@@ -16,8 +18,8 @@ export const helloWorld = functions.https.onRequest((request, response) => {
   response.send("Hello from Firebase!");
 });
 
-// In progress and unfinished. Commented out before committing just in case.
-/* 
+/* In progress
+
 // Create a new function which is triggered when a new document, {uid},
 // is created in Queue. This new document represents a queuedUser object
 // and this function wil take the queuedUser and put them into a group.
@@ -68,7 +70,12 @@ export const addQueuedUserToGroup = functions.firestore
       
     });
 
-// SAMPLE CODE
+//In progress END
+*/
+
+
+/*
+// SAMPLE CODE, for reference only!
 // Listens for new messages added to /messages/:documentId/original and creates an
 // uppercase version of the message to /messages/:documentId/uppercase
 // [START makeUppercaseTrigger]

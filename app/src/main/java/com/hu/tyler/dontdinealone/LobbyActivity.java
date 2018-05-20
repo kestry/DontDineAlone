@@ -29,7 +29,8 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.hu.tyler.dontdinealone.data.Entity;
 import com.hu.tyler.dontdinealone.data.entity.OnlineUser;
-import com.hu.tyler.dontdinealone.domain.Documents;
+import com.hu.tyler.dontdinealone.data.Documents;
+import com.hu.tyler.dontdinealone.domain.OnlineService;
 import com.hu.tyler.dontdinealone.domain.Queue;
 import com.hu.tyler.dontdinealone.res.DatabaseKeys;
 import com.hu.tyler.dontdinealone.res.DatabaseStatuses;
@@ -97,6 +98,8 @@ public class LobbyActivity extends AppCompatActivity {
 
         hasChosenGroupSizes = false;
         hasChosenDiningHalls = false;
+
+        u = Entity.onlineUser;
     }
 
     ///////////TYLERS EDITS/////////
@@ -104,7 +107,7 @@ public class LobbyActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         Log.d("XXX", "transitionID @ onStart: " + transitionID);
-
+        u = Entity.onlineUser;
         onlineUsers.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
@@ -146,8 +149,8 @@ public class LobbyActivity extends AppCompatActivity {
             }
         });
 
-        if(u != null)
-        onlineUsers.document(u.getDocumentId()).update("status", DatabaseStatuses.User.online);
+        OnlineService.goOnline();
+
     }
 
     @Override
@@ -182,7 +185,7 @@ public class LobbyActivity extends AppCompatActivity {
         //TODO: begin matching logic
         if (findingMatch != 0) {
             Queue.dequeUser();
-            onlineUsers.document(u.getDocumentId()).update("status", DatabaseStatuses.User.online);
+            OnlineService.goOnline();
             findingMatch = 0;
             buttonMatch.setText("Start Matching");
             buttonMatch.setBackgroundColor(Color.parseColor("#FF9900"));
@@ -431,12 +434,7 @@ public class LobbyActivity extends AppCompatActivity {
         @Override
         public void onSuccess() {
             progressDialog.dismiss();
-
-
-
             ////////////Tyler's Edits
-//            Toast.makeText(LobbyActivity.this, "Test2: Hello " + Entity.user.getDisplayName(), Toast.LENGTH_SHORT).show();  // DELETE
-
 
             hiTxt = findViewById(R.id.textViewTitle);
             String g = "Welcome " + Entity.user.getDisplayName();
@@ -445,18 +443,7 @@ public class LobbyActivity extends AppCompatActivity {
             String date = s.format(new Date());
             if(Entity.authUser == null)
                 return;
-            //Lets get online users
-            u = new OnlineUser(Entity.authUser.getEmail(), Entity.user.getDisplayName(),
-                    Entity.user.getAnimal(),"online", date);
-            onlineUsers.document(Entity.authUser.getUid()).set(u).addOnSuccessListener(new OnSuccessListener<Void>()  {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    u.setDocumentId(Entity.authUser.getUid());
-                    Log.d("XXX", "DocID for this instance: " + u.getDocumentId());
-                    loadOnlineUsers();
-                }
-            });
-
+            loadOnlineUsers();
             ///////////////////// End of Tylers Edit
         }
 

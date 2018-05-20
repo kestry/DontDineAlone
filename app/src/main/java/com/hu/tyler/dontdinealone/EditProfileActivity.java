@@ -15,7 +15,7 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.hu.tyler.dontdinealone.data.Entity;
-import com.hu.tyler.dontdinealone.domain.Documents;
+import com.hu.tyler.dontdinealone.data.Documents;
 import com.hu.tyler.dontdinealone.util.Callback;
 
 public class EditProfileActivity extends AppCompatActivity {

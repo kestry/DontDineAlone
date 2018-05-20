@@ -1,5 +1,6 @@
 package com.hu.tyler.dontdinealone.data.entity;
 
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.ServerTimestamp;
 import com.hu.tyler.dontdinealone.res.DatabaseKeys;
 import com.hu.tyler.dontdinealone.res.DatabaseStatuses;
@@ -16,59 +17,57 @@ public class QueuedUser {
     private String status = DatabaseStatuses.User.queued;
 
     @ServerTimestamp
-    private Date lastCreated;
+    private Date birthTimestamp;
 
     public QueuedUser() {
         groupSizePreferences = new ArrayList<>(DatabaseKeys.Preference.GROUP_SIZES.length);
         diningHallPreferences = new ArrayList<>(DatabaseKeys.Preference.DINING_HALLS.length);
-        lastCreated = new Date();
+        status = DatabaseStatuses.User.queued;
+        birthTimestamp = new Date();
     }
 
-    public String getLastCreatedKey() {
-        return "lastCreated";
+    public String birthTimestampKey() {
+        return "birthTimestamp";
     }
-    public String getGroupSizePreferencesKey() {
-        return "groupSizePreferences";
+    public Date getBirthTimestamp() {
+        return birthTimestamp;
     }
-    public String getDiningHallPreferencesKey() {
-        return "diningHallPreferences";
-    }
-    public String getStatusKey() {
-        return "status";
-    }
+    // No setter becauase we only allow the server to timestamp
 
-    public Date getLastCreated() {
-        return lastCreated;
-    }
-
-    public void setLastCreated(Date timestamp) {
-        this.lastCreated = lastCreated;
-    }
-
+    public String groupSizePreferencesKey() { return "groupSizePreferences"; }
     public List<Boolean> getGroupSizePreferences() {
         return groupSizePreferences;
     }
-    public List<Boolean> getDiningHallPreferences() {
-        return diningHallPreferences;
-    }
-
     public void setGroupSizePreferences(List<Boolean> groupSizePreferences) {
         this.groupSizePreferences = groupSizePreferences;
     }
-    public void setDiningHallPreferences(List<Boolean> groupSizePreferences) {
-        this.diningHallPreferences = diningHallPreferences;
-    }
-
     public void setGroupSizePreferencesFromArray(boolean[] booleans) {
         for (int i = 0; i < groupSizePreferences.size(); ++i) {
             groupSizePreferences.set(i, booleans[i]);
         }
     }
 
+    public String diningHallPreferencesKey() {
+        return "diningHallPreferences";
+    }
+    public List<Boolean> getDiningHallPreferences() {
+        return diningHallPreferences;
+    }
+    public void setDiningHallPreferences(List<Boolean> groupSizePreferences) {
+        this.diningHallPreferences = diningHallPreferences;
+    }
     public void setDiningHallPreferencesFromArray(boolean[] booleans) {
         for (int i = 0; i < groupSizePreferences.size(); ++i) {
             this.diningHallPreferences.set(i, booleans[i]);
         }
+    }
+
+    public String statusKey() { return "status"; }
+    public String getStatus() {
+        return status;
+    }
+    public void setStatus (String status) {
+        this.status = status;
     }
 
 }

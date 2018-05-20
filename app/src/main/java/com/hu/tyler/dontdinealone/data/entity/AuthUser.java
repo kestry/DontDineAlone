@@ -9,8 +9,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.hu.tyler.dontdinealone.data.Entity;
-import com.hu.tyler.dontdinealone.domain.Collections;
-import com.hu.tyler.dontdinealone.domain.Documents;
+import com.hu.tyler.dontdinealone.data.Collections;
+import com.hu.tyler.dontdinealone.data.Documents;
+import com.hu.tyler.dontdinealone.domain.OnlineService;
 import com.hu.tyler.dontdinealone.util.Callback;
 import com.hu.tyler.dontdinealone.util.NullCallback;
 
@@ -58,10 +59,11 @@ public class AuthUser {
                                 DocumentSnapshot document = task.getResult();
                                 if (document.exists()) {
                                     Entity.user.set(document.toObject(Entity.user.getClass()));
+
                                 } else {
                                     Entity.user.setToDefault();
                                 }
-                                callback.onSuccess();
+                                OnlineService.setUserToOnline(callback);
                             } else {
                                 callback.onFailure(task.getException());
                             }
