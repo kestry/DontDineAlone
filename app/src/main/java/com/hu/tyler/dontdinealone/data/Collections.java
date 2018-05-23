@@ -61,18 +61,18 @@ public class Collections {
     // For persistent user info
     //public CollectionReference getUsersCRef() { return mDb.collection("Users"); }
 
-    // TODO: DELETE THIS AND USE ABOVE
+    // TODO: DELETE THIS AND USE ABOVE ONCE WE ARE DONE DEVELOPING MAYBE?
     public CollectionReference getUsersCRef() {
-        return mDb.collection("Tests").document("Test1").collection("Users");
+        return mDb.collection("BUILDS").document("BUILD-001").collection("Users");
     }
 
 
     // For online users
     //public CollectionReference getOnlineUsersCRef() { return mDb.collection("Online"); }
 
-    // TODO: DELETE THIS AND USE ABOVE
+    // TODO: DELETE THIS AND USE ABOVE ONCE WE ARE DONE DEVELOPING MAYBE?
     public CollectionReference getOnlineUsersCRef() {
-        return mDb.collection("Tests").document("Test1").collection("Online");
+        return mDb.collection("BUILDS").document("BUILD-001").collection("Online");
     }
 
 

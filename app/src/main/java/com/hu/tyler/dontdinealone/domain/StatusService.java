@@ -16,8 +16,6 @@ import com.hu.tyler.dontdinealone.util.Callback;
 public abstract class StatusService {
     /**
      * Updates the local and remote status asynchronously.
-     * @param docRef
-     * @param status
      */
     public static void updateStatus(DocumentReference docRef,
                                     String status) {
@@ -26,10 +24,6 @@ public abstract class StatusService {
 
     /**
      * Updates the local and remote status with a callback.
-     * @param docRef
-     * @param status
-     * @param callback - call with NullCallback.getInstance() if you don't need to execute
-     *                 code dependent on success/failure.
      */
     public static void updateStatus(DocumentReference docRef,
                                      String status,

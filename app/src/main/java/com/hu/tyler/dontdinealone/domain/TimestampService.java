@@ -20,7 +20,7 @@ public abstract class TimestampService {
      * @param docRef
      * @param key
      */
-    private static void updateRemoteTimestamp(DocumentReference docRef, String key) {
+    public static void updateRemoteTimestamp(DocumentReference docRef, String key) {
         docRef.update(key, FieldValue.serverTimestamp());
     }
 
@@ -32,7 +32,7 @@ public abstract class TimestampService {
      * @param callback - call with NullCallback.getInstance() if you don't need to execute
      *                 code dependent on success/failure.
      */
-    private static void updateRemoteTimestamp(DocumentReference docRef,
+    public static void updateRemoteTimestamp(DocumentReference docRef,
                                               String key,
                                               final Callback callback) {
         docRef.update(key, FieldValue.serverTimestamp())

@@ -1,26 +1,33 @@
 package com.hu.tyler.dontdinealone.data.entity;
 
+import android.view.View;
+
+import com.hu.tyler.dontdinealone.R;
 import com.hu.tyler.dontdinealone.res.DatabaseKeys;
 
 public class User {
     String displayName;
     String gender;
     String animal;
+    String avatarViewName;
+
 
     public User() {
         setToDefault();
     }
 
     public void setToDefault() {
-        displayName = "";
+        displayName = "Guest"; // TODO: Set to auth name
         gender = "";
         animal = "";
+        avatarViewName = null;
     }
 
     public void set(User user) {
         displayName = user.displayName;
         gender = user.gender;
         animal = user.animal;
+        avatarViewName = user.avatarViewName;
     }
 
     public String displayNameKey() {
@@ -51,6 +58,16 @@ public class User {
     }
     public void setAnimal(String animal) {
         this.animal = animal;
+    }
+
+    public String avatarViewNameKey() {
+        return "avatarViewName";
+    }
+    public String getAvatarViewName() {
+        return avatarViewName;
+    }
+    public void setAvatarViewName(String avatar) {
+        this.avatarViewName = avatar;
     }
 
 }

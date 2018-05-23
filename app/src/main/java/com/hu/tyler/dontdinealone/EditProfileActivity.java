@@ -16,18 +16,23 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.hu.tyler.dontdinealone.data.Entity;
 import com.hu.tyler.dontdinealone.data.Documents;
+import com.hu.tyler.dontdinealone.data.entity.User;
+import com.hu.tyler.dontdinealone.domain.ViewService;
 import com.hu.tyler.dontdinealone.util.Callback;
 
 public class EditProfileActivity extends AppCompatActivity {
 
     private Documents documents;
 
+    final private User user = Entity.user;
+
     EditText editTextDisplayName;
     EditText editTextGender;
     EditText editTextAnimal;
-    int x = 14; //total number of avatars
-    ImageView avaBtn[] = new ImageView[x]; //this is for the avatars.
-    ImageView currentAvatar;
+    final int ImageView_AvatarButtons_Size = 14;
+    ImageView imageView_AvatarButtons[] = new ImageView[ImageView_AvatarButtons_Size];
+    ImageView imageView_AvatarButtons_CurrentButton;
+    View currentAvatarView;
 
     private ProgressDialog progressDialog;
 
@@ -55,42 +60,32 @@ public class EditProfileActivity extends AppCompatActivity {
             //Starting Main activity
             startActivity(new Intent(this, MainActivity.class));
         }
-
-        //Didn't figure out how to dynamically set buttons, so the below is temporary
-        avaBtn[0] = findViewById(R.id.ava1);
-        avaBtn[1] = findViewById(R.id.ava2);
-        avaBtn[2] = findViewById(R.id.ava3);
-        avaBtn[3] = findViewById(R.id.ava4);
-        avaBtn[4] = findViewById(R.id.ava5);
-        avaBtn[5] = findViewById(R.id.ava6);
-        avaBtn[6] = findViewById(R.id.ava7);
-        avaBtn[7] = findViewById(R.id.ava8);
-        avaBtn[8] = findViewById(R.id.ava9);
-        avaBtn[9] = findViewById(R.id.ava10);
-        avaBtn[10] = findViewById(R.id.ava11);
-        avaBtn[11] = findViewById(R.id.ava12);
-        avaBtn[12] = findViewById(R.id.ava13);
-        avaBtn[13] = findViewById(R.id.ava14);
-
-        currentAvatar = avaBtn[0];
-
-        for(int i = 0; i < x; i++)
-        {
-            final int j = i;  // can't pass in a dynamic int to the class below, so had to do this.
-            avaBtn[i].setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    currentAvatar.setBackgroundColor(00000000);
-                    avaBtn[j].setBackgroundColor(Color.parseColor("#FF4081"));
-                    currentAvatar = avaBtn[j];
-                    Toast.makeText(EditProfileActivity.this,
-                            "#" + j, Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
+        // We get the loaded avatar from the user profile and highlight it.
+        View avatarView = ViewService.getView(user.getAvatarViewName(), this);
+        highlight(avatarView);
     }
 
     // Presenter Methods -------------------------------------------------------------------------
+
+    /**
+     * Unhighlights the current user avatar.
+     */
+    void unhighlight() {
+        View view = ViewService.getView(user.getAvatarViewName(), this);
+        view.setBackgroundColor(00000000);
+    }
+
+    /**
+     * Sets and highlights the clicked avatar and unhighlights the previous avatar.
+     */
+    void highlight(View v) {
+        unhighlight();
+        v.setBackgroundColor(Color.parseColor("#FF4081"));
+        String avatarViewName = ViewService.getViewName(v);
+        user.setAvatarViewName(avatarViewName);
+        Toast.makeText(EditProfileActivity.this,
+                avatarViewName, Toast.LENGTH_SHORT).show();
+    }
 
     public void saveProfile(final View v) {
         Entity.user.setDisplayName(editTextDisplayName.getText().toString().trim());
@@ -133,12 +128,13 @@ public class EditProfileActivity extends AppCompatActivity {
         editTextAnimal.setText(Entity.user.getAnimal());
     }
 
+    // Navigation Methods ------------------------------------------------------------------------
+
     public void goToLobbyActivity(View v)
     {
         goToLobbyActivity();
     }
 
-    // Navigation Methods ------------------------------------------------------------------------
 
     // Goes back to the lobby page.
     public void goToLobbyActivity()
@@ -178,9 +174,20 @@ public class EditProfileActivity extends AppCompatActivity {
         public void onSuccess() {
             progressDialog.dismiss();
 
+            // We want to load the user's saved profile.
+            loadProfile();
             Toast.makeText(EditProfileActivity.this,
                     "Profile loaded successfully", Toast.LENGTH_SHORT).show();
-            loadProfile();
+
+            // Set user's avatar to default if none was previously set.
+            View defaultAvatarView = findViewById(R.id.ava1);
+            if (user.getAvatarViewName() == null) {
+                user.setAvatarViewName(ViewService.getViewName(defaultAvatarView));
+                Toast.makeText(EditProfileActivity.this,
+                        "Default avatar successfully set to " + user.getAvatarViewName(),
+                        Toast.LENGTH_SHORT).show();
+            }
+
         }
 
         @Override

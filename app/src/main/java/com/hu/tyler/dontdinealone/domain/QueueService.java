@@ -23,6 +23,7 @@ import java.util.Map;
  *    Class.method();
  */
 public abstract class QueueService {
+
     /**
      * Enters the User entity into a queued state. Then calls the match service to find a group.
      */
@@ -34,9 +35,11 @@ public abstract class QueueService {
     }
 
     public static void leaveQueue() {
-        StatusService.updateStatus(Documents.getInstance().getOnlineUserDocRef(),
-                DatabaseStatuses.User.online);    }
-
+        DocumentReference onlineUserDocRef = Documents.getInstance().getOnlineUserDocRef();
+        StatusService.updateStatus(onlineUserDocRef, DatabaseStatuses.User.online);
+        TimestampService.updateRemoteTimestamp(onlineUserDocRef,
+                Entity.onlineUser.firstOnlineTimeKey());
+    }
 
 }
 

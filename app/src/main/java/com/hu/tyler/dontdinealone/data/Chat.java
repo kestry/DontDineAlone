@@ -1,4 +1,4 @@
-package com.hu.tyler.dontdinealone;
+package com.hu.tyler.dontdinealone.data;
 
 import com.google.firebase.firestore.Exclude;
 

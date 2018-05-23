@@ -1,0 +1,37 @@
+Architectures used:
+
+    The architectures used are Model-View-Presenter (MVP) and Clean Architecture.
+    It is a simplified adaptation of code found at:
+
+        https://github.com/googlesamples/android-architecture
+
+    which shows how a codebase gradually transitions into more sophisticated structures.
+
+    MVP is as follows:
+
+        [physical data] -- [model of data] -- [presenter that uses  -- [view which are dumb
+                                               the model and views      UI services like
+                                               to create our            widgets/buttons/etc]
+                                               presentation
+                                               for the user]
+
+    Clean Architecture inserts another layer to MVP in between model and presenter. This layer
+    is called the domain and consists of use cases and business logic.
+
+    In our project, we call use cases "services" to also make this more intuitive.
+
+    At the moment, the layout has heavy dependency usage because of the direct calls to Entity.
+    But since we are mostly new to the technologies and concepts, it is a simpler start.
+
+Codebase Layout:
+
+Folders:
+- data
+
+- domain
+
+- res
+
+- util
+
+- main (not in folder): Contains our activities or "views".

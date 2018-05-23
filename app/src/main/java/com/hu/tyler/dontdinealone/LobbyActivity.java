@@ -27,6 +27,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.hu.tyler.dontdinealone.data.Chat;
 import com.hu.tyler.dontdinealone.data.Collections;
 import com.hu.tyler.dontdinealone.data.Entity;
 import com.hu.tyler.dontdinealone.data.entity.OnlineUser;
@@ -155,9 +156,8 @@ public class LobbyActivity extends AppCompatActivity {
     @Override
     protected void onPause(){
         super.onPause();
-        if(findingMatch == false)
-        {if (user != null)
-            onlineUsers.document(user.getDocumentId()).update("status", DatabaseStatuses.User.offline);
+        if(findingMatch == false && user != null) {
+            onlineUsers.document(user.getDocumentId()).delete();
         }
     }
 
@@ -194,8 +194,6 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
     public void queueUser() {
-        onlineUsers.document(user.getDocumentId()).update("status", DatabaseStatuses.User.queued);
-        onlineUsers.document(user.getDocumentId()).update("queueTimestamp", FieldValue.serverTimestamp());
         QueueService.enterQueue(new StoreCallback());
         findingMatch = true;
         buttonMatch.setBackgroundColor(Color.parseColor("#FF4081"));
@@ -211,15 +209,13 @@ public class LobbyActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(QuerySnapshot documentSnapshots) {
                         List<DocumentSnapshot> snaps = documentSnapshots.getDocuments();
-                        for(DocumentSnapshot snap : snaps)
-                        {
+                        for(DocumentSnapshot snap : snaps) {
 //                            remove the element that has a identical email -- TODO: What does this mean?
                             String otherId = snap.getId();
                             String ourId = user.getDocumentId();
 
                             boolean foundOtherUser = !otherId.equalsIgnoreCase(ourId);
-                            if(foundOtherUser)
-                            {
+                            if(foundOtherUser) {
                                 Toast.makeText(LobbyActivity.this,
                                         "Match Found!", Toast.LENGTH_SHORT).show();
                                 //TODO: probably should check whether someone already changed your status before proceeding further.
@@ -282,8 +278,7 @@ public class LobbyActivity extends AppCompatActivity {
                 List<DocumentSnapshot> snaps = documentSnapshots.getDocuments();
                 Toast.makeText(LobbyActivity.this, "# of people online" + snaps.size(), Toast.LENGTH_SHORT).show();
                 int loopCount = 0;
-                for(DocumentSnapshot snap : snaps)
-                {
+                for (DocumentSnapshot snap : snaps) {
                     Log.d("XXX", "for loop " + ++loopCount);
                     OnlineUser otherUser = snap.toObject(OnlineUser.class);
                     otherUser.setDocumentId(snap.getId());
@@ -338,8 +333,7 @@ public class LobbyActivity extends AppCompatActivity {
         });
         builder.setNegativeButton(R.string.cancel_label, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-            }
+            public void onClick(DialogInterface dialogInterface, int i) { }
         });
         groupSizeSelection = builder.create();
         groupSizeSelection.show();
@@ -375,9 +369,7 @@ public class LobbyActivity extends AppCompatActivity {
         });
         builder.setNegativeButton(R.string.cancel_label, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-
-            }
+            public void onClick(DialogInterface dialogInterface, int i) { }
         });
         diningHallSelection = builder.create();
         diningHallSelection.show();

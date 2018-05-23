@@ -5,9 +5,16 @@ import com.hu.tyler.dontdinealone.data.entity.MatchPreferences;
 import com.hu.tyler.dontdinealone.data.entity.OnlineUser;
 import com.hu.tyler.dontdinealone.data.entity.User;
 
+/*
+ * This is a container that holds and saves our specific user information.
+ *
+ * Usage:
+ *     Entity.onlineUser.method();
+ */
 public interface Entity {
-    AuthUser authUser = new AuthUser();
-    OnlineUser onlineUser = new OnlineUser();
-    User user = new User();
-    MatchPreferences matchPreferences = new MatchPreferences();
+    User user = new User(); // Persistant User Data
+    AuthUser authUser = new AuthUser(); // Authentication User Data
+    OnlineUser onlineUser = new OnlineUser(); // Online User Data
+
+    MatchPreferences matchPreferences = new MatchPreferences(); // User Match Preferences
 }

@@ -6,7 +6,7 @@ package com.hu.tyler.dontdinealone.domain;
  *    Class.method();
  */
 public abstract class OfflineService {
-    void goOffline() {
+    public static void goOffline() {
 
     }
 }
