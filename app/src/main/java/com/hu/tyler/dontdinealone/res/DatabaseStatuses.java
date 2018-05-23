@@ -5,7 +5,7 @@ public interface DatabaseStatuses {
     public interface User {
         String online = "online";
         String queued = "queued";
-        String matched = "matched";
+        String matched = "matched"; // Matched to a group. Would "waiting" be a better term?
         String confirming = "confirming";
         String confirmed = "confirmed";
         String dining = "dining";
@@ -13,7 +13,7 @@ public interface DatabaseStatuses {
     }
 
     public interface Group {
-        String waiting = "waiting";
+        String waiting = "waiting"; // Waiting for more members
         String confirming = "confirming";
         String confirmed = "confirmed";
     }

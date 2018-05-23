@@ -33,6 +33,7 @@ import com.hu.tyler.dontdinealone.data.entity.OnlineUser;
 import com.hu.tyler.dontdinealone.data.Documents;
 import com.hu.tyler.dontdinealone.domain.OnlineService;
 import com.hu.tyler.dontdinealone.domain.QueueService;
+import com.hu.tyler.dontdinealone.domain.StatusService;
 import com.hu.tyler.dontdinealone.res.DatabaseKeys;
 import com.hu.tyler.dontdinealone.res.DatabaseStatuses;
 import com.hu.tyler.dontdinealone.util.Callback;
@@ -46,15 +47,14 @@ public class LobbyActivity extends AppCompatActivity {
 
     private Collections collections;
     private Documents documents;
-    private int findingMatch = 0; //variable to indicate on going search
-    private int goingToMatching = 0; // prevents MatchingActivity from running twice
+    private boolean findingMatch = false; //variable to indicate on going search
+    private boolean goingToMatching = false; // prevents MatchingActivity from running twice
     ///Tyler Edits: 5/15
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference onlineUsers; // for group items
     private CollectionReference matchedUsers;
-    private DocumentReference tempUse;
     TextView hiTxt;
-    OnlineUser u; // object to hold user info
+    OnlineUser user; // object to hold user info
     ///////////////////
 
     // List items
@@ -64,7 +64,7 @@ public class LobbyActivity extends AppCompatActivity {
     private boolean[] diningHallPreferences;
 
     Button buttonMatch;
-    String transitionID = "0"; //this will hold the document ID for 2 matches
+    String transitionID = "0"; //this will hold the document ID for 2 matches TODO: What is a transitionId exactly?
     private ProgressDialog progressDialog;
 
     // Lifecycle Methods -------------------------------------------------------------------------
@@ -98,7 +98,7 @@ public class LobbyActivity extends AppCompatActivity {
 
         diningHallsFormatted = getResources().getStringArray(R.array.diningHallsFormatted);
 
-        u = Entity.onlineUser;
+        user = Entity.onlineUser;
     }
 
     ///////////TYLERS EDITS/////////
@@ -106,7 +106,7 @@ public class LobbyActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         Log.d("XXX", "transitionID @ onStart: " + transitionID);
-        u = Entity.onlineUser;
+        user = Entity.onlineUser;
         onlineUsers.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
@@ -114,50 +114,50 @@ public class LobbyActivity extends AppCompatActivity {
                 Log.d("XXX", "transitionID @ onStart @ addSnapshotListener: " + transitionID);
 
                 if(e!=null){
+                    // We encountered an exception.
                     return;
                 }
 
                 String data = "Online Users:\n\n";
-                List<DocumentSnapshot> x = queryDocumentSnapshots.getDocuments();
-                for(int i = 0; i < x.size(); i++)
+                List<DocumentSnapshot> snaps = queryDocumentSnapshots.getDocuments();
+                int loopCount = 0;
+                for(DocumentSnapshot snap : snaps)
                 {
-                    OnlineUser j = x.get(i).toObject(OnlineUser.class);
-                    Log.d("XXX", "for loop users"+i + ": " + j.getName());
-                    j.setDocumentId(x.get(i).getId());
-                    if(u != null && x.get(i).get("chatID") != null) // Check object validity before proceeding matching
-                    if(x.get(i).getId().equals(u.getDocumentId()))
-                    {
-                        //User has been match
-                        if(!x.get(i).get("chatID").toString().equals("0"))
-                        {
-                            transitionID = x.get(i).get("chatID").toString();
-                            if(goingToMatching == 0)
-                            {
-                                goingToMatching = 1;// prevents 2x execution
-                                goToMatchingActivity();
+                    OnlineUser otherUser = snap.toObject(OnlineUser.class);
+                    Log.d("XXX", "for loop users" + ++loopCount + ": " + otherUser.getName());
+                    otherUser.setDocumentId(snap.getId());
+                    boolean isValidUserAndChatId = user != null && snap.get("chatID") != null;
+                    if(isValidUserAndChatId) {
+                        boolean isOurUser = snap.getId().equals(user.getDocumentId());
+                        if(isOurUser) {
+                            // User has been matched
+                            if(!snap.get("chatID").toString().equals("0")) {
+                                transitionID = snap.get("chatID").toString();
+                                if(goingToMatching == false)
+                                {
+                                    goingToMatching = true;// prevents 2x execution
+                                    goToMatchingActivity();
 
+                                }
                             }
                         }
                     }
-                    data += j.getName() +"\n" + j.getEmail() +
-                            "\nStatus Code: " + j.getStatus() +
-                            "\nDocID: " + j.getDocumentId() + "\n\n";
+                    data += otherUser.getName() +"\n" + otherUser.getEmail() +
+                            "\nStatus Code: " + otherUser.getStatus() +
+                            "\nDocID: " + otherUser.getDocumentId() + "\n\n";
                 }
                 TextView onlineCount = findViewById(R.id.onlineCount);
                 onlineCount.setText(data);
             }
         });
-
-        //OnlineService.goOnline();
-
     }
 
     @Override
     protected void onPause(){
         super.onPause();
-        if(findingMatch == 0)
-        {if (u != null)
-            onlineUsers.document(u.getDocumentId()).update("status", DatabaseStatuses.User.offline);
+        if(findingMatch == false)
+        {if (user != null)
+            onlineUsers.document(user.getDocumentId()).update("status", DatabaseStatuses.User.offline);
         }
     }
 
@@ -169,23 +169,23 @@ public class LobbyActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(u == null)
+        if(user == null)
             return;
         QueueService.leaveQueue();
-        onlineUsers.document(u.getDocumentId()).delete();
+        onlineUsers.document(user.getDocumentId()).delete();
     }
 
     // Presenter Methods -------------------------------------------------------------------------
 
     public void startMatching(View v) {
-        if(u == null) {
+        if(user == null) {
             return; //
         }
         //TODO: begin matching logic
-        if (findingMatch != 0) {
+        if (findingMatch) {
             QueueService.leaveQueue();
             OnlineService.goBackOnline();
-            findingMatch = 0;
+            findingMatch = false;
             buttonMatch.setText("Start Matching");
             buttonMatch.setBackgroundColor(Color.parseColor("#FF9900"));
             return;
@@ -194,63 +194,63 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
     public void queueUser() {
-        onlineUsers.document(u.getDocumentId()).update("status", DatabaseStatuses.User.queued);
-        onlineUsers.document(u.getDocumentId()).update("queueTimestamp", FieldValue.serverTimestamp());
+        onlineUsers.document(user.getDocumentId()).update("status", DatabaseStatuses.User.queued);
+        onlineUsers.document(user.getDocumentId()).update("queueTimestamp", FieldValue.serverTimestamp());
         QueueService.enterQueue(new StoreCallback());
-        findingMatch = 1;
+        findingMatch = true;
         buttonMatch.setBackgroundColor(Color.parseColor("#FF4081"));
         buttonMatch.setText("Stop Matching");
         lookingFortheHungry();
     }
 
     protected void lookingFortheHungry() {
-        // Look for other people and we can distinguishe them b/c there status code is "waiting".
+        // Look for other people and we can distinguish them b/c their status code is "waiting".
         onlineUsers.whereEqualTo("status", DatabaseStatuses.User.queued)
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot documentSnapshots) {
-                        List<DocumentSnapshot> x= documentSnapshots.getDocuments();
-                        for(int i = 0; i < x.size(); i++)
+                        List<DocumentSnapshot> snaps = documentSnapshots.getDocuments();
+                        for(DocumentSnapshot snap : snaps)
                         {
-//                            remove the element that has a identical email
-                            String id = x.get(i).getId();
-                            String uId = u.getDocumentId();
+//                            remove the element that has a identical email -- TODO: What does this mean?
+                            String otherId = snap.getId();
+                            String ourId = user.getDocumentId();
 
-                            if(!id.equalsIgnoreCase(uId))
+                            boolean foundOtherUser = !otherId.equalsIgnoreCase(ourId);
+                            if(foundOtherUser)
                             {
-                                Toast.makeText(LobbyActivity.this, "Match Found!", Toast.LENGTH_SHORT).show();
-                                //TODO: probably should check whether someone already changed your status before proceeding further.]
-                                //PRECAUTION SLOWDOWNS
-                                if(transitionID != "0" )
+                                Toast.makeText(LobbyActivity.this,
+                                        "Match Found!", Toast.LENGTH_SHORT).show();
+                                //TODO: probably should check whether someone already changed your status before proceeding further.
+                                //PRECAUTION SLOWDOWNS -- TODO: What does this mean?
+                                boolean foundMatchAlready = user.getStatus() == DatabaseStatuses.User.matched;
+                                if(transitionID != "0" || foundMatchAlready) {
                                     return;
-                                if(u.getStatus() == DatabaseStatuses.User.matched)
-                                    return;
+                                }
                                 ////////////END OF EXTRA PRECAUTIONS
 
-
-                                onlineUsers.document(u.getDocumentId()).update("status", DatabaseStatuses.User.matched); //update my status
-                                db.collection("Online").document(x.get(i).getId()).update("status", DatabaseStatuses.User.matched);
+                                StatusService.updateStatus(documents.getOnlineUserDocRef(), DatabaseStatuses.User.matched);
 
                                 //Get the user we are matched with
-                                tempUse = db.collection("Online").document(x.get(i).getId());
-                                Log.d("XXX","x.get(i).getId().equals(u.getDocumentId():" + x.get(i).getId().equals(u.getDocumentId()));
-                                Log.d("XXX", "id: "+ x.get(i).getId()+ " Matched Email: " + x.get(i).getString("email"));
+                                final DocumentReference otherDocRef = db.collection("Online").document(otherId);
+                                Log.d("XXX","otherId.equals(ourId):" + otherId.equals(ourId));
+                                Log.d("XXX", "id: "+ otherId + " Matched Email: " + snap.getString("email"));
 
                                 SimpleDateFormat s = new SimpleDateFormat("ddMMyyyyhhmmss", Locale.US);
                                 String date = s.format(new Date());
-                                final Chat mchat = new Chat(u.getName(),"Ready",2,date);
+                                final Chat mchat = new Chat(user.getName(),"Ready",2, date);
                                  matchedUsers.add(mchat).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                      @Override
                                      public void onSuccess(DocumentReference documentReference) {
                                          mchat.setDocumentId(documentReference.getId());
                                          transitionID = mchat.getDocumentId();
                                          Log.d("XXX", "TransitionID @ lookingFortheHungry" + transitionID);
-                                         tempUse.update("chatID",transitionID); //update the chatID of the matched person
-                                         u.setNewDoc(transitionID);
-                                         onlineUsers.document(u.getDocumentId()).update("chatID", transitionID);
-                                         findingMatch = 0; //no longer finding matches
-                                         goingToMatching = 1; //transitioning to a new activity
+                                         otherDocRef.update("chatID", transitionID); //update the chatID of the matched person
+                                         user.setNewDoc(transitionID);
+                                         onlineUsers.document(user.getDocumentId()).update("chatID", transitionID);
+                                         findingMatch = false; //no longer finding matches
+                                         goingToMatching = true; //transitioning to a new activity
                                          goToMatchingActivity();
                                      }
                                  });
@@ -264,7 +264,7 @@ public class LobbyActivity extends AppCompatActivity {
         Intent myIntent = new Intent(this, MatchingActivty.class);
         finish();
         myIntent.putExtra("key", transitionID); //Optional parameters
-        myIntent.putExtra("name", u.getName()); //Optional parameters
+        myIntent.putExtra("name", user.getName()); //Optional parameters
 
         this.startActivity(myIntent);
 
@@ -279,21 +279,22 @@ public class LobbyActivity extends AppCompatActivity {
                 String data = "Online Users:\n\n";
 
                 Toast.makeText(LobbyActivity.this, "Inside loadOnlineUsers().Sucess", Toast.LENGTH_SHORT).show();
-                List<DocumentSnapshot> x= documentSnapshots.getDocuments();
-                Toast.makeText(LobbyActivity.this, "# of people online" + x.size(), Toast.LENGTH_SHORT).show();
-                for(int i = 0; i < x.size(); i++)
+                List<DocumentSnapshot> snaps = documentSnapshots.getDocuments();
+                Toast.makeText(LobbyActivity.this, "# of people online" + snaps.size(), Toast.LENGTH_SHORT).show();
+                int loopCount = 0;
+                for(DocumentSnapshot snap : snaps)
                 {
-                    Log.d("XXX", "for loop "+i);
-                    OnlineUser j = x.get(i).toObject(OnlineUser.class);
-                    j.setDocumentId(x.get(i).getId());
-                    data += j.getName() +"\n" + j.getEmail() +
-                            "\nStatus Code: " + j.getStatus() +
-                            "\nDocID: " + j.getDocumentId() + "\n\n";
+                    Log.d("XXX", "for loop " + ++loopCount);
+                    OnlineUser otherUser = snap.toObject(OnlineUser.class);
+                    otherUser.setDocumentId(snap.getId());
+                    data += otherUser.getName() +"\n" + otherUser.getEmail() +
+                            "\nStatus Code: " + otherUser.getStatus() +
+                            "\nDocID: " + otherUser.getDocumentId() + "\n\n";
                 }
                 TextView onlineCount = findViewById(R.id.onlineCount);
                 onlineCount.setText(data);
-//                for(QueryDocumentSnapshot documentSnapshot: x){
-//                    OnlineUser x = documentSnapshot.toObject(OnlineUser.class);
+//                for(QueryDocumentSnapshot querySnap: snaps){
+//                    OnlineUser otherUser = documentSnapshot.toObject(OnlineUser.class);
 //                }
             }
         });
@@ -358,7 +359,6 @@ public class LobbyActivity extends AppCompatActivity {
                 Entity.matchPreferences.setDiningHallPreferenceAt(i, isChecked);
             }
         });
-        // Do we want preferences local to session or persistent? Chose persistent for now.
         builder.setPositiveButton(R.string.ok_label, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int which) {
