@@ -23,9 +23,9 @@ public class OnlineUser {
     private String email;
     private String status;
     @ServerTimestamp
-    private Date birthTimestamp;
+    private Date firstOnlineTime;
     @ServerTimestamp
-    private Date lastCameOnline;
+    private Date firstQueuedTime;
 
     public OnlineUser(){
         //public no-arg constructor needed
@@ -33,24 +33,18 @@ public class OnlineUser {
         this.email = "";
         this.description = "";
         this.status = DatabaseStatuses.User.online;
-        this.birthTimestamp = new Date();
+        this.firstOnlineTime = new Date();
     }
 
-    public String birthTimestampKey() {
-        return "birthTimestamp";
-    }
-    public Date getBirthTimestamp() {
-        return birthTimestamp;
-    }
-    // No setter becauase we only allow the server to timestamp
+    // Any function that starts with "get" will go into Firestore unless we exclude.
 
-    public String lastCameOnlineKey() {
-        return "lastCameOnline";
+    public String firstOnlineTimeKey() {
+        return "firstOnlineTime";
     }
-    public Date getLastCameOnlinep() {
-        return lastCameOnline;
+    public Date getFirstOnlineTime() {
+        return firstOnlineTime;
     }
-    // No setter becauase we only allow the server to timestamp
+    // No setter because we only allow the server to timestamp
 
     public String emailKey() {
         return "email";

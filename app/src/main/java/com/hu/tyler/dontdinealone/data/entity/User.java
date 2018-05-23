@@ -1,5 +1,7 @@
 package com.hu.tyler.dontdinealone.data.entity;
 
+import com.hu.tyler.dontdinealone.res.DatabaseKeys;
+
 public class User {
     String displayName;
     String gender;
@@ -50,4 +52,5 @@ public class User {
     public void setAnimal(String animal) {
         this.animal = animal;
     }
+
 }

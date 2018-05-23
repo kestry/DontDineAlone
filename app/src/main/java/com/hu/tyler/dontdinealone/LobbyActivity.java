@@ -27,11 +27,12 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.hu.tyler.dontdinealone.data.Collections;
 import com.hu.tyler.dontdinealone.data.Entity;
 import com.hu.tyler.dontdinealone.data.entity.OnlineUser;
 import com.hu.tyler.dontdinealone.data.Documents;
 import com.hu.tyler.dontdinealone.domain.OnlineService;
-import com.hu.tyler.dontdinealone.domain.Queue;
+import com.hu.tyler.dontdinealone.domain.QueueService;
 import com.hu.tyler.dontdinealone.res.DatabaseKeys;
 import com.hu.tyler.dontdinealone.res.DatabaseStatuses;
 import com.hu.tyler.dontdinealone.util.Callback;
@@ -43,13 +44,14 @@ import java.util.Locale;
 
 public class LobbyActivity extends AppCompatActivity {
 
+    private Collections collections;
     private Documents documents;
     private int findingMatch = 0; //variable to indicate on going search
-    private int goToMatching = 0; // prevents MatchingActivity from running twice
+    private int goingToMatching = 0; // prevents MatchingActivity from running twice
     ///Tyler Edits: 5/15
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private CollectionReference onlineUsers = db.collection("Online"); // for group items
-    private CollectionReference MatchUsers = db.collection("Matched");
+    private CollectionReference onlineUsers; // for group items
+    private CollectionReference matchedUsers;
     private DocumentReference tempUse;
     TextView hiTxt;
     OnlineUser u; // object to hold user info
@@ -58,13 +60,8 @@ public class LobbyActivity extends AppCompatActivity {
     // List items
     private String[] diningHallsFormatted;
 
-    // Checked items (these are global so that selects remain checked)
-    private boolean[] isPreferredGroupSizes;
-    private boolean[] isPreferredDiningHalls;
-
-    // This is to make sure at least one preference has been chosen
-    private boolean hasChosenGroupSizes;
-    private boolean hasChosenDiningHalls;
+    private boolean[] groupSizePreferences;
+    private boolean[] diningHallPreferences;
 
     Button buttonMatch;
     String transitionID = "0"; //this will hold the document ID for 2 matches
@@ -79,7 +76,11 @@ public class LobbyActivity extends AppCompatActivity {
 
         buttonMatch = findViewById(R.id.buttonMatch); //assigning variable to button
 
+        collections = Collections.getInstance();
         documents = Documents.getInstance();
+
+        onlineUsers = collections.getOnlineUsersCRef();
+        matchedUsers = collections.getMatchedCRef();
 
         //Check if user is not logged in
         if (!Entity.authUser.isSignedIn(new SignedInCallback())) {
@@ -89,15 +90,13 @@ public class LobbyActivity extends AppCompatActivity {
             startActivity(new Intent(this, MainActivity.class));
         }
 
+        groupSizePreferences = Entity.matchPreferences.getGroupSizePreferences();
+        diningHallPreferences = Entity.matchPreferences.getDiningHallPreferences();
+
         progressDialog = new ProgressDialog(this);
         // List items are retrieved from "app/res/values/strings.xml"
 
         diningHallsFormatted = getResources().getStringArray(R.array.diningHallsFormatted);
-        isPreferredGroupSizes = new boolean[DatabaseKeys.Preference.GROUP_SIZES.length];
-        isPreferredDiningHalls = new boolean[DatabaseKeys.Preference.DINING_HALLS.length];
-
-        hasChosenGroupSizes = false;
-        hasChosenDiningHalls = false;
 
         u = Entity.onlineUser;
     }
@@ -132,9 +131,9 @@ public class LobbyActivity extends AppCompatActivity {
                         if(!x.get(i).get("chatID").toString().equals("0"))
                         {
                             transitionID = x.get(i).get("chatID").toString();
-                            if(goToMatching == 0)
+                            if(goingToMatching == 0)
                             {
-                                goToMatching = 1;// prevents 2x execution
+                                goingToMatching = 1;// prevents 2x execution
                                 goToMatchingActivity();
 
                             }
@@ -149,7 +148,7 @@ public class LobbyActivity extends AppCompatActivity {
             }
         });
 
-        OnlineService.goOnline();
+        //OnlineService.goOnline();
 
     }
 
@@ -172,7 +171,7 @@ public class LobbyActivity extends AppCompatActivity {
         super.onDestroy();
         if(u == null)
             return;
-        Queue.dequeUser();
+        QueueService.leaveQueue();
         onlineUsers.document(u.getDocumentId()).delete();
     }
 
@@ -184,8 +183,8 @@ public class LobbyActivity extends AppCompatActivity {
         }
         //TODO: begin matching logic
         if (findingMatch != 0) {
-            Queue.dequeUser();
-            OnlineService.goOnline();
+            QueueService.leaveQueue();
+            OnlineService.goBackOnline();
             findingMatch = 0;
             buttonMatch.setText("Start Matching");
             buttonMatch.setBackgroundColor(Color.parseColor("#FF9900"));
@@ -197,7 +196,7 @@ public class LobbyActivity extends AppCompatActivity {
     public void queueUser() {
         onlineUsers.document(u.getDocumentId()).update("status", DatabaseStatuses.User.queued);
         onlineUsers.document(u.getDocumentId()).update("queueTimestamp", FieldValue.serverTimestamp());
-        Queue.queueUser(new StoreCallback());
+        QueueService.enterQueue(new StoreCallback());
         findingMatch = 1;
         buttonMatch.setBackgroundColor(Color.parseColor("#FF4081"));
         buttonMatch.setText("Stop Matching");
@@ -241,7 +240,7 @@ public class LobbyActivity extends AppCompatActivity {
                                 SimpleDateFormat s = new SimpleDateFormat("ddMMyyyyhhmmss", Locale.US);
                                 String date = s.format(new Date());
                                 final Chat mchat = new Chat(u.getName(),"Ready",2,date);
-                                 MatchUsers.add(mchat).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                 matchedUsers.add(mchat).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                      @Override
                                      public void onSuccess(DocumentReference documentReference) {
                                          mchat.setDocumentId(documentReference.getId());
@@ -251,7 +250,7 @@ public class LobbyActivity extends AppCompatActivity {
                                          u.setNewDoc(transitionID);
                                          onlineUsers.document(u.getDocumentId()).update("chatID", transitionID);
                                          findingMatch = 0; //no longer finding matches
-                                         goToMatching = 1; //transitioning to a new activity
+                                         goingToMatching = 1; //transitioning to a new activity
                                          goToMatchingActivity();
                                      }
                                  });
@@ -314,26 +313,24 @@ public class LobbyActivity extends AppCompatActivity {
         final AlertDialog groupSizeSelection;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.select_group_sizes_label);
-        builder.setMultiChoiceItems(DatabaseKeys.Preference.GROUP_SIZES, isPreferredGroupSizes, new DialogInterface.OnMultiChoiceClickListener(){
+        builder.setMultiChoiceItems(DatabaseKeys.Preference.GROUP_SIZES, groupSizePreferences,
+                new DialogInterface.OnMultiChoiceClickListener(){
             @Override
             public void onClick(DialogInterface dialogInterface, int i, boolean isChecked) {
-                isPreferredGroupSizes[i] = isChecked;
+                groupSizePreferences[i] = isChecked;
+                Entity.matchPreferences.setGroupSizePreferenceAt(i, isChecked);
             }
         });
         builder.setPositiveButton(R.string.ok_label, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                hasChosenGroupSizes = false;
-                for (int j = 0; j < isPreferredGroupSizes.length; j++) {
-                    Entity.queuedUser.setGroupSizePreferencesFromArray(isPreferredGroupSizes);
-                    hasChosenGroupSizes |= isPreferredGroupSizes[j];
-                }
-                // We only progress if the user chose at least one group
-                if (hasChosenGroupSizes) {
-                    // We choose dining halls next.
+                if (Entity.matchPreferences.hasChosenAGroupSizePreference()) {
+                    // Since we made a selection, we are ok to continue selecting next preference.
                     checkBoxDiningHallPreferences();
                 } else {
-                    Toast.makeText(LobbyActivity.this, "Please make a selection", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LobbyActivity.this,
+                            "Please make a selection", Toast.LENGTH_SHORT).show();
+                    // We call our function again since the user didn't make a selection.
                     checkBoxGroupSizePreferences();
                 }
             }
@@ -347,34 +344,32 @@ public class LobbyActivity extends AppCompatActivity {
         groupSizeSelection.show();
     }
 
-    // Selection menu for dining hall choices. Change the database names or formatted names as you see fit to match your database
+    // Selection menu for dining hall choices.
     public void checkBoxDiningHallPreferences() {
 
         final AlertDialog diningHallSelection;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.select_dining_halls_label);
-        builder.setMultiChoiceItems(diningHallsFormatted, isPreferredDiningHalls, new DialogInterface.OnMultiChoiceClickListener() {
+        builder.setMultiChoiceItems(diningHallsFormatted, diningHallPreferences,
+                new DialogInterface.OnMultiChoiceClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i, boolean isChecked) {
-                isPreferredDiningHalls[i] = isChecked;
+                diningHallPreferences[i] = isChecked;
+                Entity.matchPreferences.setDiningHallPreferenceAt(i, isChecked);
             }
         });
         // Do we want preferences local to session or persistent? Chose persistent for now.
         builder.setPositiveButton(R.string.ok_label, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int which) {
-                hasChosenDiningHalls = false;
-                for (int j = 0; j < isPreferredDiningHalls.length; j++) {
-                    Entity.queuedUser.setDiningHallPreferencesFromArray(isPreferredDiningHalls);
-                    hasChosenDiningHalls |= isPreferredDiningHalls[j];
-                }
-                // We only store preferences if we've also chosen at least one dining hall
-                if (hasChosenDiningHalls) {
+                if (Entity.matchPreferences.hasChosenADiningHallPreference()) {
+                    // We queue now that we finished selecting preferences.
                     queueUser();
                 } else {
-                    Toast.makeText(LobbyActivity.this, "Please make a selection", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LobbyActivity.this,
+                            "Please make a selection", Toast.LENGTH_SHORT).show();
+                    // We call our function again since the user didn't make a selection.
                     checkBoxDiningHallPreferences();
-
                 }
             }
         });

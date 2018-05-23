@@ -63,7 +63,7 @@ public class AuthUser {
                                 } else {
                                     Entity.user.setToDefault();
                                 }
-                                OnlineService.setUserToOnline(callback);
+                                OnlineService.initOnlineUser(callback);
                             } else {
                                 callback.onFailure(task.getException());
                             }
