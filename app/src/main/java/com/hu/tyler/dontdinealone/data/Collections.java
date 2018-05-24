@@ -53,28 +53,69 @@ public class Collections {
         mUid = uid;
     }
 
-    // For Match system
-    public CollectionReference getMatchCRef() {
-        return mDb.collection("Match");
+    //-------------------------------------------------------------------------------------------
+
+    // Incrememt the build number as developing so that you don't have conflicts with old builds.
+    public DocumentReference getBuildDocRef() {
+        return mDb.collection("BUILDS").document("BUILD-1");
     }
+
+    //-------------------------------------------------------------------------------------------
+
+    /** LIVE COLLECTIONS (Switch between Live and Development Build dBs as appropriate).
+
+     // For meta data
+     public CollectionReference getMetaCRef() { return mDb.collection("Meta"); }
 
     // For persistent user info
-    //public CollectionReference getUsersCRef() { return mDb.collection("Users"); }
-
-    // TODO: DELETE THIS AND USE ABOVE ONCE WE ARE DONE DEVELOPING MAYBE?
-    public CollectionReference getUsersCRef() {
-        return mDb.collection("BUILDS").document("BUILD-001").collection("Users");
-    }
-
+    public CollectionReference getUsersCRef() { return mDb.collection("Users"); }
 
     // For online users
-    //public CollectionReference getOnlineUsersCRef() { return mDb.collection("Online"); }
+    public CollectionReference getOnlineUsersCRef() { return mDb.collection("Online"); }
 
-    // TODO: DELETE THIS AND USE ABOVE ONCE WE ARE DONE DEVELOPING MAYBE?
-    public CollectionReference getOnlineUsersCRef() {
-        return mDb.collection("BUILDS").document("BUILD-001").collection("Online");
+     // For groups
+     public CollectionReference getGroupsCRef() { return mDb.collection("Groups"); }
+
+     // For matched/chat
+     public CollectionReference getMatchedCRef() { return mDb.collection("Matched"); }
+
+
+     END of LIVE COLLECTIONS */
+
+    //-------------------------------------------------------------------------------------------
+    /** Development Build Collections. Comment out and use Live when done developing. */
+
+    // For persistent user info
+    public CollectionReference getUsersCRef() {
+        return getBuildDocRef().collection("Users");
     }
 
+    // For online users
+    public CollectionReference getOnlineUsersCRef() {
+        return getBuildDocRef().collection("Online");
+    }
+
+    // For groups
+    public CollectionReference getGroupsCRef() {
+        return getBuildDocRef().collection("Groups");
+    }
+
+    // For meta data
+    public CollectionReference getMetaCRef() {
+        return getBuildDocRef().collection("Meta");
+    }
+
+    // For matched/chat
+    public CollectionReference getMatchedCRef() {
+        return getBuildDocRef().collection("Matched");
+    }
+
+    /* End of Development Build Collections */
+
+
+    // UNUSED COLLECTIONS ------------------------------------------------------------------------
+
+    /** Unused
 
     // For queued users
     public CollectionReference getQueuedUsersCRef() {
@@ -96,9 +137,9 @@ public class Collections {
         return getMatchCRef().document("Group").collection("Confirmed");
     }
 
-    // For Matched
-    public CollectionReference getMatchedCRef() {
-        return mDb.collection("Matched");
-    }
+    END of UNUSED */
+
+
+
 
 }

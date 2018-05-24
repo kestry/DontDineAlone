@@ -30,25 +30,35 @@ public class Documents {
         // This is the single instance of this class.
         private final static Documents INSTANCE = new Documents();
     }
+    private Documents() {
+        collections = Collections.getInstance();
+    }
 
     // Set your variable with this
     public static Documents getInstance() {
         return DocumentsHolder.INSTANCE;
     }
 
-    private Documents() {
-        collections = Collections.getInstance();
-    }
+
+    //--------------------------------------------------------------------------------------------
 
     public DocumentReference getUserDocRef() {
         return collections.getUsersCRef().document(collections.getUid());
     }
 
-    public DocumentReference getQueuedUserDocRef() {
-        return collections.getQueuedUsersCRef().document(collections.getUid());
+    public DocumentReference getUserDocRef(String uid) {
+        return collections.getUsersCRef().document(uid);
     }
 
     public DocumentReference getOnlineUserDocRef() {
         return collections.getOnlineUsersCRef().document(collections.getUid());
+    }
+
+    public DocumentReference getOnlineUserDocRef(String uid) {
+        return collections.getUsersCRef().document(uid);
+    }
+
+    public DocumentReference getGroupMetaDocRef() {
+        return collections.getMetaCRef().document("GroupMeta");
     }
 }

@@ -22,8 +22,9 @@ public abstract class ViewService {
      * Returns a view from the viewName, which is a string in the form of "[package]:id/[xml-id]".
      */
     public static View getView(String viewName, Activity activity) {
-        int viewId = activity.getResources().getIdentifier(Entity.user.getAvatarViewName(),
+        int viewId = activity.getResources().getIdentifier(viewName,
                 "ImageView", MyApp.getContext().getPackageName());
         return activity.findViewById(viewId);
     }
+
 }

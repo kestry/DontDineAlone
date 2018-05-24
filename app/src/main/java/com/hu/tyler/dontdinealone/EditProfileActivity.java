@@ -60,9 +60,6 @@ public class EditProfileActivity extends AppCompatActivity {
             //Starting Main activity
             startActivity(new Intent(this, MainActivity.class));
         }
-        // We get the loaded avatar from the user profile and highlight it.
-        View avatarView = ViewService.getView(user.getAvatarViewName(), this);
-        highlight(avatarView);
     }
 
     // Presenter Methods -------------------------------------------------------------------------
@@ -174,20 +171,19 @@ public class EditProfileActivity extends AppCompatActivity {
         public void onSuccess() {
             progressDialog.dismiss();
 
-            // We want to load the user's saved profile.
+            // Load user's saved profile.
             loadProfile();
             Toast.makeText(EditProfileActivity.this,
                     "Profile loaded successfully", Toast.LENGTH_SHORT).show();
 
             // Set user's avatar to default if none was previously set.
-            View defaultAvatarView = findViewById(R.id.ava1);
             if (user.getAvatarViewName() == null) {
-                user.setAvatarViewName(ViewService.getViewName(defaultAvatarView));
-                Toast.makeText(EditProfileActivity.this,
-                        "Default avatar successfully set to " + user.getAvatarViewName(),
-                        Toast.LENGTH_SHORT).show();
+                String defaultAvatarViewName = ViewService.getViewName(findViewById(R.id.ava1));
+                user.setAvatarViewName(defaultAvatarViewName);
             }
-
+            // Highlight user's avatar.
+            View avatarView = ViewService.getView(user.getAvatarViewName(), EditProfileActivity.this);
+            highlight(avatarView);
         }
 
         @Override
@@ -195,7 +191,6 @@ public class EditProfileActivity extends AppCompatActivity {
             progressDialog.dismiss();
             Toast.makeText(EditProfileActivity.this,
                     "Not Signed In", Toast.LENGTH_SHORT).show();
-
         }
     }
 }

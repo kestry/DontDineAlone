@@ -1,6 +1,7 @@
 package com.hu.tyler.dontdinealone.data;
 
 import com.hu.tyler.dontdinealone.data.entity.AuthUser;
+import com.hu.tyler.dontdinealone.data.entity.Group;
 import com.hu.tyler.dontdinealone.data.entity.MatchPreferences;
 import com.hu.tyler.dontdinealone.data.entity.OnlineUser;
 import com.hu.tyler.dontdinealone.data.entity.User;
@@ -17,4 +18,5 @@ public interface Entity {
     OnlineUser onlineUser = new OnlineUser(); // Online User Data
 
     MatchPreferences matchPreferences = new MatchPreferences(); // User Match Preferences
+    Group group = new Group();
 }

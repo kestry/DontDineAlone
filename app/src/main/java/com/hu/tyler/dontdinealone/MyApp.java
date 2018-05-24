@@ -4,8 +4,11 @@ import android.app.Application;
 import android.content.Context;
 
 /*
- * This class is so that we can get the package from anywhere.
- * We changed the Manifest to reflect this in the Application name.
+ * This class is an extention of Application and was created so that we can get
+ * the package name from anywhere. The Manifest was changed so that the Application name
+ * refers to this class.
+ * Please note that if we move or change this file to a different folder, we will likely
+ * have to update the Manifest as well.
  *
  * Usage:
  *    String packageName = MyApp.getContext().getPackageName();
