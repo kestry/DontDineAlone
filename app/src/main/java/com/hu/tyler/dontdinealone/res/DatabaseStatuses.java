@@ -13,6 +13,7 @@ public interface DatabaseStatuses {
     }
 
     public interface Group {
+        String uninitialized = "uninitialized";
         String waiting = "waiting"; // Waiting for more members
         String confirming = "confirming";
         String confirmed = "confirmed";

@@ -26,31 +26,14 @@ import java.util.List;
  */
 public class MatchService {
 
+
     public static void findGroup(final Callback callback) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         final CollectionReference groupsCRef = Collections.getInstance().getGroupsCRef();
         //     - Rule, cannot change id cept with new group creation.
         // 2. Then get the
-        Collections.getInstance().getGroupsCRef()
-                .whereEqualTo(Entity.group.statusKey(), DatabaseStatuses.Group.waiting)
-                .orderBy(Entity.group.gidKey())
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (DocumentSnapshot snap : task.getResult()) {
-                                //Log.d(TAG, document.getId() + " => " + snap.getData());
-                                Group group = snap.toObject(Group.class);
 
-                            }
-                        } else {
-                            //Log.d(TAG, "Error getting documents: ", task.getException());
-                            callback.onFailure(task.getException());
-                        }
-                    }
-                });
-/*
+/* In progress
         // With transactions we must always do all gets first before doing any write.
         db.runTransaction(new Transaction.Function<Void>() {
             @Override
@@ -80,5 +63,37 @@ public class MatchService {
 */
 
     }
+
+    /*
+
+    private static void getWaitingGroups(final Callback callback) {
+        Collections.getInstance().getGroupsCRef()
+                .whereEqualTo(Entity.group.statusKey(), DatabaseStatuses.Group.waiting)
+                .orderBy(Entity.group.gidKey())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public QuerySnapshot onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+
+                            for (DocumentSnapshot snap : task.getResult()) {
+                                //Log.d(TAG, document.getId() + " => " + snap.getData());
+                                Group group = snap.toObject(Group.class);
+
+                            }
+                        } else {
+                            //Log.d(TAG, "Error getting documents: ", task.getException());
+                            callback.onFailure(task.getException());
+                        }
+                        return task.getResult();
+                    }
+                });
+    }
+    // Private only unless we are going to have separate collections for groups.
+    // Make a newGroup when a user does not fit in any existing ones.
+    private static void makeNewGroup() {
+
+    }
+    */
 
 }

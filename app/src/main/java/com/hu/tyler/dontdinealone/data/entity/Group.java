@@ -23,10 +23,21 @@ public class Group {
 
     public Group(){
         //public no-arg constructor needed
-        int gid = 1;
-        this.status = DatabaseStatuses.User.online;
+        this.gid = 0;
+        this.status = DatabaseStatuses.Group.uninitialized;
+        this.matchPreferences = null;
+        this.members = null;
+        this.firstCreatedTime = null;
+    }
+
+    public Group(OnlineUser user, MatchPreferences matchPreferences, int gid){
+        //public no-arg constructor needed
+        this.gid = gid;
+        this.status = DatabaseStatuses.Group.waiting;
+        this.matchPreferences = new MatchPreferences(matchPreferences);
+        this.members = new ArrayList<>();
+        this.members.add(user.getDocumentId());
         this.firstCreatedTime = new Date();
-        this.members = new ArrayList<String>();
     }
 
     // Any function that starts with "get" will go into Firestore unless we exclude.
