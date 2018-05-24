@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -32,6 +33,7 @@ import com.hu.tyler.dontdinealone.data.Collections;
 import com.hu.tyler.dontdinealone.data.Entity;
 import com.hu.tyler.dontdinealone.data.entity.OnlineUser;
 import com.hu.tyler.dontdinealone.data.Documents;
+import com.hu.tyler.dontdinealone.domain.NotificationService;
 import com.hu.tyler.dontdinealone.domain.OnlineService;
 import com.hu.tyler.dontdinealone.domain.QueueService;
 import com.hu.tyler.dontdinealone.domain.StatusService;
@@ -159,6 +161,16 @@ public class LobbyActivity extends AppCompatActivity {
         if(findingMatch == false && user != null) {
             onlineUsers.document(user.getDocumentId()).delete();
         }
+        //Starts the NotificationService in the background.
+        Intent notificationService = new Intent(this, NotificationService.class);
+        startService(notificationService);
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        Intent notificationService = new Intent(this, NotificationService.class);
+        stopService(notificationService);
     }
 
     @Override
