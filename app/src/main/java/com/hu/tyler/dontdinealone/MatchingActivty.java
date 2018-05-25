@@ -15,7 +15,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.hu.tyler.dontdinealone.data.Chat;
+import com.hu.tyler.dontdinealone.data.model.Chat;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

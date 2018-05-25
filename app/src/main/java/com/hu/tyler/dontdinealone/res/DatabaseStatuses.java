@@ -14,8 +14,11 @@ public interface DatabaseStatuses {
 
     public interface Group {
         String uninitialized = "uninitialized";
+
+        // The following two statuses are considered "pending"
         String waiting = "waiting"; // Waiting for more members
         String confirming = "confirming";
+
         String confirmed = "confirmed";
     }
 }

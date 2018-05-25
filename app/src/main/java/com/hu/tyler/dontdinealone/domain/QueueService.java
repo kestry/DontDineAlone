@@ -1,21 +1,10 @@
 package com.hu.tyler.dontdinealone.domain;
 
-import android.support.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FieldValue;
-import com.hu.tyler.dontdinealone.data.Documents;
+import com.hu.tyler.dontdinealone.data.model.Documents;
 import com.hu.tyler.dontdinealone.data.Entity;
-import com.hu.tyler.dontdinealone.data.entity.OnlineUser;
-import com.hu.tyler.dontdinealone.res.DatabaseKeys;
 import com.hu.tyler.dontdinealone.res.DatabaseStatuses;
 import com.hu.tyler.dontdinealone.util.Callback;
-import com.hu.tyler.dontdinealone.util.NullCallback;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * This class is abstract because it provides static service implementations without instantiation.
@@ -29,14 +18,14 @@ public abstract class QueueService {
      */
     public static void enterQueue(final Callback callback) {
         // Set user to queued -- but we do not leave the Online collection of users.
-        StatusService.updateStatus(Documents.getInstance().getOnlineUserDocRef(),
+        UserStatusService.updateEverywhere(Documents.getInstance().getOnlineUserDocRef(),
                  DatabaseStatuses.User.queued);
         MatchService.findGroup(callback);
     }
 
     public static void leaveQueue() {
         DocumentReference onlineUserDocRef = Documents.getInstance().getOnlineUserDocRef();
-        StatusService.updateStatus(onlineUserDocRef, DatabaseStatuses.User.online);
+        UserStatusService.updateEverywhere(onlineUserDocRef, DatabaseStatuses.User.online);
         TimestampService.updateRemoteTimestamp(onlineUserDocRef,
                 Entity.onlineUser.firstOnlineTimeKey());
     }

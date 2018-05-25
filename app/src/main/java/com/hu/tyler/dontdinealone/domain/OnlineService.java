@@ -5,12 +5,11 @@ import android.support.annotation.NonNull;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FieldValue;
-import com.hu.tyler.dontdinealone.data.Documents;
+import com.hu.tyler.dontdinealone.data.model.Documents;
 import com.hu.tyler.dontdinealone.data.Entity;
 import com.hu.tyler.dontdinealone.res.DatabaseStatuses;
 import com.hu.tyler.dontdinealone.util.Callback;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -58,7 +57,7 @@ public abstract class OnlineService {
      *  This function is used to update the OnlineUser entity to online status.
      */
     public static void goBackOnline() {
-        StatusService.updateStatus(Documents.getInstance().getOnlineUserDocRef(),
+        UserStatusService.updateEverywhere(Documents.getInstance().getOnlineUserDocRef(),
                 DatabaseStatuses.User.online);
     }
 }

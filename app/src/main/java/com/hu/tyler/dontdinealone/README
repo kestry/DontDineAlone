@@ -17,12 +17,12 @@ Architectures used:
 
     Clean Architecture inserts another layer to MVP in between model and presenter. This layer
     is called the domain and consists of use cases and business logic.
-
     In our project, we call use cases "services" to also make this more intuitive.
+
     Presenters and views are both within the Activity for now as well. In order for the Activity
     to be more organized, the code is separated into five sections:
 
-        1. Variables
+        1. Variables/Constructos/Initializers
         2. Lifecycle overrides, in order of lifecycle.
         3. Presenter functions
         4. Navigation functions
@@ -31,16 +31,17 @@ Architectures used:
     At the moment, the layout has heavy dependency usage because of the direct calls to Entity.
     But since we are mostly new to the technologies and concepts, it is a simpler start.
 
-
 Codebase Layout:
 
 Folders:
-- data
+    - data
+        - entity: Different models of our user. (non-traditional use of name)
+        - model: Model of data
+    - domain: Use cases
+    - res: Constants
+    - util: Utility classes
+    - main (i.e. not in folder): Contains our activities or "views".
 
-- domain
-
-- res
-
-- util
-
-- main (not in folder): Contains our activities or "views".
+Glossary:
+    - "pending" == either "waiting" or "confirming".
+    - "documentId" == string document label

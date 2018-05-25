@@ -18,8 +18,8 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.hu.tyler.dontdinealone.LobbyActivity;
 import com.hu.tyler.dontdinealone.R;
-import com.hu.tyler.dontdinealone.data.Collections;
-import com.hu.tyler.dontdinealone.data.Documents;
+import com.hu.tyler.dontdinealone.data.model.Collections;
+import com.hu.tyler.dontdinealone.data.model.Documents;
 import com.hu.tyler.dontdinealone.data.entity.OnlineUser;
 import com.hu.tyler.dontdinealone.res.DatabaseStatuses;
 

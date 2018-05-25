@@ -22,6 +22,7 @@ public class OnlineUser {
     private String description;
     private String email;
     private String status;
+    private String groupDocumentId;
     @ServerTimestamp
     private Date firstOnlineTime;
     @ServerTimestamp
@@ -85,6 +86,10 @@ public class OnlineUser {
     public String statusKey() { return "status"; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public String groupDocumentIdKey() { return "documentId"; }
+    public String getGroupDocumentId() { return documentId; }
+    public void setGroupDocumentId(String documentId) { this.documentId = documentId; }
 
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();

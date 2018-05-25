@@ -10,7 +10,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -24,19 +23,18 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.hu.tyler.dontdinealone.data.Chat;
-import com.hu.tyler.dontdinealone.data.Collections;
+import com.hu.tyler.dontdinealone.data.model.Chat;
+import com.hu.tyler.dontdinealone.data.model.Collections;
 import com.hu.tyler.dontdinealone.data.Entity;
 import com.hu.tyler.dontdinealone.data.entity.OnlineUser;
-import com.hu.tyler.dontdinealone.data.Documents;
+import com.hu.tyler.dontdinealone.data.model.Documents;
 import com.hu.tyler.dontdinealone.domain.NotificationService;
 import com.hu.tyler.dontdinealone.domain.OnlineService;
 import com.hu.tyler.dontdinealone.domain.QueueService;
-import com.hu.tyler.dontdinealone.domain.StatusService;
+import com.hu.tyler.dontdinealone.domain.UserStatusService;
 import com.hu.tyler.dontdinealone.res.DatabaseKeys;
 import com.hu.tyler.dontdinealone.res.DatabaseStatuses;
 import com.hu.tyler.dontdinealone.util.Callback;
@@ -238,7 +236,9 @@ public class LobbyActivity extends AppCompatActivity {
                                 }
                                 ////////////END OF EXTRA PRECAUTIONS
 
-                                StatusService.updateStatus(documents.getOnlineUserDocRef(), DatabaseStatuses.User.matched);
+                                UserStatusService.updateEverywhere(
+                                        documents.getOnlineUserDocRef(),
+                                        DatabaseStatuses.User.matched);
 
                                 //Get the user we are matched with
                                 final DocumentReference otherDocRef = db.collection("Online").document(otherId);

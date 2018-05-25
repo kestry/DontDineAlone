@@ -2,7 +2,7 @@ package com.hu.tyler.dontdinealone.data;
 
 import com.hu.tyler.dontdinealone.data.entity.AuthUser;
 import com.hu.tyler.dontdinealone.data.entity.Group;
-import com.hu.tyler.dontdinealone.data.entity.MatchPreferences;
+import com.hu.tyler.dontdinealone.data.model.MatchPreferences;
 import com.hu.tyler.dontdinealone.data.entity.OnlineUser;
 import com.hu.tyler.dontdinealone.data.entity.User;
 

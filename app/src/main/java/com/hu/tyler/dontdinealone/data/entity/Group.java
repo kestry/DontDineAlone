@@ -1,22 +1,25 @@
 package com.hu.tyler.dontdinealone.data.entity;
 
-import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.ServerTimestamp;
+import com.hu.tyler.dontdinealone.data.model.MatchPreferences;
+import com.hu.tyler.dontdinealone.res.DatabaseKeys;
 import com.hu.tyler.dontdinealone.res.DatabaseStatuses;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
+import static java.lang.Boolean.FALSE;
 
 public class Group {
 
     private int gid;
     private String status;
     private MatchPreferences matchPreferences;
-    private ArrayList<String> members;  // Holds the member docIds. We can also add them as keys
-                                        // to see them all if we would like too
+    private int minCapacity;
+    private Map<String, Boolean> members;
+        // key: OnlineUser id/docId
+        // value: hasConfirmed
 
     @ServerTimestamp
     private Date firstCreatedTime;
@@ -26,6 +29,7 @@ public class Group {
         this.gid = 0;
         this.status = DatabaseStatuses.Group.uninitialized;
         this.matchPreferences = null;
+        this.minCapacity = 0;
         this.members = null;
         this.firstCreatedTime = null;
     }
@@ -35,8 +39,10 @@ public class Group {
         this.gid = gid;
         this.status = DatabaseStatuses.Group.waiting;
         this.matchPreferences = new MatchPreferences(matchPreferences);
-        this.members = new ArrayList<>();
-        this.members.add(user.getDocumentId());
+        // Parse match preference to update minimum group capacity.
+        this.updateMinCapacity();
+        this.members = new HashMap<>();
+        this.members.put(user.getDocumentId(), FALSE);
         this.firstCreatedTime = new Date();
     }
 
@@ -55,8 +61,8 @@ public class Group {
     public void setMatchPreferences(String status) { this.matchPreferences = matchPreferences; }
 
     public String membersKey() { return "members"; }
-    public ArrayList<String> getMembers() { return members; }
-    public void setMembers(ArrayList<String> members) { this.members = members; }
+    public Map<String, Boolean> getMembers() { return members; }
+    public void setMembers(Map members) { this.members = members; }
 
     public String firstOnlineTimeKey() {
         return "firstOnlineTime";
@@ -75,4 +81,30 @@ public class Group {
         map.put(membersKey(), members);
         return map;
     };
+
+    public void addMember(String member) {
+        members.put(member, FALSE);
+    }
+
+    public void removeMember(String member) {
+        members.remove(member);
+    }
+
+    public void updateMinCapacity() {
+        boolean[] groupSizePrefs = matchPreferences.getGroupSizePreferences();
+        for (int i = 0; i < groupSizePrefs.length; ++i) {
+            if (groupSizePrefs[i]) {
+                minCapacity = Integer.parseInt(DatabaseKeys.Preference.GROUP_SIZES[i]);
+                return; // Reason: we found the min size so we are done.
+            }
+        }
+    }
+
+    public boolean isFull() {
+        return minCapacity <= members.size();
+    }
+
+    public boolean isAlmostFull() {
+        return minCapacity <= members.size() - 1;
+    }
 }
