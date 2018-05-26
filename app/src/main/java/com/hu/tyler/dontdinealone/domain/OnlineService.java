@@ -35,7 +35,7 @@ public abstract class OnlineService {
 
         // The reason we use a map is because the serverTimestamp must be mapped to our field.
         // And so instead of doing two Firestore actions, we do the remote set in one go.
-        Map<String, Object> onlineUserMap = Entity.onlineUser.toMap();
+        Map<String, Object> onlineUserMap = Entity.onlineUser.toMapWithoutTimestamp();
         // We only set firstOnlineTime when we create our doc.
         onlineUserMap.put(Entity.onlineUser.firstOnlineTimeKey(), FieldValue.serverTimestamp());
         Documents.getInstance().getOnlineUserDocRef().set(onlineUserMap)

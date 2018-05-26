@@ -121,11 +121,11 @@ public class LobbyActivity extends AppCompatActivity {
 
                 String data = "Online Users:\n\n";
                 List<DocumentSnapshot> snaps = queryDocumentSnapshots.getDocuments();
-                int loopCount = 0;
+                int loopCounter = 0;
                 for(DocumentSnapshot snap : snaps)
                 {
                     OnlineUser otherUser = snap.toObject(OnlineUser.class);
-                    Log.d("XXX", "for loop users" + ++loopCount + ": " + otherUser.getName());
+                    Log.d("XXX", "for loop users" + ++loopCounter + ": " + otherUser.getName());
                     otherUser.setDocumentId(snap.getId());
                     boolean isValidUserAndChatId = user != null && snap.get("chatID") != null;
                     if(isValidUserAndChatId) {

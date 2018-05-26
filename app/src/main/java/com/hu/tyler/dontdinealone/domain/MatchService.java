@@ -2,8 +2,10 @@ package com.hu.tyler.dontdinealone.domain;
 
 import android.support.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -26,7 +28,7 @@ import com.hu.tyler.dontdinealone.util.Callback;
  * Usage:
  *    Class.method();
  */
-public class MatchService {
+public abstract class MatchService {
 
     public static void findGroup(final Callback callback) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -38,9 +40,8 @@ public class MatchService {
         final OnlineUser ourUser = Entity.onlineUser;
         /* In progress */
         // With transactions we must always do all gets first before doing any write.
-        // IMPORTANT: WE DO NOT WANT TO MAKE ANY APPLICATION STATE CHANGES
+        // IMPORTANT: WE DO NOT WANT TO MAKE ANY APPLICATION STATE CHANGES IN TRANSACTION
         // BECAUSE WE MIGHT BE TRYING THIS FUNCTION MULTIPLE TIMES.
-        // We do not want to be changing the OnlineUser remote doc during the transaction.
         db.runTransaction(new Transaction.Function<Void>() {
             @Override
             public Void apply(Transaction transaction) throws FirebaseFirestoreException {
@@ -98,6 +99,7 @@ public class MatchService {
                     // No match found, so add ourself to a new group
                     ourGroup = groupFactory.makeGroup(ourUser, ourPrefs);
                 }
+                // Convert the group's gid to a documentId.
                 String ourGroupDocumentId = Integer.toString(ourGroup.getGid());
 
                 // Set the group info in the remote DB
@@ -116,40 +118,34 @@ public class MatchService {
         }).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
-                    //Log.d(TAG, "Transaction success!"); // What is TAG?
+                    // Transaction success
 
+                    // Grab the updated user info
+                    documents.getOnlineUserDocRef().get()
+                            .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if (task.isSuccessful()) {
+                                            DocumentSnapshot snap = task.getResult();
+                                            if (snap.exists()) {
+                                                Entity.onlineUser.set(snap.toObject(OnlineUser.class));
+                                            } else {
+                                                Entity.user.setToDefault();
+                                            }
+                                            callback.onSuccess();
+                                        } else {
+                                            callback.onFailure(task.getException());
+                                        }
+                                    }
+                                });
                 }
             })
-                    .addOnFailureListener(new OnFailureListener() {
+                .addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
                     //Log.w(TAG, "Transaction failure.", e);
                 }
             });
 
-/*
-    private static void getWaitingGroups(final Callback callback) {
-        Collections.getInstance().getGroupsCRef()
-                .whereEqualTo(Entity.group.statusKey(), DatabaseStatuses.Group.waiting)
-                .orderBy(Entity.group.gidKey())
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public QuerySnapshot onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-
-                            for (DocumentSnapshot snap : task.getResult()) {
-                                //Log.d(TAG, document.getId() + " => " + snap.getData());
-                                Group group = snap.toObject(Group.class);
-
-                            }
-                        } else {
-                            //Log.d(TAG, "Error getting documents: ", task.getException());
-                            callback.onFailure(task.getException());
-                        }
-                        return task.getResult();
-                    }
-                });
-       */
     }
 }

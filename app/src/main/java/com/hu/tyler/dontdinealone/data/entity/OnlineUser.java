@@ -39,25 +39,6 @@ public class OnlineUser {
 
     // Any function that starts with "get" will go into Firestore unless we exclude.
 
-    public String firstOnlineTimeKey() {
-        return "firstOnlineTime";
-    }
-    public Date getFirstOnlineTime() {
-        return firstOnlineTime;
-    }
-    // No setter because we only allow the server to timestamp
-
-    public String emailKey() {
-        return "email";
-    }
-    public String getEmail() {
-        return email;
-    }
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    @Exclude
     public String getDocumentId() {
         return documentId;
     }
@@ -65,7 +46,6 @@ public class OnlineUser {
         this.documentId = documentId;
     }
 
-    @Exclude
     public String getNewDoc() {
         return newDoc;
     }
@@ -78,10 +58,19 @@ public class OnlineUser {
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 
-
     public String descriptionKey(){ return "description"; }
     public String getDescription(){ return description; }
     public void setDescription(String description) { this.description = description; }
+
+    public String emailKey() {
+        return "email";
+    }
+    public String getEmail() {
+        return email;
+    }
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     public String statusKey() { return "status"; }
     public String getStatus() { return status; }
@@ -91,13 +80,44 @@ public class OnlineUser {
     public String getGroupDocumentId() { return documentId; }
     public void setGroupDocumentId(String documentId) { this.documentId = documentId; }
 
-    public Map<String, Object> toMap() {
+    public String firstOnlineTimeKey() {
+        return "firstOnlineTime";
+    }
+    public Date getFirstOnlineTime() {
+        return firstOnlineTime;
+    }
+    // No setter because we only allow the server to timestamp
+
+    // Public Helpers ----------------------------------------------------------------------------
+
+    public Map<String, Object> toMapWithoutTimestamp() {
         Map<String, Object> map = new HashMap<>();
 
         map.put(nameKey(), name);
-        map.put(statusKey(), status);
         map.put(descriptionKey(), description);
         map.put(emailKey(), email);
+        map.put(statusKey(), status);
+        map.put(groupDocumentIdKey(), groupDocumentId);
+
         return map;
-    };
+    }
+
+    public Map<String, Object> toMapWithTimestamp() {
+        Map<String, Object> map = toMapWithTimestamp();
+        map.put(firstOnlineTimeKey(), FieldValue.serverTimestamp());
+
+        return map;
+    }
+
+    public void set(OnlineUser other) {
+        documentId = other.documentId;
+        newDoc = other.newDoc;
+        name = other.name;
+        description = other.description;
+        email = other.email;
+        status = other.status;
+        groupDocumentId = other.groupDocumentId;
+        firstOnlineTime = other.firstOnlineTime;
+        firstQueuedTime = other.firstQueuedTime;
+    }
 }

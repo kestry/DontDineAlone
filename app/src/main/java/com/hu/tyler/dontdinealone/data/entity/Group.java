@@ -80,7 +80,7 @@ public class Group {
         map.put(matchPreferencesKey(), matchPreferences);
         map.put(membersKey(), members);
         return map;
-    };
+    }
 
     public void addMember(String member) {
         members.put(member, FALSE);

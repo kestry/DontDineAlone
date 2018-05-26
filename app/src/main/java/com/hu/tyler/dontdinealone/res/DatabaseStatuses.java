@@ -2,7 +2,7 @@ package com.hu.tyler.dontdinealone.res;
 
 public interface DatabaseStatuses {
 
-    public interface User {
+    interface User {
         String online = "online";
         String queued = "queued";
         String matched = "matched"; // Matched to a group. Would "waiting" be a better term?
@@ -12,7 +12,7 @@ public interface DatabaseStatuses {
         String offline = "offline";
     }
 
-    public interface Group {
+    interface Group {
         String uninitialized = "uninitialized";
 
         // The following two statuses are considered "pending"
