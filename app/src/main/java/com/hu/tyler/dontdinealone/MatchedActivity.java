@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Locale;
 
 
-public class MatchingActivty extends AppCompatActivity {
+public class MatchedActivity extends AppCompatActivity {
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -50,7 +50,7 @@ public class MatchingActivty extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_matching_activty);
+        setContentView(R.layout.activity_matched);
         Intent intent = getIntent();
         docID = intent.getStringExtra("key");
         key = findViewById(R.id.matchActivityText);

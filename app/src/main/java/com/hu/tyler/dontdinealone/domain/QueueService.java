@@ -18,16 +18,30 @@ public abstract class QueueService {
      */
     public static void enterQueue(final Callback callback) {
         // Set user to queued -- but we do not leave the Online collection of users.
-        UserStatusService.updateEverywhere(Documents.getInstance().getOnlineUserDocRef(),
+        DocumentReference onlineUserDocRef = Documents.getInstance().getOnlineUserDocRef();
+
+        UserStatusService.updateEverywhere(onlineUserDocRef,
                  DatabaseStatuses.User.queued);
+        TimestampService.updateRemoteTimestamp(onlineUserDocRef,
+                Entity.onlineUser.firstQueuedTimeKey());
         MatchService.findGroup(callback);
     }
 
     public static void leaveQueue() {
         DocumentReference onlineUserDocRef = Documents.getInstance().getOnlineUserDocRef();
+
+        switch (Entity.onlineUser.getStatus()) {
+            case DatabaseStatuses.User.waiting:
+                // fall through
+            case DatabaseStatuses.User.confirming:
+                // fall through
+            case DatabaseStatuses.User.confirmed:
+                MatchService.leaveGroup();
+                break;
+            default:
+                break;
+        }
         UserStatusService.updateEverywhere(onlineUserDocRef, DatabaseStatuses.User.online);
-        TimestampService.updateRemoteTimestamp(onlineUserDocRef,
-                Entity.onlineUser.firstOnlineTimeKey());
     }
 
 }

@@ -110,9 +110,9 @@ public class EditProfileActivity extends AppCompatActivity {
 
                         Log.w("XXX", "Save error: ", e);
                         Toast.makeText(EditProfileActivity.this,
-                                "Profile save failed", Toast.LENGTH_SHORT).show();
+                                "Failed to save profile", Toast.LENGTH_SHORT).show();
                         Toast.makeText(EditProfileActivity.this,
-                                "Profile save error: " + e, Toast.LENGTH_LONG).show();
+                                "Error: " + e, Toast.LENGTH_LONG).show();
                     }
                 });
 

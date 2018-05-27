@@ -54,12 +54,33 @@ public class Collections {
 
     //-------------------------------------------------------------------------------------------
 
-    // Incrememt the build number as developing so that you don't have conflicts with old builds.
+    // Incrememt the build number as developing so that we don't have conflicts with old builds.
+    // i.e. change BUILD-2 to BUILD-3. Implement a counter if more explicit coordination is needed.
     public DocumentReference getBuildDocRef() {
-        return mDb.collection("BUILDS").document("BUILD-1");
+        return mDb.collection("BUILDS").document("BUILD-2");
     }
 
-    //-------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------
+
+    /** Collections that stay the same for both live and development */
+
+    public CollectionReference getUserMatchPreferencesCRef() {
+        return getOnlineUsersCRef().document(mUid)
+                .collection("Match Preferences");
+    }
+
+    public CollectionReference getUserMatchPreferencesCRef(String uid) {
+        return getUsersCRef().document(uid)
+                .collection("Match Preferences");
+    }
+
+    // For online users
+    public CollectionReference getGroupMatchPreferencesCRef(String gid) {
+        return getGroupsCRef().document(gid)
+                .collection("Match Preferences");
+    }
+
+    //--------------------------------------------------------------------------------------------
 
     /** LIVE COLLECTIONS (Switch between Live and Development Build dBs as appropriate).
 
@@ -112,29 +133,14 @@ public class Collections {
     /* End of Development Build Collections */
 
 
-    // UNUSED COLLECTIONS ------------------------------------------------------------------------
+    // UNUSED COLLECTIONS in consideration -------------------------------------------------------
 
     /** Unused
 
-    // For queued users
-    public CollectionReference getQueuedUsersCRef() {
-        return getMatchCRef().document("User").collection("Queue");
-    }
-
-    // For queued users
-    public CollectionReference getQueuedUserGroupSizePrefCRef() {
-        return getMatchCRef().document("User").collection("Queue").document(mUid).collection("Preference");
-    }
-
-    // For pending groups
-    public CollectionReference getPendingGroupsCRef() {
-        return getMatchCRef().document("Group").collection("Pending");
-    }
-
-    // For confirmed groups
-    public CollectionReference getConfirmedGroupsCRef() {
-        return getMatchCRef().document("Group").collection("Confirmed");
-    }
+    // Considering whether we want just a status or a fully separate collection of dining groups
+     public CollectionReference getDiningGroupsCRef() {
+         return getBuildDocRef().collection("Dining");
+     }
 
     END of UNUSED */
 

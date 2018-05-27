@@ -1,10 +1,16 @@
 package com.hu.tyler.dontdinealone.data.entity;
 
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.ServerTimestamp;
+import com.hu.tyler.dontdinealone.data.model.Collections;
+import com.hu.tyler.dontdinealone.data.model.Documents;
+import com.hu.tyler.dontdinealone.data.model.MatchPreferences;
 import com.hu.tyler.dontdinealone.res.DatabaseStatuses;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +23,7 @@ import java.util.Map;
 public class OnlineUser {
 
     private String documentId;
-    private String newDoc;
+    private String newDoc; // TODO: @Tyler - could we get a comment on what this is?
     private String name;
     private String description;
     private String email;
@@ -28,16 +34,27 @@ public class OnlineUser {
     @ServerTimestamp
     private Date firstQueuedTime;
 
-    public OnlineUser(){
+    public OnlineUser() {
         //public no-arg constructor needed
+        this.documentId = null; // needs to be separately setup
+        this.newDoc = null;
         this.name = "";
         this.email = "";
         this.description = "";
         this.status = DatabaseStatuses.User.online;
+        this.groupDocumentId = null; // needs to be set
         this.firstOnlineTime = new Date();
     }
 
     // Any function that starts with "get" will go into Firestore unless we exclude.
+
+    public void setupOnlineUser(AuthUser authUser, User user) {
+        name = user.getDisplayName();
+        description = user.animal;
+        email = authUser.getEmail();
+        documentId = authUser.getUid();
+        status = DatabaseStatuses.User.online;
+    }
 
     public String getDocumentId() {
         return documentId;
@@ -80,11 +97,20 @@ public class OnlineUser {
     public String getGroupDocumentId() { return documentId; }
     public void setGroupDocumentId(String documentId) { this.documentId = documentId; }
 
+
     public String firstOnlineTimeKey() {
         return "firstOnlineTime";
     }
     public Date getFirstOnlineTime() {
         return firstOnlineTime;
+    }
+    // No setter because we only allow the server to timestamp
+
+    public String firstQueuedTimeKey() {
+        return "firstQueuedTime";
+    }
+    public Date getFirstQueuedTime() {
+        return firstQueuedTime;
     }
     // No setter because we only allow the server to timestamp
 

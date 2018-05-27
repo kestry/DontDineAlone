@@ -16,7 +16,5 @@ public interface Entity {
     User user = new User(); // Persistant User Data
     AuthUser authUser = new AuthUser(); // Authentication User Data
     OnlineUser onlineUser = new OnlineUser(); // Online User Data
-
-    MatchPreferences matchPreferences = new MatchPreferences(); // User Match Preferences
-    Group group = new Group();
+    MatchPreferences matchPreferences = new MatchPreferences();
 }

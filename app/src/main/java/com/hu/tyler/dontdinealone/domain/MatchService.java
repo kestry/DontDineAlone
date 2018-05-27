@@ -1,6 +1,10 @@
 package com.hu.tyler.dontdinealone.domain;
 
+import android.app.Service;
+import android.content.Intent;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -19,6 +23,7 @@ import com.hu.tyler.dontdinealone.data.entity.Group;
 import com.hu.tyler.dontdinealone.data.model.Documents;
 import com.hu.tyler.dontdinealone.data.model.GroupFactory;
 import com.hu.tyler.dontdinealone.data.model.MatchPreferences;
+import com.hu.tyler.dontdinealone.res.DatabaseKeys;
 import com.hu.tyler.dontdinealone.res.DatabaseStatuses;
 import com.hu.tyler.dontdinealone.util.Callback;
 
@@ -46,15 +51,19 @@ public abstract class MatchService {
             @Override
             public Void apply(Transaction transaction) throws FirebaseFirestoreException {
 
+                Group ourGroup = null;
+                MatchPreferences prefsOfOurGroup = null;
                 // Get the groupFactory
                 DocumentSnapshot groupFactoryDocSnap = transaction
                         .get(Documents.getInstance().getGroupFactoryDocRef());
                 GroupFactory groupFactory = groupFactoryDocSnap.toObject(GroupFactory.class);
 
+                //Get our local preferences
                 MatchPreferences ourPrefs = Entity.matchPreferences;
+
+                // Get the groups
                 CollectionReference groupsCRef = Collections.getInstance().getGroupsCRef();
                 // Loop variables
-                Group ourGroup = null;
                 // For each waiting group
                 for (String groupDocId : groupFactory.getPendingGroups()) {
                     // Get the doc
@@ -62,10 +71,17 @@ public abstract class MatchService {
                             .get(groupsCRef.document(groupDocId));
                     Group group = groupSnap.toObject(Group.class);
 
+                    DocumentSnapshot groupMatchPreferencesSnap = transaction
+                            .get(group.getMatchPreferencesDocRef());
+                    MatchPreferences groupMatchPreferences =
+                            groupMatchPreferencesSnap.toObject(MatchPreferences.class);
+
                     // Check if has match
-                    if (group.getMatchPreferences().hasMatch(ourPrefs)) {
+                    if (groupMatchPreferences.hasMatch(ourPrefs)) {
                         // Found matching group
                         ourGroup = group;
+                        prefsOfOurGroup = groupMatchPreferences;
+
 
                         // Check if group is almost full
                         if (ourGroup.isAlmostFull()) {
@@ -87,7 +103,7 @@ public abstract class MatchService {
 
                             // Add ourself to the group
                             ourGroup.addMember(ourUser.getDocumentId());
-                            ourGroup.getMatchPreferences().conformPreferences(ourPrefs);
+                            prefsOfOurGroup.conformPreferences(ourPrefs);
 
                         } // ends "if almost full"
 
@@ -99,18 +115,19 @@ public abstract class MatchService {
                     // No match found, so add ourself to a new group
                     ourGroup = groupFactory.makeGroup(ourUser, ourPrefs);
                 }
-                // Convert the group's gid to a documentId.
-                String ourGroupDocumentId = Integer.toString(ourGroup.getGid());
 
                 // Set the group info in the remote DB
-                transaction.set(groupsCRef.document(ourGroupDocumentId), ourGroup);
+                transaction.set(groupsCRef.document(ourGroup.getGid()), ourGroup);
+
+                // Set the group's match info too.
+                transaction.set(ourGroup.getMatchPreferencesDocRef(), prefsOfOurGroup);
 
                 // Update the user's status and user's groupDocumentId with the group info.
                 // TODO: Make this into a map and update in one go.
                 transaction.update(ourOnlineUserDocRef,
                         ourUser.statusKey(), ourGroup.getStatus());
                 transaction.update(ourOnlineUserDocRef,
-                        ourUser.groupDocumentIdKey(), ourGroupDocumentId);
+                        ourUser.groupDocumentIdKey(), ourGroup.getGid());
                 return null;
             }
 
@@ -128,9 +145,15 @@ public abstract class MatchService {
                                         if (task.isSuccessful()) {
                                             DocumentSnapshot snap = task.getResult();
                                             if (snap.exists()) {
+                                                // Update our local online user object
                                                 Entity.onlineUser.set(snap.toObject(OnlineUser.class));
+
+                                                // Start listening for our status to be changed to
+                                                // "confirming" which indicates the group has been
+                                                // filled.
+
                                             } else {
-                                                Entity.user.setToDefault();
+                                                callback.onFailure(new Exception("Missing OnlineUser doc"));
                                             }
                                             callback.onSuccess();
                                         } else {
@@ -146,6 +169,10 @@ public abstract class MatchService {
                     //Log.w(TAG, "Transaction failure.", e);
                 }
             });
+
+    }
+
+    public static void leaveGroup() {
 
     }
 }

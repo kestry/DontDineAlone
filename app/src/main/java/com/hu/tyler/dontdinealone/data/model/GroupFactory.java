@@ -7,13 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GroupFactory {
-    private Integer lastGid;
-    //private Integer groupCount;
+    private String lastGid;
+    //private Integer groupCount; // We don't need counts yet, but maybe in the future.
     //private Integer waitingGroupCount;
-    private List<String> pendingGroups; // Should we call this documentIdsOfPendingGroups?
+    private List<String> pendingGroups; // list of documentIds of waiting or confirming groups
 
     GroupFactory() {
-        lastGid = 0; // Increment to get next gid.
+        lastGid = "0"; // Increment to get next gid.
         //groupCount = 0;
         //waitingGroupCount = 0;
     }
@@ -28,8 +28,8 @@ public class GroupFactory {
     // Public Methods ----------------------------------------------------------------------------
 
     public Group makeGroup(OnlineUser user, MatchPreferences matchPreferences) {
-        int newGid = grabNextGid();
-        pendingGroups.add(Integer.toString(newGid));
+        String newGid = grabNextGid();
+        pendingGroups.add(newGid);
         return new Group(user, matchPreferences, newGid);
     }
 
@@ -38,13 +38,13 @@ public class GroupFactory {
      * Returns the lastGid that was assigned.
      * @return lastGid
      */
-    public int getLastGid() { return lastGid; }
+    public String getLastGid() { return lastGid; }
 
     /**
      * For copying values from database. Do not use this to develop app. Use constructor or
      * grabNextGid().
      */
-    public void setLastGid(int lastGid) { this.lastGid = lastGid; }
+    public void setLastGid(String lastGid) { this.lastGid = lastGid; }
 
     //public int getGroupCount() { return groupCount; }
     //public void setGroupCount(int groupCount) { groupCount = groupCount; }
@@ -64,7 +64,11 @@ public class GroupFactory {
      * Returns the nextGid to use. Private helper for makeGroup() function only.
      * @return nextGid
      */
-    private int grabNextGid() { return ++lastGid; }
+    private String grabNextGid() {
+        int lastGidInt = Integer.getInteger(lastGid);
+        lastGid = Integer.toString(++lastGidInt);
+        return lastGid;
+    }
 
 
 }

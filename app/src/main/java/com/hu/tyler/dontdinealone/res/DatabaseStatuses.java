@@ -6,10 +6,13 @@ public interface DatabaseStatuses {
         String online = "online";
         String queued = "queued";
         String matched = "matched"; // Matched to a group. Would "waiting" be a better term?
-        String confirming = "confirming";
+        String waiting = "waiting"; // Grouped but waiting on other memebers.
+        String confirming = "confirming"; // Confirming after group has been filled.
+                                          // TODO: Do we still want confirmation? Or just match?
         String confirmed = "confirmed";
-        String dining = "dining";
-        String offline = "offline";
+        String dining = "dining"; // Successfully part of a dining group with all confirmed members.
+        // No offline status because we delete the Online users from remote DB and set the
+        // local one to default (to erase personal information).
     }
 
     interface Group {

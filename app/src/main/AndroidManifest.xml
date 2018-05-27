@@ -36,7 +36,7 @@
             android:name=".EditProfileActivity"
             android:label="Edit Profile"
             android:windowSoftInputMode="adjustNothing" />
-        <activity android:name=".MatchingActivty"></activity>
+        <activity android:name=".MatchedActivity"></activity>
         <service android:name=".domain.NotificationService" />
     </application>
 

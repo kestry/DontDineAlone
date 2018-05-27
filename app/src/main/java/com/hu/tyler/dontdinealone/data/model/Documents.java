@@ -57,6 +57,18 @@ public class Documents {
         return collections.getUsersCRef().document(uid);
     }
 
+    public DocumentReference getUserMatchPreferencesDocRef() {
+        return collections.getUserMatchPreferencesCRef().document("Match Preferences");
+    }
+
+    public DocumentReference getUserMatchPreferencesDocRef(String uid) {
+        return collections.getUserMatchPreferencesCRef(uid).document("Match Preferences");
+    }
+
+    public DocumentReference getGroupMatchPreferencesDocRef(String gid) {
+        return collections.getGroupMatchPreferencesCRef(gid).document("Match Preferences");
+    }
+
     public DocumentReference getGroupFactoryDocRef() {
         return collections.getMetaCRef().document("GroupFactory");
     }

@@ -8,6 +8,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.hu.tyler.dontdinealone.data.Entity;
 import com.hu.tyler.dontdinealone.data.model.Collections;
 import com.hu.tyler.dontdinealone.data.model.Documents;
@@ -57,11 +58,16 @@ public class AuthUser {
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                             if (task.isSuccessful()) {
                                 DocumentSnapshot document = task.getResult();
+                                // TODO: We may want this all as a transaction
                                 if (document.exists()) {
                                     Entity.user.set(document.toObject(Entity.user.getClass()));
 
                                 } else {
                                     Entity.user.setToDefault();
+                                    Entity.matchPreferences.setToDefault();
+                                    //upload defaults;
+                                    //documents.getUserDocRef().set(Entity.user);
+                                    //Entity.user.getMatchPreferencesDocRef().set(Entity.matchPreferences);
                                 }
                                 OnlineService.initOnlineUser(callback);
                             } else {

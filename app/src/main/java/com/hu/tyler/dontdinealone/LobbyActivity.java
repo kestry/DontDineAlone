@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -18,6 +19,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -31,6 +33,8 @@ import com.hu.tyler.dontdinealone.data.model.Collections;
 import com.hu.tyler.dontdinealone.data.Entity;
 import com.hu.tyler.dontdinealone.data.entity.OnlineUser;
 import com.hu.tyler.dontdinealone.data.model.Documents;
+import com.hu.tyler.dontdinealone.data.model.MatchPreferences;
+import com.hu.tyler.dontdinealone.domain.ArrayService;
 import com.hu.tyler.dontdinealone.domain.NotificationService;
 import com.hu.tyler.dontdinealone.domain.OnlineService;
 import com.hu.tyler.dontdinealone.domain.QueueService;
@@ -60,9 +64,9 @@ public class LobbyActivity extends AppCompatActivity {
 
     // List items
     private String[] diningHallsFormatted;
-
-    private boolean[] groupSizePreferences;
-    private boolean[] diningHallPreferences;
+    MatchPreferences matchPreferences;
+    boolean[] groupSizePreferences;
+    boolean[] diningHallPreferences;
 
     Button buttonMatch;
     String transitionID = "0"; //this will hold the document ID for 2 matches TODO: What is a transitionId exactly?
@@ -91,13 +95,21 @@ public class LobbyActivity extends AppCompatActivity {
             startActivity(new Intent(this, MainActivity.class));
         }
 
-        groupSizePreferences = Entity.matchPreferences.getGroupSizePreferences();
-        diningHallPreferences = Entity.matchPreferences.getDiningHallPreferences();
+        diningHallsFormatted = getResources().getStringArray(R.array.diningHallsFormatted);
+
+        matchPreferences = Entity.matchPreferences;
+
+        Toast.makeText(LobbyActivity.this,
+                "matchPref GS length" + matchPreferences.getGroupSizePreferences().size(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(LobbyActivity.this,
+                "matchPref DH length" + matchPreferences.getDiningHallPreferences().size(), Toast.LENGTH_SHORT).show();
+        groupSizePreferences = ArrayService
+                .makeArrayFromList(matchPreferences.getGroupSizePreferences());
+        diningHallPreferences = ArrayService
+                .makeArrayFromList(matchPreferences.getDiningHallPreferences());
 
         progressDialog = new ProgressDialog(this);
         // List items are retrieved from "app/res/values/strings.xml"
-
-        diningHallsFormatted = getResources().getStringArray(R.array.diningHallsFormatted);
 
         user = Entity.onlineUser;
     }
@@ -200,15 +212,16 @@ public class LobbyActivity extends AppCompatActivity {
             buttonMatch.setBackgroundColor(Color.parseColor("#FF9900"));
             return;
         }
-        setMatchPreferences(v);
+        //setMatchPreferences(v);
+        queueUser();
     }
 
     public void queueUser() {
-        QueueService.enterQueue(new StoreCallback());
         findingMatch = true;
         buttonMatch.setBackgroundColor(Color.parseColor("#FF4081"));
         buttonMatch.setText("Stop Matching");
-        lookingFortheHungry();
+        QueueService.enterQueue(new StoreCallback());
+        //lookingFortheHungry();
     }
 
     protected void lookingFortheHungry() {
@@ -229,13 +242,14 @@ public class LobbyActivity extends AppCompatActivity {
                                 Toast.makeText(LobbyActivity.this,
                                         "Match Found!", Toast.LENGTH_SHORT).show();
                                 //TODO: probably should check whether someone already changed your status before proceeding further.
+                                /*
                                 //PRECAUTION SLOWDOWNS -- TODO: What does this mean?
                                 boolean foundMatchAlready = user.getStatus() == DatabaseStatuses.User.matched;
                                 if(transitionID != "0" || foundMatchAlready) {
                                     return;
                                 }
                                 ////////////END OF EXTRA PRECAUTIONS
-
+                                */
                                 UserStatusService.updateEverywhere(
                                         documents.getOnlineUserDocRef(),
                                         DatabaseStatuses.User.matched);
@@ -269,7 +283,7 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
     public void goToMatchingActivity() {
-        Intent myIntent = new Intent(this, MatchingActivty.class);
+        Intent myIntent = new Intent(this, MatchedActivity.class);
         finish();
         myIntent.putExtra("key", transitionID); //Optional parameters
         myIntent.putExtra("name", user.getName()); //Optional parameters
@@ -307,7 +321,6 @@ public class LobbyActivity extends AppCompatActivity {
         });
     }
 
-
     public void setMatchPreferences(View v) {
         // TODO: Will cancelable = false help?
         // These are asynchronous listeners which means they won't wait for selections to be made to
@@ -326,13 +339,13 @@ public class LobbyActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i, boolean isChecked) {
                 groupSizePreferences[i] = isChecked;
-                Entity.matchPreferences.setGroupSizePreferenceAt(i, isChecked);
+                matchPreferences.setGroupSizePreferenceAt(i, isChecked);
             }
         });
         builder.setPositiveButton(R.string.ok_label, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if (Entity.matchPreferences.hasChosenAGroupSizePreference()) {
+                if (matchPreferences.hasChosenAGroupSizePreference()) {
                     // Since we made a selection, we are ok to continue selecting next preference.
                     checkBoxDiningHallPreferences();
                 } else {
@@ -362,15 +375,15 @@ public class LobbyActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i, boolean isChecked) {
                 diningHallPreferences[i] = isChecked;
-                Entity.matchPreferences.setDiningHallPreferenceAt(i, isChecked);
+                matchPreferences.setDiningHallPreferenceAt(i, isChecked);
             }
         });
         builder.setPositiveButton(R.string.ok_label, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int which) {
-                if (Entity.matchPreferences.hasChosenADiningHallPreference()) {
-                    // We queue now that we finished selecting preferences.
-                    queueUser();
+                if (matchPreferences.hasChosenADiningHallPreference()) {
+                    // Store the preferences.
+                    saveMatchPreferences();
                 } else {
                     Toast.makeText(LobbyActivity.this,
                             "Please make a selection", Toast.LENGTH_SHORT).show();
@@ -387,6 +400,32 @@ public class LobbyActivity extends AppCompatActivity {
         diningHallSelection.show();
     }
 
+    public void saveMatchPreferences() {
+        documents.getUserMatchPreferencesDocRef().set(matchPreferences)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        progressDialog.dismiss();
+
+                        Toast.makeText(LobbyActivity.this,
+                                "Match preferences saved successfully",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        progressDialog.dismiss();
+
+                        Log.w("XXX", "Save error: ", e);
+                        Toast.makeText(LobbyActivity.this,
+                                "Failed to save match preferences", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LobbyActivity.this,
+                                "Error: " + e, Toast.LENGTH_LONG).show();
+                    }
+                });
+
+    }
 
     // Navigation Methods ------------------------------------------------------------------------
 

@@ -27,11 +27,14 @@ public abstract class OnlineService {
      */
     public static void initOnlineUser(final Callback callback) {
         // Fill in the onlineUser fields.
+        /*
         Entity.onlineUser.setName(Entity.user.getDisplayName());
         Entity.onlineUser.setDescription(Entity.user.getAnimal());
         Entity.onlineUser.setEmail(Entity.authUser.getEmail());
         Entity.onlineUser.setDocumentId(Entity.authUser.getUid());
         Entity.onlineUser.setStatus(DatabaseStatuses.User.online);
+        */
+        Entity.onlineUser.setupOnlineUser(Entity.authUser, Entity.user);
 
         // The reason we use a map is because the serverTimestamp must be mapped to our field.
         // And so instead of doing two Firestore actions, we do the remote set in one go.

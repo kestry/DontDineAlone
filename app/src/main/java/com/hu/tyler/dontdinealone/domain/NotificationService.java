@@ -69,7 +69,7 @@ public class NotificationService extends Service {
         return START_NOT_STICKY;
     }
 
-    public void showNotification(){
+    public void showNotification() {
         Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         long[] vibration = {1000};
 
