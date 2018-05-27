@@ -58,6 +58,7 @@ public class LobbyActivity extends AppCompatActivity {
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference onlineUsers; // for group items
     private CollectionReference matchedUsers;
+    private Intent notificationService;
     TextView hiTxt;
     OnlineUser user; // object to hold user info
     ///////////////////
@@ -89,6 +90,8 @@ public class LobbyActivity extends AppCompatActivity {
 
         onlineUsers = collections.getOnlineUsersCRef();
         matchedUsers = collections.getMatchedCRef();
+
+        notificationService = new Intent(this, NotificationService.class);
 
         //Check if user is not logged in
         if (!Entity.authUser.isSignedIn(new SignedInCallback())) {
@@ -175,14 +178,13 @@ public class LobbyActivity extends AppCompatActivity {
             onlineUsers.document(user.getDocumentId()).delete();
         }
         //Starts the NotificationService in the background.
-        Intent notificationService = new Intent(this, NotificationService.class);
+        notificationService.putExtra(NotificationService.NOTIFICATION_TYPE, NotificationService.MATCH_NOTIFICATION);
         startService(notificationService);
     }
 
     @Override
     protected void onResume(){
         super.onResume();
-        Intent notificationService = new Intent(this, NotificationService.class);
         stopService(notificationService);
     }
 

@@ -16,6 +16,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.hu.tyler.dontdinealone.data.model.Chat;
+import com.hu.tyler.dontdinealone.domain.NotificationService;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -32,6 +33,8 @@ public class MatchedActivity extends AppCompatActivity {
 
     // reference for deleting onDestroy
     private CollectionReference DeleteMe = db.collection("Matched");
+
+    private Intent notificationService;
 
     Button sendMessage;
     Chat text , x;
@@ -56,6 +59,7 @@ public class MatchedActivity extends AppCompatActivity {
         key = findViewById(R.id.matchActivityText);
         key.setText(docID);
         messages = findViewById(R.id.matchingChatting);
+        notificationService = new Intent(this, NotificationService.class);
 
         SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US);
         String date = s.format(new Date());
@@ -135,6 +139,23 @@ public class MatchedActivity extends AppCompatActivity {
                     messages.setText(data);
                 }
         });
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        //Starts the NotificationService in the background.
+        /*  Need to update all collection/document references before I can test this
+        notificationService.putExtra(NotificationService.NOTIFICATION_TYPE, NotificationService.MESSAGE_NOTIFICATION);
+        notificationService.putExtra(NotificationService.CHAT_ID, docID);
+        startService(notificationService);
+        */
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        //stopService(notificationService);
     }
 
     @Override
