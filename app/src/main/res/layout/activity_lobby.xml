@@ -41,8 +41,9 @@
         android:id="@+id/buttonEditProfile"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="199dp"
-        android:layout_marginStart="15dp"
+        android:layout_marginBottom="272dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
         android:background="#FF9900"
         android:fontFamily="casual"
         android:onClick="goToEditProfileActivity"
@@ -79,6 +80,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/buttonMatch" />
 
+    <Button
+        android:id="@+id/buttonMatchOld"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="18dp"
+        android:background="#FF9900"
+        android:fontFamily="casual"
+        android:padding="5dp"
+        android:onClick="startOldMatching"
+        android:text="Old Matching"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonMatchPreferences" />
 
     <ScrollView
         android:id="@+id/scrollView4"

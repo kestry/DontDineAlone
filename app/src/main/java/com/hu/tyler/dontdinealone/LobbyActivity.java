@@ -69,6 +69,8 @@ public class LobbyActivity extends AppCompatActivity {
     boolean[] diningHallPreferences;
 
     Button buttonMatch;
+    Button buttonMatchOld;
+
     String transitionID = "0"; //this will hold the document ID for 2 matches TODO: What is a transitionId exactly?
     private ProgressDialog progressDialog;
 
@@ -80,6 +82,7 @@ public class LobbyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_lobby);
 
         buttonMatch = findViewById(R.id.buttonMatch); //assigning variable to button
+        buttonMatchOld = findViewById(R.id.buttonMatchOld); //assigning variable to button
 
         collections = Collections.getInstance();
         documents = Documents.getInstance();
@@ -212,7 +215,6 @@ public class LobbyActivity extends AppCompatActivity {
             buttonMatch.setBackgroundColor(Color.parseColor("#FF9900"));
             return;
         }
-        //setMatchPreferences(v);
         queueUser();
     }
 
@@ -221,7 +223,31 @@ public class LobbyActivity extends AppCompatActivity {
         buttonMatch.setBackgroundColor(Color.parseColor("#FF4081"));
         buttonMatch.setText("Stop Matching");
         QueueService.enterQueue(new StoreCallback());
-        //lookingFortheHungry();
+    }
+
+    public void startOldMatching(View v) {
+        if(user == null) {
+            return; //
+        }
+        //TODO: begin matching logic
+        if (findingMatch) {
+            QueueService.leaveQueue();
+            OnlineService.goBackOnline();
+            findingMatch = false;
+            buttonMatchOld.setText("Start Matching");
+            buttonMatchOld.setBackgroundColor(Color.parseColor("#FF9900"));
+            return;
+        }
+        oldQueueUser();
+        lookingFortheHungry();
+    }
+
+
+    public void oldQueueUser() {
+        findingMatch = true;
+        buttonMatchOld.setBackgroundColor(Color.parseColor("#FF4081"));
+        buttonMatchOld.setText("Stop Matching");
+        QueueService.enterQueue(new StoreCallback());
     }
 
     protected void lookingFortheHungry() {
