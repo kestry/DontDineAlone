@@ -12,6 +12,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.hu.tyler.dontdinealone.data.Entity;
 import com.hu.tyler.dontdinealone.data.model.Collections;
 import com.hu.tyler.dontdinealone.data.model.Documents;
+import com.hu.tyler.dontdinealone.data.model.MatchPreferences;
 import com.hu.tyler.dontdinealone.domain.OnlineService;
 import com.hu.tyler.dontdinealone.util.Callback;
 import com.hu.tyler.dontdinealone.util.NullCallback;
@@ -61,21 +62,40 @@ public class AuthUser {
                                 // TODO: We may want this all as a transaction
                                 if (document.exists()) {
                                     Entity.user.set(document.toObject(Entity.user.getClass()));
-
                                 } else {
                                     Entity.user.setToDefault();
-                                    Entity.matchPreferences.setToDefault();
-                                    //upload defaults;
-                                    //documents.getUserDocRef().set(Entity.user);
-                                    //Entity.user.getMatchPreferencesDocRef().set(Entity.matchPreferences);
+                                    documents.getUserDocRef().set(Entity.user);
                                 }
-                                OnlineService.initOnlineUser(callback);
+                                loadUserMatchPreferences(callback);
                             } else {
                                 callback.onFailure(task.getException());
                             }
                         }
                     });
         }
+    }
+
+    public void loadUserMatchPreferences(final Callback callback) {
+        documents.getUserMatchPreferencesDocRef().get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                Entity.matchPreferences
+                                        .copy(document.toObject(MatchPreferences.class));
+                            } else {
+                                Entity.matchPreferences.setToDefault();
+                                documents.getUserMatchPreferencesDocRef()
+                                        .set(Entity.matchPreferences);
+                            }
+                            OnlineService.initOnlineUser(callback);
+                        } else {
+                            callback.onFailure(task.getException());
+                        }
+            }
+        });
     }
 
     // Authentication and FirebaseUser Section ---------------------------

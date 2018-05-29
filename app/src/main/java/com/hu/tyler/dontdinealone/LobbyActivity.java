@@ -27,6 +27,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.hu.tyler.dontdinealone.data.model.Chat;
 import com.hu.tyler.dontdinealone.data.model.Collections;
@@ -54,14 +55,16 @@ public class LobbyActivity extends AppCompatActivity {
     private Documents documents;
     private boolean findingMatch = false; //variable to indicate on going search
     private boolean goingToMatching = false; // prevents MatchingActivity from running twice
-    ///Tyler Edits: 5/15
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference onlineUsers; // for group items
     private CollectionReference matchedUsers;
     private Intent notificationService;
-    TextView hiTxt;
-    OnlineUser user; // object to hold user info
-    ///////////////////
+    private TextView hiTxt;
+    private OnlineUser user; // object to hold user info
+    private EventListener<QuerySnapshot> onlineUsersEventListener;
+    private EventListener<QuerySnapshot> matchEventListener;
+    private ListenerRegistration onlineUsersListenerRegistration;
+    private ListenerRegistration matchListenerRegistration;
 
     // List items
     private String[] diningHallsFormatted;
@@ -101,14 +104,11 @@ public class LobbyActivity extends AppCompatActivity {
             startActivity(new Intent(this, MainActivity.class));
         }
 
+        onlineUsersEventListener = getNewOnlineEventListener();
         diningHallsFormatted = getResources().getStringArray(R.array.diningHallsFormatted);
 
         matchPreferences = Entity.matchPreferences;
 
-        Toast.makeText(LobbyActivity.this,
-                "matchPref GS length" + matchPreferences.getGroupSizePreferences().size(), Toast.LENGTH_SHORT).show();
-        Toast.makeText(LobbyActivity.this,
-                "matchPref DH length" + matchPreferences.getDiningHallPreferences().size(), Toast.LENGTH_SHORT).show();
         groupSizePreferences = ArrayService
                 .makeArrayFromList(matchPreferences.getGroupSizePreferences());
         diningHallPreferences = ArrayService
@@ -126,7 +126,54 @@ public class LobbyActivity extends AppCompatActivity {
         super.onStart();
         Log.d("XXX", "transitionID @ onStart: " + transitionID);
         user = Entity.onlineUser;
-        onlineUsers.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
+        if (onlineUsersListenerRegistration == null) {
+            onlineUsersListenerRegistration = beginOnlineUsersListener();
+        }
+
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        stopService(notificationService);
+        if (onlineUsersListenerRegistration == null) {
+            onlineUsersListenerRegistration = beginOnlineUsersListener();
+        }
+    }
+
+    @Override
+    protected void onPause(){
+        super.onPause();
+        if(findingMatch == false && user != null) {
+            onlineUsers.document(user.getDocumentId()).delete();
+        }
+        //Starts the NotificationService in the background.
+        notificationService.putExtra(NotificationService.NOTIFICATION_TYPE, NotificationService.MATCH_NOTIFICATION);
+        startService(notificationService);
+    }
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (onlineUsersListenerRegistration != null) {
+            onlineUsersListenerRegistration.remove();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(user == null)
+            return;
+        QueueService.leaveQueue();
+        onlineUsers.document(user.getDocumentId()).delete();
+    }
+
+    // Presenter Methods -------------------------------------------------------------------------
+
+    EventListener<QuerySnapshot> getNewOnlineEventListener() {
+        return new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot queryDocumentSnapshots, FirebaseFirestoreException e) {
 
@@ -168,41 +215,13 @@ public class LobbyActivity extends AppCompatActivity {
                 TextView onlineCount = findViewById(R.id.onlineCount);
                 onlineCount.setText(data);
             }
-        });
+        };
+
     }
 
-    @Override
-    protected void onPause(){
-        super.onPause();
-        if(findingMatch == false && user != null) {
-            onlineUsers.document(user.getDocumentId()).delete();
-        }
-        //Starts the NotificationService in the background.
-        notificationService.putExtra(NotificationService.NOTIFICATION_TYPE, NotificationService.MATCH_NOTIFICATION);
-        startService(notificationService);
+    ListenerRegistration beginOnlineUsersListener() {
+        return onlineUsers.addSnapshotListener(onlineUsersEventListener);
     }
-
-    @Override
-    protected void onResume(){
-        super.onResume();
-        stopService(notificationService);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if(user == null)
-            return;
-        QueueService.leaveQueue();
-        onlineUsers.document(user.getDocumentId()).delete();
-    }
-
-    // Presenter Methods -------------------------------------------------------------------------
 
     public void startMatching(View v) {
         if(user == null) {
@@ -278,9 +297,7 @@ public class LobbyActivity extends AppCompatActivity {
                                 }
                                 ////////////END OF EXTRA PRECAUTIONS
                                 */
-                                UserStatusService.updateEverywhere(
-                                        documents.getOnlineUserDocRef(),
-                                        DatabaseStatuses.User.matched);
+                                UserStatusService.updateEverywhere(DatabaseStatuses.User.matched);
 
                                 //Get the user we are matched with
                                 final DocumentReference otherDocRef = db.collection("Online").document(otherId);

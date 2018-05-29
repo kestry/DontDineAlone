@@ -70,6 +70,6 @@ public class Documents {
     }
 
     public DocumentReference getGroupFactoryDocRef() {
-        return collections.getMetaCRef().document("GroupFactory");
+        return collections.getSystemCRef().document("GroupFactory");
     }
 }

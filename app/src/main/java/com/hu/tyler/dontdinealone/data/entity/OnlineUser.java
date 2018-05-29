@@ -135,7 +135,7 @@ public class OnlineUser {
         return map;
     }
 
-    public void set(OnlineUser other) {
+    public void copy(OnlineUser other) {
         documentId = other.documentId;
         newDoc = other.newDoc;
         name = other.name;

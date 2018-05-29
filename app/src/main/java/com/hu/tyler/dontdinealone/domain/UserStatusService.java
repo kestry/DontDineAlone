@@ -6,6 +6,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.hu.tyler.dontdinealone.data.Entity;
+import com.hu.tyler.dontdinealone.data.model.Documents;
 import com.hu.tyler.dontdinealone.util.Callback;
 
 /**
@@ -17,10 +18,10 @@ public abstract class UserStatusService {
     /**
      * Updates the local and remote status asynchronously.
      */
-    public static void updateEverywhere(DocumentReference docRef,
-                                    String status) {
+    public static void updateEverywhere(String status) {
         Entity.onlineUser.setStatus(status);
-        docRef.update(Entity.onlineUser.statusKey(), Entity.onlineUser.getStatus());
+        Documents.getInstance().getOnlineUserDocRef()
+                .update(Entity.onlineUser.statusKey(), Entity.onlineUser.getStatus());
     }
 
     /**

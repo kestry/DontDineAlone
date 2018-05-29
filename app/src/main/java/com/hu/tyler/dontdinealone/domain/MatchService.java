@@ -13,8 +13,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
 import com.hu.tyler.dontdinealone.data.entity.OnlineUser;
 import com.hu.tyler.dontdinealone.data.model.Collections;
@@ -35,36 +38,51 @@ import com.hu.tyler.dontdinealone.util.Callback;
  */
 public abstract class MatchService {
 
+    private static EventListener<DocumentSnapshot> onlineUserEventListener
+            = getOnlineUserNewEventListener();
+
+    private static boolean continuingQueue = true;
+
+
+
     public static void findGroup(final Callback callback) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        continuingQueue = true;
+
         final Collections collections = Collections.getInstance();
         final Documents documents = Documents.getInstance();
-        final CollectionReference groupsCRef = Collections.getInstance().getGroupsCRef();
-
-        final DocumentReference ourOnlineUserDocRef = documents.getOnlineUserDocRef();
         final OnlineUser ourUser = Entity.onlineUser;
+        final MatchPreferences ourUser_Prefs = Entity.matchPreferences;
+
+        // Collection References
+        final CollectionReference groupsCRef = collections.getGroupsCRef();
+
+        // Document References
+        final DocumentReference ourOnlineUserDocRef = documents.getOnlineUserDocRef();
+
         /* In progress */
         // With transactions we must always do all gets first before doing any write.
         // IMPORTANT: WE DO NOT WANT TO MAKE ANY APPLICATION STATE CHANGES IN TRANSACTION
         // BECAUSE WE MIGHT BE TRYING THIS FUNCTION MULTIPLE TIMES.
-        db.runTransaction(new Transaction.Function<Void>() {
+        FirebaseFirestore.getInstance().runTransaction(new Transaction.Function<Void>() {
             @Override
             public Void apply(Transaction transaction) throws FirebaseFirestoreException {
 
-                Group ourGroup = null;
-                MatchPreferences prefsOfOurGroup = null;
                 // Get the groupFactory
+                GroupFactory groupFactory = null;
                 DocumentSnapshot groupFactoryDocSnap = transaction
                         .get(Documents.getInstance().getGroupFactoryDocRef());
-                GroupFactory groupFactory = groupFactoryDocSnap.toObject(GroupFactory.class);
+                if (groupFactoryDocSnap.exists()) {
+                    groupFactory = groupFactoryDocSnap.toObject(GroupFactory.class);
+                } else {
+                    groupFactory = new GroupFactory();
+                }
 
-                //Get our local preferences
-                MatchPreferences ourPrefs = Entity.matchPreferences;
+                // Variables for our group
+                Group ourGroup = null;
+                MatchPreferences ourGroup_Prefs = null;
 
-                // Get the groups
-                CollectionReference groupsCRef = Collections.getInstance().getGroupsCRef();
-                // Loop variables
-                // For each waiting group
+                // For each group with a status of "waiting"
                 for (String groupDocId : groupFactory.getPendingGroups()) {
                     // Get the doc
                     DocumentSnapshot groupSnap = transaction
@@ -72,20 +90,20 @@ public abstract class MatchService {
                     Group group = groupSnap.toObject(Group.class);
 
                     DocumentSnapshot groupMatchPreferencesSnap = transaction
-                            .get(group.getMatchPreferencesDocRef());
+                            .get(documents.getGroupMatchPreferencesDocRef(group.getGid()));
                     MatchPreferences groupMatchPreferences =
                             groupMatchPreferencesSnap.toObject(MatchPreferences.class);
 
                     // Check if has match
-                    if (groupMatchPreferences.hasMatch(ourPrefs)) {
+                    if (groupMatchPreferences.hasMatch(ourUser_Prefs)) {
                         // Found matching group
                         ourGroup = group;
-                        prefsOfOurGroup = groupMatchPreferences;
+                        ourGroup_Prefs = groupMatchPreferences;
 
 
                         // Check if group is almost full
                         if (ourGroup.isAlmostFull()) {
-                            // Our user wants to listen for this state while we in waiting mode.
+                            // Change our group status to confirming.
                             ourGroup.setStatus(DatabaseStatuses.Group.confirming);
 
                             // Again, we do not want to change local user state in the transaction.
@@ -96,31 +114,31 @@ public abstract class MatchService {
 
                             // Update other members to confirming status.
                             for (String memberId : ourGroup.getMembers().keySet()) {
-                                transaction
-                                        .update(collections.getOnlineUsersCRef().document(memberId),
-                                                group.statusKey(), group.getStatus());
+                                transaction.update(
+                                        collections.getOnlineUsersCRef().document(memberId),
+                                        group.statusKey(), group.getStatus());
                             }
 
                             // Add ourself to the group
                             ourGroup.addMember(ourUser.getDocumentId());
-                            prefsOfOurGroup.conformPreferences(ourPrefs);
+                            ourGroup_Prefs.conformPreferences(ourUser_Prefs);
 
-                        } // ends "if almost full"
-
+                        }
                         break; // Reason: found our group so we exit loop
                     } // ends "if group found"
                 } // ends "for group search"
 
                 if (ourGroup == null) {
                     // No match found, so add ourself to a new group
-                    ourGroup = groupFactory.makeGroup(ourUser, ourPrefs);
+                    ourGroup = groupFactory.makeGroup(ourUser, ourUser_Prefs);
                 }
 
-                // Set the group info in the remote DB
+                // Save the group in the remote db.
                 transaction.set(groupsCRef.document(ourGroup.getGid()), ourGroup);
 
-                // Set the group's match info too.
-                transaction.set(ourGroup.getMatchPreferencesDocRef(), prefsOfOurGroup);
+                // Save the group's match preferences in the remote db.
+                transaction.set(documents
+                        .getGroupMatchPreferencesDocRef(ourGroup.getGid()), ourGroup_Prefs);
 
                 // Update the user's status and user's groupDocumentId with the group info.
                 // TODO: Make this into a map and update in one go.
@@ -136,7 +154,7 @@ public abstract class MatchService {
                 @Override
                 public void onSuccess(Void aVoid) {
                     // Transaction success
-
+                    /* On success, we may just be done and listening.
                     // Grab the updated user info
                     documents.getOnlineUserDocRef().get()
                             .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -146,7 +164,7 @@ public abstract class MatchService {
                                             DocumentSnapshot snap = task.getResult();
                                             if (snap.exists()) {
                                                 // Update our local online user object
-                                                Entity.onlineUser.set(snap.toObject(OnlineUser.class));
+                                                Entity.onlineUser.copy(snap.toObject(OnlineUser.class));
 
                                                 // Start listening for our status to be changed to
                                                 // "confirming" which indicates the group has been
@@ -161,18 +179,48 @@ public abstract class MatchService {
                                         }
                                     }
                                 });
+                   */
                 }
             })
                 .addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    //Log.w(TAG, "Transaction failure.", e);
+                    // We try again.
+                    if (continuingQueue) {
+                        findGroup(callback);
+                    }
                 }
             });
+    }
 
+    private static EventListener<DocumentSnapshot> getOnlineUserNewEventListener() {
+        return new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(DocumentSnapshot snap, FirebaseFirestoreException e) {
+
+                if (e != null) {
+                    // We encountered an exception.
+                    return;
+                }
+
+                if (snap != null && snap.exists()) {
+                    // TODO: Add notification here
+                    Entity.onlineUser.copy(snap.toObject(OnlineUser.class));
+                    if (Entity.onlineUser.getStatus() == DatabaseStatuses.User.confirmed) {
+                        return;
+                    }
+                } else {
+                    // TODO: Current data is null. Should we throw here? Return?
+                }
+            }};
+    }
+    public static ListenerRegistration beginMatchListener() {
+        return Documents.getInstance().getOnlineUserDocRef()
+                .addSnapshotListener(onlineUserEventListener);
     }
 
     public static void leaveGroup() {
-
+        continuingQueue = false;
+        UserStatusService.updateEverywhere(DatabaseStatuses.User.online);
     }
 }

@@ -20,7 +20,7 @@ public class Group {
 
     private String gid;
     private String status;
-    private DocumentReference matchPreferencesDocRef;
+    //private DocumentReference matchPreferencesDocRef;
     private int minCapacity;
     private Map<String, Boolean> members;
         // key: OnlineUser id/docId
@@ -34,7 +34,7 @@ public class Group {
         //public no-arg constructor needed
         this.gid = "0";
         this.status = DatabaseStatuses.Group.uninitialized;
-        this.matchPreferencesDocRef = null; // needs to be setup
+        //this.matchPreferencesDocRef = null; // needs to be setup
         this.minCapacity = 0;
         this.members = null;
         this.firstCreatedTime = null;
@@ -44,7 +44,7 @@ public class Group {
         //public no-arg constructor needed
         this.gid = gid;
         this.status = DatabaseStatuses.Group.waiting;
-        this.matchPreferencesDocRef = Documents.getInstance().getGroupMatchPreferencesDocRef(gid);
+        //this.matchPreferencesDocRef = Documents.getInstance().getGroupMatchPreferencesDocRef(gid);
         // Parse match preference to update minimum group capacity.
         this.updateMinCapacity(userMatchPreferences);
         this.members = new HashMap<>();
@@ -54,9 +54,9 @@ public class Group {
 
     // Any function that starts with "get" will go into Firestore unless we exclude.
 
-    public DocumentReference getMatchPreferencesDocRef() {
-        return matchPreferencesDocRef;
-    }
+    //public DocumentReference getMatchPreferencesDocRef() {
+    //    return matchPreferencesDocRef;
+    //}
 
     public String gidKey() { return "gid"; }
     public String getGid() { return gid; }

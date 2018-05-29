@@ -57,7 +57,7 @@ public class Collections {
     // Incrememt the build number as developing so that we don't have conflicts with old builds.
     // i.e. change BUILD-2 to BUILD-3. Implement a counter if more explicit coordination is needed.
     public DocumentReference getBuildDocRef() {
-        return mDb.collection("BUILDS").document("BUILD-2");
+        return mDb.collection("BUILDS").document("BUILD-3");
     }
 
     //--------------------------------------------------------------------------------------------
@@ -65,7 +65,7 @@ public class Collections {
     /** Collections that stay the same for both live and development */
 
     public CollectionReference getUserMatchPreferencesCRef() {
-        return getOnlineUsersCRef().document(mUid)
+        return getUsersCRef().document(mUid)
                 .collection("Match Preferences");
     }
 
@@ -121,8 +121,8 @@ public class Collections {
     }
 
     // For meta data
-    public CollectionReference getMetaCRef() {
-        return getBuildDocRef().collection("Meta");
+    public CollectionReference getSystemCRef() {
+        return getBuildDocRef().collection("System");
     }
 
     // For matched/chat

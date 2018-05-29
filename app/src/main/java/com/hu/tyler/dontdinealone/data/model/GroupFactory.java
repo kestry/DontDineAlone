@@ -12,13 +12,13 @@ public class GroupFactory {
     //private Integer waitingGroupCount;
     private List<String> pendingGroups; // list of documentIds of waiting or confirming groups
 
-    GroupFactory() {
+    public GroupFactory() {
         lastGid = "0"; // Increment to get next gid.
         //groupCount = 0;
         //waitingGroupCount = 0;
     }
 
-    GroupFactory(GroupFactory groupFactory) {
+    public GroupFactory(GroupFactory groupFactory) {
         lastGid = groupFactory.lastGid;
         //groupCount = groupFactory.groupCount;
         //waitingGroupCount = groupFactory.waitingGroupCount;
