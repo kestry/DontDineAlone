@@ -175,7 +175,7 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
     // Presenter Methods -------------------------------------------------------------------------
-
+//This is triggered during startup
     EventListener<QuerySnapshot> getNewOnlineEventListener() {
         return new EventListener<QuerySnapshot>() {
             @Override
@@ -284,13 +284,48 @@ public class LobbyActivity extends AppCompatActivity {
                     public void onSuccess(QuerySnapshot documentSnapshots) {
                         List<DocumentSnapshot> snaps = documentSnapshots.getDocuments();
 
+                        //TODO: Make for loop to removed user from snaps List
 
+                        //TODO: Also filter out everyone with different prefreneces and group sizes
 
+                        //TODO: For Loop for Transactions
 
                         for(DocumentSnapshot snap : snaps) {
-//                            remove the element that has a identical email -- TODO: What does this mean?
+
+
                             String otherId = snap.getId();
                             String ourId = user.getDocumentId();
+
+
+                            documents.getUserMatchPreferencesDocRef(otherId).get()
+                                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+
+
+                                            matchPreferences = documentSnapshot.toObject(MatchPreferences.class);
+
+                                            for(int i = 0; i < matchPreferences.getDiningHallPreferences().size(); i ++ )
+                                            {
+                                                Log.d("prefs", "index: " + i + " " + matchPreferences.getDiningHallPreferences().get(i) );
+                                                Log.d("prefs", "Actual Value: " + DatabaseKeys.Preference.DINING_HALLS[i] );
+
+                                            }
+
+                                            for(int i = 0; i < matchPreferences.getGroupSizePreferences().size(); i ++ )
+                                            {
+                                                Log.d("group bool", "index: " + i + " " + matchPreferences.getGroupSizePreferences().get(i) );
+                                                Log.d("group size", "Actual Value: " + DatabaseKeys.Preference.GROUP_SIZES[i]);
+
+                                            }
+
+
+                                        }
+                                    });
+
+
+
+
 
                             boolean foundOtherUser = !otherId.equalsIgnoreCase(ourId);
                             if(foundOtherUser) {

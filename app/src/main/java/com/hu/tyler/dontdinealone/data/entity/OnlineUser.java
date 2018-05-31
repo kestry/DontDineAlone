@@ -134,6 +134,7 @@ public class OnlineUser {
         map.put(documentIdKey(), documentId);
         map.put(chatIdKey(), chatId);
         map.put(newDocKey(), newDoc);
+        map.put(nameKey(), name);
         map.put(descriptionKey(), description);
         map.put(emailKey(), email);
         map.put(statusKey(), status);
