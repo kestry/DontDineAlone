@@ -43,6 +43,7 @@ import com.hu.tyler.dontdinealone.domain.UserStatusService;
 import com.hu.tyler.dontdinealone.res.DatabaseKeys;
 import com.hu.tyler.dontdinealone.res.DatabaseStatuses;
 import com.hu.tyler.dontdinealone.util.Callback;
+import com.hu.tyler.dontdinealone.util.NullCallback;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -129,16 +130,19 @@ public class LobbyActivity extends AppCompatActivity {
         if (onlineUsersListenerRegistration == null) {
             onlineUsersListenerRegistration = beginOnlineUsersListener();
         }
-
+        OnlineService.initOnlineUser(NullCallback.getInstance());
     }
 
     @Override
     protected void onResume(){
         super.onResume();
+        user = Entity.onlineUser;
+
         stopService(notificationService);
         if (onlineUsersListenerRegistration == null) {
             onlineUsersListenerRegistration = beginOnlineUsersListener();
         }
+        OnlineService.initOnlineUser(NullCallback.getInstance());
     }
 
     @Override
@@ -279,6 +283,10 @@ public class LobbyActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(QuerySnapshot documentSnapshots) {
                         List<DocumentSnapshot> snaps = documentSnapshots.getDocuments();
+
+
+
+
                         for(DocumentSnapshot snap : snaps) {
 //                            remove the element that has a identical email -- TODO: What does this mean?
                             String otherId = snap.getId();
@@ -286,6 +294,9 @@ public class LobbyActivity extends AppCompatActivity {
 
                             boolean foundOtherUser = !otherId.equalsIgnoreCase(ourId);
                             if(foundOtherUser) {
+
+
+
                                 Toast.makeText(LobbyActivity.this,
                                         "Match Found!", Toast.LENGTH_SHORT).show();
                                 //TODO: probably should check whether someone already changed your status before proceeding further.
@@ -300,7 +311,7 @@ public class LobbyActivity extends AppCompatActivity {
                                 UserStatusService.updateEverywhere(DatabaseStatuses.User.matched);
 
                                 //Get the user we are matched with
-                                final DocumentReference otherDocRef = db.collection("Online").document(otherId);
+                                final DocumentReference otherDocRef = collections.getOnlineUsersCRef().document(otherId);
                                 Log.d("XXX","otherId.equals(ourId):" + otherId.equals(ourId));
                                 Log.d("XXX", "id: "+ otherId + " Matched Email: " + snap.getString("email"));
 
@@ -327,15 +338,6 @@ public class LobbyActivity extends AppCompatActivity {
                 });
     }
 
-    public void goToMatchingActivity() {
-        Intent myIntent = new Intent(this, MatchedActivity.class);
-        finish();
-        myIntent.putExtra("key", transitionID); //Optional parameters
-        myIntent.putExtra("name", user.getName()); //Optional parameters
-
-        this.startActivity(myIntent);
-
-    }
     /////////////////////////////End of Tylers Edit
 
 
@@ -490,6 +492,16 @@ public class LobbyActivity extends AppCompatActivity {
         finish();
         startActivity(x);
         //Terminate the current activity
+    }
+
+    public void goToMatchingActivity() {
+        Intent myIntent = new Intent(this, MatchedActivity.class);
+        finish();
+        myIntent.putExtra("key", transitionID); //Optional parameters
+        myIntent.putExtra("name", user.getName()); //Optional parameters
+
+        this.startActivity(myIntent);
+
     }
 
     // Callbacks ---------------------------------------------------------------------------------

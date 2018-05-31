@@ -10,7 +10,6 @@ import com.hu.tyler.dontdinealone.data.model.MatchPreferences;
 import com.hu.tyler.dontdinealone.res.DatabaseKeys;
 
 public class User {
-    String uid;
     String displayName;
     String gender;
     String animal;

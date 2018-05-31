@@ -57,7 +57,7 @@ public class Collections {
     // Incrememt the build number as developing so that we don't have conflicts with old builds.
     // i.e. change BUILD-2 to BUILD-3. Implement a counter if more explicit coordination is needed.
     public DocumentReference getBuildDocRef() {
-        return mDb.collection("BUILDS").document("BUILD-3");
+        return mDb.collection("BUILDS").document("BUILD-666");
     }
 
     //--------------------------------------------------------------------------------------------

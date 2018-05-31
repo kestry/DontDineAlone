@@ -1,5 +1,7 @@
 package com.hu.tyler.dontdinealone.data.entity;
 
+import android.util.Log;
+
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Exclude;
@@ -23,6 +25,7 @@ import java.util.Map;
 public class OnlineUser {
 
     private String documentId;
+    private String chatId;
     private String newDoc; // TODO: @Tyler - could we get a comment on what this is?
     private String name;
     private String description;
@@ -36,8 +39,9 @@ public class OnlineUser {
 
     public OnlineUser() {
         //public no-arg constructor needed
-        this.documentId = null; // needs to be separately setup
-        this.newDoc = null;
+        this.documentId = "defaultDocId"; // needs to be separately setup
+        this.chatId = "0";
+        this.newDoc = "0";
         this.name = "";
         this.email = "";
         this.description = "";
@@ -49,22 +53,31 @@ public class OnlineUser {
     // Any function that starts with "get" will go into Firestore unless we exclude.
 
     public void setupOnlineUser(AuthUser authUser, User user) {
-        name = user.getDisplayName();
-        description = user.animal;
-        email = authUser.getEmail();
         documentId = authUser.getUid();
+        chatId = "0";
+        newDoc = "0";
+        name = user.getDisplayName();
+        email = authUser.getEmail();
+        description = user.animal;
         status = DatabaseStatuses.User.online;
+        Log.d("OnlineUser", "setupOnlineUser: documentId = " + documentId);
     }
 
+    public String documentIdKey() {return "documentId"; }
     public String getDocumentId() {
-        return documentId;
+        return this.documentId;
     }
     public void setDocumentId(String documentId) {
         this.documentId = documentId;
     }
 
+    public String chatIdKey() {return "chatId"; }
+    public String getChatId() { return this.chatId; }
+    public void setChatId(String chatId) {this.chatId = chatId; }
+
+    public String newDocKey() {return "newDoc"; }
     public String getNewDoc() {
-        return newDoc;
+        return this.newDoc;
     }
     public void setNewDoc(String newDoc) {
         this.newDoc = newDoc;
@@ -118,8 +131,9 @@ public class OnlineUser {
 
     public Map<String, Object> toMapWithoutTimestamp() {
         Map<String, Object> map = new HashMap<>();
-
-        map.put(nameKey(), name);
+        map.put(documentIdKey(), documentId);
+        map.put(chatIdKey(), chatId);
+        map.put(newDocKey(), newDoc);
         map.put(descriptionKey(), description);
         map.put(emailKey(), email);
         map.put(statusKey(), status);
@@ -137,6 +151,7 @@ public class OnlineUser {
 
     public void copy(OnlineUser other) {
         documentId = other.documentId;
+        chatId = other.chatId;
         newDoc = other.newDoc;
         name = other.name;
         description = other.description;

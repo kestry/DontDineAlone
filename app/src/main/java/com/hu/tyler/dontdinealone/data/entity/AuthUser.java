@@ -66,7 +66,9 @@ public class AuthUser {
                                     Entity.user.setToDefault();
                                     documents.getUserDocRef().set(Entity.user);
                                 }
+                                //Entity.onlineUser.setupOnlineUser(Entity.authUser, Entity.user);
                                 loadUserMatchPreferences(callback);
+
                             } else {
                                 callback.onFailure(task.getException());
                             }
@@ -85,12 +87,12 @@ public class AuthUser {
                             if (document.exists()) {
                                 Entity.matchPreferences
                                         .copy(document.toObject(MatchPreferences.class));
+                                OnlineService.initOnlineUser(callback);
                             } else {
                                 Entity.matchPreferences.setToDefault();
                                 documents.getUserMatchPreferencesDocRef()
                                         .set(Entity.matchPreferences);
                             }
-                            OnlineService.initOnlineUser(callback);
                         } else {
                             callback.onFailure(task.getException());
                         }

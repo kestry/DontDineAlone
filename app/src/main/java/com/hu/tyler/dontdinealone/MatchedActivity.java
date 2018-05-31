@@ -16,6 +16,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.hu.tyler.dontdinealone.data.model.Chat;
+import com.hu.tyler.dontdinealone.data.model.Collections;
 import com.hu.tyler.dontdinealone.domain.NotificationService;
 
 import java.text.SimpleDateFormat;
@@ -26,13 +27,12 @@ import java.util.Locale;
 
 public class MatchedActivity extends AppCompatActivity {
 
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
-
+    private Collections collections = Collections.getInstance();
     // User to extend to chatty Collection where users can chat with one an other
-    private CollectionReference MatchUsers = db.collection("Matched");
-
+//    private CollectionReference MatchUsers = db.collection("Matched");
+    private CollectionReference MatchUsers = collections.getMatchedCRef();
     // reference for deleting onDestroy
-    private CollectionReference DeleteMe = db.collection("Matched");
+    private CollectionReference DeleteMe = collections.getMatchedCRef();
 
     private Intent notificationService;
 
@@ -110,7 +110,7 @@ public class MatchedActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        if(db != null && MatchUsers != null)
+        if(MatchUsers != null)
         MatchUsers.orderBy("priority").addSnapshotListener(this, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
