@@ -50,6 +50,7 @@ public class NotificationService extends Service {
     private ListenerRegistration thisUserListener;
     private ListenerRegistration chatListener;
     private String chatID;
+    private boolean firstSnapshot;
 
     // Returns null because we don't use it.
     @Nullable
@@ -64,6 +65,7 @@ public class NotificationService extends Service {
         documents = Documents.getInstance();
         thisUserRef = documents.getOnlineUserDocRef();
         matchedRef = collections.getMatchedCRef();
+        firstSnapshot = true;
     }
 
     // Selects appropriate listener to start based on value passed through startService() via intent.
@@ -144,12 +146,20 @@ public class NotificationService extends Service {
                     Log.w("TAG", "Listen failed.", e);
                     return;
                 }
+                if(firstSnapshot){
+                    firstSnapshot = false;
+                }else{
+                    showMessageNotification();
+                    stopSelf();
+                }
+                /*
                 for(DocumentChange dc : snapshots.getDocumentChanges()){
                     if(dc.getType() == DocumentChange.Type.ADDED) {
                         showMessageNotification();
                         stopSelf();
                     }
                 }
+                */
             }
         });
     }

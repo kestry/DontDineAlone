@@ -145,11 +145,10 @@ public class MatchedActivity extends AppCompatActivity {
     public void onPause() {
         super.onPause();
         //Starts the NotificationService in the background.
-        /*  Need to update all collection/document references before I can test this
         notificationService.putExtra(NotificationService.NOTIFICATION_TYPE, NotificationService.MESSAGE_NOTIFICATION);
         notificationService.putExtra(NotificationService.CHAT_ID, docID);
         startService(notificationService);
-        */
+
     }
 
     @Override
