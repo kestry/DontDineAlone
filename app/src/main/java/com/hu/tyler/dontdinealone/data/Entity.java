@@ -5,6 +5,7 @@ import com.hu.tyler.dontdinealone.data.entity.Group;
 import com.hu.tyler.dontdinealone.data.model.MatchPreferences;
 import com.hu.tyler.dontdinealone.data.entity.OnlineUser;
 import com.hu.tyler.dontdinealone.data.entity.User;
+import com.hu.tyler.dontdinealone.net.Connection;
 
 /*
  * This is a container that holds and saves our specific user information.
@@ -14,6 +15,7 @@ import com.hu.tyler.dontdinealone.data.entity.User;
  */
 public interface Entity {
     User user = new User(); // Persistant User Data
+    Connection con = new Connection(); // Connection
     AuthUser authUser = new AuthUser(); // Authentication User Data
     OnlineUser onlineUser = new OnlineUser(); // Online User Data
     MatchPreferences matchPreferences = new MatchPreferences();

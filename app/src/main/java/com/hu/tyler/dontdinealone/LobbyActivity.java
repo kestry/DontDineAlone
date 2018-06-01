@@ -5,6 +5,7 @@ package com.hu.tyler.dontdinealone;
  * but people will still show up as online on forced quits.
  */
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -40,6 +41,7 @@ import com.hu.tyler.dontdinealone.domain.NotificationService;
 import com.hu.tyler.dontdinealone.domain.OnlineService;
 import com.hu.tyler.dontdinealone.domain.QueueService;
 import com.hu.tyler.dontdinealone.domain.UserStatusService;
+import com.hu.tyler.dontdinealone.net.Writer;
 import com.hu.tyler.dontdinealone.res.DatabaseKeys;
 import com.hu.tyler.dontdinealone.res.DatabaseStatuses;
 import com.hu.tyler.dontdinealone.util.Callback;
@@ -49,6 +51,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class LobbyActivity extends AppCompatActivity {
 
@@ -79,10 +82,13 @@ public class LobbyActivity extends AppCompatActivity {
     String transitionID = "0"; //this will hold the document ID for 2 matches TODO: What is a transitionId exactly?
     private ProgressDialog progressDialog;
 
+    private Activity activity = null;
+
     // Lifecycle Methods -------------------------------------------------------------------------
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        this.activity = activity;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lobby);
 
@@ -233,8 +239,12 @@ public class LobbyActivity extends AppCompatActivity {
         }
         //TODO: begin matching logic
         if (findingMatch) {
-            QueueService.leaveQueue();
+            //QueueService.leaveQueue();
             OnlineService.goBackOnline();
+
+            Writer w = new Writer((short)0x03);
+            w.write8((byte)1);
+            Entity.con.send(w);
             findingMatch = false;
             buttonMatch.setText("Start Matching");
             buttonMatch.setBackgroundColor(Color.parseColor("#FF9900"));
@@ -247,7 +257,13 @@ public class LobbyActivity extends AppCompatActivity {
         findingMatch = true;
         buttonMatch.setBackgroundColor(Color.parseColor("#FF4081"));
         buttonMatch.setText("Stop Matching");
-        QueueService.enterQueue(new StoreCallback());
+        //QueueService.enterQueue(new StoreCallback());
+        Writer w = new Writer((short)0x02);
+        w.writeStr(user.getDocumentId());
+        w.writeStr(user.getName());
+        for(boolean b : Entity.matchPreferences.getDiningHallPreferences())
+            w.write8((byte)(b == true ? 1 : 0));
+        Entity.con.send(w);
     }
 
     public void startOldMatching(View v) {
@@ -574,6 +590,8 @@ public class LobbyActivity extends AppCompatActivity {
             if(Entity.authUser == null)
                 return;
             loadOnlineUsers();
+            Entity.con.setActivity(activity);
+            Entity.con.start();
             ///////////////////// End of Tylers Edit
         }
 
