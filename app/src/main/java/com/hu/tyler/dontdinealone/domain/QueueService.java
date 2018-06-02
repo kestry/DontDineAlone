@@ -23,23 +23,10 @@ public abstract class QueueService {
         UserStatusService.updateEverywhere(DatabaseStatuses.User.queued);
         TimestampService.updateRemoteTimestamp(onlineUserDocRef,
                 Entity.onlineUser.firstQueuedTimeKey());
-        MatchService.findGroup(callback);
     }
 
     public static void leaveQueue() {
         DocumentReference onlineUserDocRef = Documents.getInstance().getOnlineUserDocRef();
-
-        switch (Entity.onlineUser.getStatus()) {
-            case DatabaseStatuses.User.waiting:
-                // fall through
-            case DatabaseStatuses.User.confirming:
-                // fall through
-            case DatabaseStatuses.User.confirmed:
-                MatchService.leaveGroup();
-                break;
-            default:
-                break;
-        }
         UserStatusService.updateEverywhere(DatabaseStatuses.User.online);
     }
     

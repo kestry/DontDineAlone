@@ -45,31 +45,4 @@ public abstract class UserStatusService {
 
     }
 
-    /* TODO: Deletion of both uncommented functions below are pending.
-     * Should be done once MatchService is ok.
-    public static void updateGroupStatus(DocumentReference docRef,
-                                        String status) {
-        docRef.update(Entity.onlineUser.statusKey(), status);
-    }
-    */
-    /**
-     * Updates the local and remote status with a callback.
-
-    public static void updateGroupStatus(DocumentReference docRef,
-                                        String status,
-                                        final Callback callback) {
-        docRef.update(Entity.onlineUser.statusKey(), status)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        callback.onSuccess();
-                    }})
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        callback.onFailure(e);
-                    }});
-
-    }
-    */
 }
