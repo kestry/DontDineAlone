@@ -14,7 +14,6 @@ import com.hu.tyler.dontdinealone.net.Connection;
  */
 public interface Entity {
     User user = new User(); // Persistant User Data
-    Connection con = new Connection(); // Connection
     AuthUser authUser = new AuthUser(); // Authentication User Data
     OnlineUser onlineUser = new OnlineUser(); // Online User Data
     MatchPreferences matchPreferences = new MatchPreferences();

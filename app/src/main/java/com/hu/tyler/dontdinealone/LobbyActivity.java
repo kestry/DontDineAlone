@@ -1,10 +1,5 @@
 package com.hu.tyler.dontdinealone;
 
-/* Jean -
- * Duplicates should be fixed now with the unique Firebase UID being used for online users
- * but people will still show up as online on forced quits.
- */
-
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -41,6 +36,7 @@ import com.hu.tyler.dontdinealone.domain.OnlineService;
 import com.hu.tyler.dontdinealone.domain.PrimitiveArrayService;
 import com.hu.tyler.dontdinealone.domain.QueueService;
 import com.hu.tyler.dontdinealone.domain.UserStatusService;
+import com.hu.tyler.dontdinealone.net.Session;
 import com.hu.tyler.dontdinealone.net.Writer;
 import com.hu.tyler.dontdinealone.res.DatabaseKeys;
 import com.hu.tyler.dontdinealone.res.DatabaseStatuses;
@@ -60,7 +56,6 @@ public class LobbyActivity extends AppCompatActivity {
     private Documents documents;
     private boolean findingMatch = false; //variable to indicate on going search
     private boolean goingToMatching = false; // prevents MatchingActivity from running twice
-    private boolean isConnected = false;
     private CollectionReference onlineUsers; // for group items
     private CollectionReference matchedUsers;
     private Intent notificationService;
@@ -85,11 +80,11 @@ public class LobbyActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Session.setActivity(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lobby);
 
         buttonMatch = findViewById(R.id.buttonMatch); //assigning variable to button
-        buttonMatchOld = findViewById(R.id.buttonMatchOld); //assigning variable to button
 
         collections = Collections.getInstance();
         documents = Documents.getInstance();
@@ -98,7 +93,6 @@ public class LobbyActivity extends AppCompatActivity {
         matchedUsers = collections.getMatchedCRef();
 
         notificationService = new Intent(this, NotificationService.class);
-
         //Check if user is not logged in
         if (!Entity.authUser.isSignedIn(new SignedInCallback())) {
             //Close this activity
@@ -240,7 +234,7 @@ public class LobbyActivity extends AppCompatActivity {
 
             Writer w = new Writer((short)0x03);
             w.write8((byte)1);
-            Entity.con.send(w);
+            Session.getCon().send(w);
             findingMatch = false;
             buttonMatch.setText("Start Matching");
             buttonMatch.setBackgroundColor(Color.parseColor("#FF9900"));
@@ -250,15 +244,17 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
     public void queueUser() {
-        Entity.con.setActivity(this);
-        if(!isConnected)
-            Entity.con.start();
+        if(!Session.isConnected())
+        {
+            Session.getCon().start();
+        }
         findingMatch = true;
         buttonMatch.setBackgroundColor(Color.parseColor("#FF4081"));
         buttonMatch.setText("Stop Matching");
-        if(isConnected)
+        if(Session.isConnected())
             doMatch();
-        isConnected = true;
+        else
+            Session.setConnected();
     }
 
     public void doMatch()
@@ -266,34 +262,11 @@ public class LobbyActivity extends AppCompatActivity {
         Writer w = new Writer((short)0x02);
         w.writeStr(user.getDocumentId());
         w.writeStr(user.getName());
-        for(boolean b : Entity.matchPreferences.getDiningHallPreferences())
-            w.write8((byte)(b == true ? 1 : 0));
-        Entity.con.send(w);
-    }
-
-    public void startOldMatching(View v) {
-        if(user == null) {
-            return; //
-        }
-        //TODO: begin matching logic
-        if (findingMatch) {
-            QueueService.leaveQueue();
-            OnlineService.goBackOnline();
-            findingMatch = false;
-            buttonMatchOld.setText("Start Matching");
-            buttonMatchOld.setBackgroundColor(Color.parseColor("#FF9900"));
-            return;
-        }
-        oldQueueUser();
-        lookingFortheHungry();
-    }
-
-
-    public void oldQueueUser() {
-        findingMatch = true;
-        buttonMatchOld.setBackgroundColor(Color.parseColor("#FF4081"));
-        buttonMatchOld.setText("Stop Matching");
-        QueueService.enterQueue(new StoreCallback());
+        for(boolean b : groupSizePreferences)
+            w.write16((short)(b == true ? 1 : 0));
+        for(boolean b : diningHallPreferences)
+            w.write16((short)(b == true ? 1 : 0));
+        Session.getCon().send(w);
     }
 
     protected void lookingFortheHungry() {
@@ -307,7 +280,7 @@ public class LobbyActivity extends AppCompatActivity {
 
                         //TODO: Make for loop to removed user from snaps List
 
-                        //TODO: Also filter out everyone with different prefreneces and group sizes
+                        //TODO: Also filter out everyone with different preferences and group sizes
 
                         //TODO: For Loop for Transactions
 
@@ -449,8 +422,7 @@ public class LobbyActivity extends AppCompatActivity {
                     // Since we made a selection, we are ok to continue selecting next preference.
                     checkBoxDiningHallPreferences();
                 } else {
-                    Toast.makeText(LobbyActivity.this,
-                            "Please make a selection", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LobbyActivity.this, "Please make a selection", Toast.LENGTH_SHORT).show();
                     // We call our function again since the user didn't make a selection.
                     checkBoxGroupSizePreferences();
                 }
@@ -485,8 +457,7 @@ public class LobbyActivity extends AppCompatActivity {
                     // Store the preferences.
                     saveMatchPreferences();
                 } else {
-                    Toast.makeText(LobbyActivity.this,
-                            "Please make a selection", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LobbyActivity.this, "Please make a selection", Toast.LENGTH_SHORT).show();
                     // We call our function again since the user didn't make a selection.
                     checkBoxDiningHallPreferences();
                 }
@@ -501,7 +472,7 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
     public void saveMatchPreferences() {
-        documents.getUserMatchPreferencesDocRef().set(matchPreferences)
+        documents.getUserMatchPreferencesDocRef().set(Entity.matchPreferences)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -552,7 +523,6 @@ public class LobbyActivity extends AppCompatActivity {
         finish();
         myIntent.putExtra("key", transitionID); //Optional parameters
         myIntent.putExtra("name", user.getName()); //Optional parameters
-
         this.startActivity(myIntent);
 
     }
