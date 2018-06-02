@@ -32,6 +32,7 @@ import com.hu.tyler.dontdinealone.data.Entity;
 import com.hu.tyler.dontdinealone.data.model.Collections;
 import com.hu.tyler.dontdinealone.data.model.Documents;
 import com.hu.tyler.dontdinealone.data.entity.OnlineUser;
+import com.hu.tyler.dontdinealone.net.Session;
 import com.hu.tyler.dontdinealone.res.DatabaseStatuses;
 
 // Service for running in the background while the app is closed to listen for database changes and show notifications.
@@ -100,7 +101,7 @@ public class NotificationService extends Service {
                 }
                 if (snapshot != null && snapshot.exists()) {
                     OnlineUser thisUser = snapshot.toObject(OnlineUser.class);
-                    if(thisUser.getStatus().equals(DatabaseStatuses.User.matched)){
+                    if(Session.isIsMatched()){
                         showMatchNotification();
                         //Stops the background service after notification is pushed, may or may not want this later on.
                         stopSelf();

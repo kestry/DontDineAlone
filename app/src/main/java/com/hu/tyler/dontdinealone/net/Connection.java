@@ -4,7 +4,6 @@ import android.app.Activity;
 
 import com.hu.tyler.dontdinealone.LobbyActivity;
 import com.hu.tyler.dontdinealone.MatchedActivity;
-import com.hu.tyler.dontdinealone.MyApp;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -17,6 +16,7 @@ public class Connection extends Thread
     private Socket s = null;
     private AtomicBoolean running = new AtomicBoolean(true);
     private Activity activity = null;
+    private boolean isConnected = false;
 
     public Connection()
     {
@@ -24,7 +24,7 @@ public class Connection extends Thread
 
     public void run() {
         try {
-            s = new Socket("169.233.193.75", 7575);
+            s = new Socket("192.168.137.1", 7575);
             s.setKeepAlive(true);
             sendMatch();
 
@@ -36,30 +36,14 @@ public class Connection extends Thread
                     {
                         Reader r = new Reader(input);
                         short opcode = r.read16();
-                        //print("Received: " + opcode);
                         switch (opcode)
                         {
-                            case 0x01: // Send user info
-                            {
-                                byte status = r.read8();
-                                if(status == 1)
-                                    //print("Update Successful!");
-                                break;
-                            }
                             case 0x02: // Start Match
                             {
                                 byte status = r.read8();
                                 //print("Match: " + (status == 1 ? "Found" : "None"));
                                 if(status == 1)
-                                {
                                     callMatch();
-                                }
-                                break;
-                            }
-                            case 0x03: // Cancel Match
-                            {
-                                byte status = r.read8();
-                                //print("Match: " + (status == 1 ? "Canceled" : "Error"));
                                 break;
                             }
                             case 0x04: // Chat Messaging
@@ -83,11 +67,28 @@ public class Connection extends Thread
 
     public void send (Writer w)
     {
+        if(s == null)
+        {
+            try {
+                close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return;
+        }
         final Writer packet = w;
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
+                    while(s.getOutputStream() == null)
+                    {
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
                     DataOutputStream output = new DataOutputStream(s.getOutputStream());
                     output.write(packet.getData());
                     output.flush();
@@ -111,14 +112,19 @@ public class Connection extends Thread
 
     public boolean isConnected()
     {
-        return s.isConnected();
+        return isConnected;
+    }
+
+    public void setIsConnected(boolean isConnected)
+    {
+        this.isConnected = isConnected;
     }
 
     public void sendMatch() {
 
-        if(activity instanceof LobbyActivity)
+        if(Session.getActivity() instanceof LobbyActivity)
         {
-            final LobbyActivity lobbyActivity = ((LobbyActivity)activity);
+            final LobbyActivity lobbyActivity = ((LobbyActivity)Session.getActivity());
             lobbyActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -130,12 +136,13 @@ public class Connection extends Thread
 
     public void callMatch() {
 
-        if(activity instanceof LobbyActivity)
+        if(Session.getActivity() instanceof LobbyActivity)
         {
-            final LobbyActivity lobbyActivity = ((LobbyActivity)activity);
+            final LobbyActivity lobbyActivity = ((LobbyActivity)Session.getActivity());
             lobbyActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    Session.setIsMatched(true);
                     lobbyActivity.goToMatchingActivity();
                 }
             });
@@ -143,9 +150,9 @@ public class Connection extends Thread
     }
     public void processChat(String msg) {
         final String s = msg;
-        if(activity instanceof MatchedActivity)
+        if(Session.getActivity() instanceof MatchedActivity)
         {
-            final MatchedActivity matchedActivity = ((MatchedActivity)activity);
+            final MatchedActivity matchedActivity = ((MatchedActivity)Session.getActivity());
             matchedActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

@@ -16,6 +16,7 @@ import com.hu.tyler.dontdinealone.data.Entity;
 import com.hu.tyler.dontdinealone.data.model.Chat;
 import com.hu.tyler.dontdinealone.data.model.Collections;
 import com.hu.tyler.dontdinealone.domain.NotificationService;
+import com.hu.tyler.dontdinealone.net.Session;
 import com.hu.tyler.dontdinealone.net.Writer;
 
 import java.text.SimpleDateFormat;
@@ -39,7 +40,7 @@ public class MatchedActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Entity.con.setActivity(this);
+        Session.setActivity(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_matched);
         Intent intent = getIntent();
@@ -83,7 +84,7 @@ public class MatchedActivity extends AppCompatActivity {
         String str = messageBoard.getText().toString();
         Writer w = new Writer((short) 0x04);
         w.writeStr(str);
-        Entity.con.send(w);
+        Session.getCon().send(w);
         messageBoard.getText().clear();
     }
 
@@ -122,6 +123,9 @@ public class MatchedActivity extends AppCompatActivity {
 
     public void leaveMatching()
     {
+        Writer w = new Writer((short)0x05);
+        w.write8((byte)1);
+        Session.getCon().send(w);
         finish();
         startActivity(new Intent(getApplicationContext(), LobbyActivity.class));
     }
