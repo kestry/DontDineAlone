@@ -45,6 +45,7 @@ public class AuthUser {
 
         // Init user info
         setFUser(nullCallback);
+
     }
 
     private void setFUser(final Callback callback) {

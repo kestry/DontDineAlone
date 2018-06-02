@@ -47,6 +47,7 @@ import com.hu.tyler.dontdinealone.res.DatabaseStatuses;
 import com.hu.tyler.dontdinealone.util.Callback;
 import com.hu.tyler.dontdinealone.util.NullCallback;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -59,6 +60,7 @@ public class LobbyActivity extends AppCompatActivity {
     private Documents documents;
     private boolean findingMatch = false; //variable to indicate on going search
     private boolean goingToMatching = false; // prevents MatchingActivity from running twice
+    private boolean isConnected = false;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference onlineUsers; // for group items
     private CollectionReference matchedUsers;
@@ -82,13 +84,10 @@ public class LobbyActivity extends AppCompatActivity {
     String transitionID = "0"; //this will hold the document ID for 2 matches TODO: What is a transitionId exactly?
     private ProgressDialog progressDialog;
 
-    private Activity activity = null;
-
     // Lifecycle Methods -------------------------------------------------------------------------
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        this.activity = activity;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lobby);
 
@@ -254,10 +253,19 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
     public void queueUser() {
+        Entity.con.setActivity(this);
+        if(!isConnected)
+            Entity.con.start();
         findingMatch = true;
         buttonMatch.setBackgroundColor(Color.parseColor("#FF4081"));
         buttonMatch.setText("Stop Matching");
-        //QueueService.enterQueue(new StoreCallback());
+        if(isConnected)
+            doMatch();
+        isConnected = true;
+    }
+
+    public void doMatch()
+    {
         Writer w = new Writer((short)0x02);
         w.writeStr(user.getDocumentId());
         w.writeStr(user.getName());
@@ -590,8 +598,8 @@ public class LobbyActivity extends AppCompatActivity {
             if(Entity.authUser == null)
                 return;
             loadOnlineUsers();
-            Entity.con.setActivity(activity);
-            Entity.con.start();
+            //Entity.con.setActivity(activity);
+            //Entity.con.start();
             ///////////////////// End of Tylers Edit
         }
 

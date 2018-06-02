@@ -3,6 +3,7 @@ package com.hu.tyler.dontdinealone.net;
 import android.app.Activity;
 
 import com.hu.tyler.dontdinealone.LobbyActivity;
+import com.hu.tyler.dontdinealone.MatchedActivity;
 import com.hu.tyler.dontdinealone.MyApp;
 
 import java.io.DataInputStream;
@@ -25,8 +26,7 @@ public class Connection extends Thread
         try {
             s = new Socket("169.233.193.75", 7575);
             s.setKeepAlive(true);
-
-            //print("Connected!");
+            sendMatch();
 
             while (running.get()) {
                 try {
@@ -65,7 +65,7 @@ public class Connection extends Thread
                             case 0x04: // Chat Messaging
                             {
                                 String message = r.readStr();
-                                //processChat(message);
+                                processChat(message);
                                 break;
                             }
                         }
@@ -99,13 +99,33 @@ public class Connection extends Thread
     }
 
     public void close() throws IOException {
-        s.close();
+        if(s != null)
+            s.close();
         //print("Closed!");
     }
 
     public void setActivity(Activity activity)
     {
         this.activity = activity;
+    }
+
+    public boolean isConnected()
+    {
+        return s.isConnected();
+    }
+
+    public void sendMatch() {
+
+        if(activity instanceof LobbyActivity)
+        {
+            final LobbyActivity lobbyActivity = ((LobbyActivity)activity);
+            lobbyActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    lobbyActivity.doMatch();
+                }
+            });
+        }
     }
 
     public void callMatch() {
@@ -123,11 +143,15 @@ public class Connection extends Thread
     }
     public void processChat(String msg) {
         final String s = msg;
-        /*activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Main.chatLog.append(s + "\r\n");
-            }
-        });*/
+        if(activity instanceof MatchedActivity)
+        {
+            final MatchedActivity matchedActivity = ((MatchedActivity)activity);
+            matchedActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    matchedActivity.postMessage(s);
+                }
+            });
+        }
     }
 }
