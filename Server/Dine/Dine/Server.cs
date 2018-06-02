@@ -16,12 +16,12 @@ namespace Dine
         private static List<User> sessions = null;
         private static Dictionary<short, IHandler> handlers = null;
 
-        public static void start(int port)
+        public static void start(string address, int port)
         {
             createHandlers();
             sessions = new List<User>();
             s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            s.Bind(new IPEndPoint(IPAddress.Parse("169.233.193.75"), port));
+            s.Bind(new IPEndPoint(IPAddress.Parse(address), port));
             s.Listen(10);
             s.BeginAccept(new AsyncCallback(OnAccept), null);
             Console.WriteLine("Server : " + s.LocalEndPoint + " - Online!");
@@ -30,10 +30,10 @@ namespace Dine
         private static void createHandlers()
         {
             handlers = new Dictionary<short, IHandler>();
-            handlers.Add(0x01, new UPDATE_USER());
             handlers.Add(0x02, new MATCH());
             handlers.Add(0x03, new CANCEL_MATCH());
             handlers.Add(0x04, new MESSAGE());
+            handlers.Add(0x05, new LEAVE_CHAT());
         }
 
         private static void OnAccept(IAsyncResult ar)
@@ -61,7 +61,7 @@ namespace Dine
         {
             sessions.Remove(u);
             Matching.remove(u.getId());
-            Messenger.removeChat(u.getId().ToString());
+            Messenger.removeUser(u.getId());
             Console.WriteLine("Closed: " + u.getAddr());
         }
 
@@ -69,7 +69,7 @@ namespace Dine
         {
             Console.WriteLine(BitConverter.ToString(r.getData()).Replace("-", " "));
             short opcode = r.read16();
-            Console.WriteLine("Opcode: " + opcode);
+            Console.WriteLine("Opcode: 0x0" + opcode);
             if(Monitor.TryEnter(handlers, 1000))
             {
                 try
