@@ -61,16 +61,13 @@ public class LobbyActivity extends AppCompatActivity {
     private boolean findingMatch = false; //variable to indicate on going search
     private boolean goingToMatching = false; // prevents MatchingActivity from running twice
     private boolean isConnected = false;
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference onlineUsers; // for group items
     private CollectionReference matchedUsers;
     private Intent notificationService;
     private TextView hiTxt;
     private OnlineUser user; // object to hold user info
     private EventListener<QuerySnapshot> onlineUsersEventListener;
-    private EventListener<QuerySnapshot> matchEventListener;
     private ListenerRegistration onlineUsersListenerRegistration;
-    private ListenerRegistration matchListenerRegistration;
 
     // List items
     private String[] diningHallsFormatted;
@@ -420,9 +417,6 @@ public class LobbyActivity extends AppCompatActivity {
                 }
                 TextView onlineCount = findViewById(R.id.onlineCount);
                 onlineCount.setText(data);
-//                for(QueryDocumentSnapshot querySnap: snaps){
-//                    OnlineUser otherUser = documentSnapshot.toObject(OnlineUser.class);
-//                }
             }
         });
     }

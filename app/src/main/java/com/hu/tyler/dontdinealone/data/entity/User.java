@@ -14,7 +14,6 @@ public class User {
     String gender;
     String animal;
     String avatarViewName;
-    //private DocumentReference matchPreferencesDocRef;
 
 
     public User() {
@@ -26,7 +25,6 @@ public class User {
         gender = "";
         animal = "";
         avatarViewName = null;
-        //this.matchPreferencesDocRef = null;
     }
 
     public void set(User user) {
@@ -34,19 +32,8 @@ public class User {
         gender = user.gender;
         animal = user.animal;
         avatarViewName = user.avatarViewName;
-        //matchPreferencesDocRef = user.matchPreferencesDocRef;
     }
-/*
-    public DocumentReference getMatchPreferencesDocRef() {
-        return matchPreferencesDocRef;
-    }
-    public void setMatchPreferencesDocRef(DocumentReference matchPreferencesDocRef) {
-        this.matchPreferencesDocRef = matchPreferencesDocRef;
-    }
-    public void setMatchPreferencesDocRefWithUid(String uid) {
-        this.matchPreferencesDocRef = Documents.getInstance().getOnlineUserDocRef(uid);
-    }
-*/
+
     public String displayNameKey() {
         return "displayName";
     }

@@ -126,16 +126,4 @@ public class MatchPreferences {
         this.groupSizePreferences = new ArrayList<>(other.groupSizePreferences);
         this.diningHallPreferences = new ArrayList<>(other.diningHallPreferences);
     }
-
-    /*
-    public void setFromArrays(ArrayList<Boolean> groupSizePreferences,
-                             ArrayList<Boolean> diningHallPreferences) {
-        for (int i = 0; i < this.groupSizePreferences.length; ++i) {
-            this.groupSizePreferences[i] &= groupSizePreferences.get(i);
-        }
-        for (int i = 0; i < this.diningHallPreferences.length; ++i) {
-            this.diningHallPreferences[i] &= diningHallPreferences.get(i);
-        }
-    }
-    */
 }

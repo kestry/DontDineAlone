@@ -132,19 +132,4 @@ public class Collections {
 
     /* End of Development Build Collections */
 
-
-    // UNUSED COLLECTIONS in consideration -------------------------------------------------------
-
-    /** Unused
-
-    // Considering whether we want just a status or a fully separate collection of dining groups
-     public CollectionReference getDiningGroupsCRef() {
-         return getBuildDocRef().collection("Dining");
-     }
-
-    END of UNUSED */
-
-
-
-
 }

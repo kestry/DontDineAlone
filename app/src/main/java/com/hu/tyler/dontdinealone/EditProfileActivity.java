@@ -29,10 +29,6 @@ public class EditProfileActivity extends AppCompatActivity {
     EditText editTextDisplayName;
     EditText editTextGender;
     EditText editTextAnimal;
-    final int ImageView_AvatarButtons_Size = 14;
-    ImageView imageView_AvatarButtons[] = new ImageView[ImageView_AvatarButtons_Size];
-    ImageView imageView_AvatarButtons_CurrentButton;
-    View currentAvatarView;
 
     private ProgressDialog progressDialog;
 
