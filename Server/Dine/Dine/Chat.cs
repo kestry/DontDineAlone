@@ -9,32 +9,48 @@ namespace Dine
     public class Chat
     {
         private string chatId = "";
-        private User a = null;
-        private User b = null;
-        public Chat(string chatId, User a, User b)
+        private Dictionary<string, User> users = null;
+        public Chat(string chatId)
         {
             this.chatId = chatId;
-            this.a = a;
-            this.b = b;
+            this.users = new Dictionary<string, User>();
+        }
+
+        public void add(string userId, User u)
+        {
+            if (users.ContainsKey(userId))
+                return;
+            users.Add(userId, u);
         }
 
         public void processChat(User u, string message)
         {
-            string str = u.getName();
-            str += (" : " + message);
-            try
+            string str = u.getName() + ": " + message;
+            foreach(User x in users.Values)
             {
-                Writer w = new Writer(0x04);
-                w.writeStr(str);
-                a.send(w);
-                b.send(w);
+                try
+                {
+                    Writer w = new Writer(0x04);
+                    w.writeStr(str);
+                    x.send(w);
+                }
+                catch { }
             }
-            catch { }
         }
 
         public string getChatId()
         {
             return chatId;
+        }
+
+        public bool removeUser(string userId)
+        {
+            return users.Remove(userId);
+        }
+
+        public int getUsers()
+        {
+            return users.Count;
         }
     }
 }

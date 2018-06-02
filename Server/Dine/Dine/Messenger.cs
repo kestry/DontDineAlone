@@ -18,18 +18,23 @@ namespace Dine
             chats.GetOrAdd(chatId, c);
         }
 
-        public static Chat getChat(string chatId)
+        public static Chat getChat(string userId)
         {
-            return chats.Where(x => x.Key.Contains(chatId)).FirstOrDefault().Value;
+            return chats.Where(x => x.Key.Contains(userId)).FirstOrDefault().Value;
         }
 
-        public static bool removeChat(string chatId)
+        public static bool removeUser(string userId)
         {
             Chat c = null;
             try
             {
-                string key = chats.Where(x => x.Key.Contains(chatId)).FirstOrDefault().Key;
-                chats.TryRemove(key, out c);
+                string key = chats.Where(x => x.Key.Contains(userId)).FirstOrDefault().Key;
+                if (chats.TryGetValue(key, out c))
+                {
+                    c.removeUser(userId);
+                    if (c.getUsers() <= 0)
+                        chats.TryRemove(key, out c);
+                }
             }
             catch { }
             return c != null;

@@ -28,8 +28,15 @@ namespace Dine
 
         private void listen(int size)
         {
-            buffer = new byte[size];
-            s.BeginReceive(buffer, 0, size, SocketFlags.None, new AsyncCallback(OnReceive), null);
+            try
+            {
+                buffer = new byte[size];
+                s.BeginReceive(buffer, 0, size, SocketFlags.None, new AsyncCallback(OnReceive), null);
+            }
+            catch 
+            {
+                close();
+            }
         }
 
         private void OnReceive(IAsyncResult ar)

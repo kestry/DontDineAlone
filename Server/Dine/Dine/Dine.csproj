@@ -45,9 +45,9 @@
   <ItemGroup>
     <Compile Include="Chat.cs" />
     <Compile Include="Handlers\CANCEL_MATCH.cs" />
+    <Compile Include="Handlers\LEAVE_CHAT.cs" />
     <Compile Include="Handlers\MATCH.cs" />
     <Compile Include="Handlers\MESSAGE.cs" />
-    <Compile Include="Handlers\UPDATE_USER.cs" />
     <Compile Include="IHandler.cs" />
     <Compile Include="Matching.cs" />
     <Compile Include="MatchQuery.cs" />

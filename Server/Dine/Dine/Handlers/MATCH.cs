@@ -16,31 +16,38 @@ namespace Dine.Handlers
                 u.setId(id);
             u.setName(name);
             Console.WriteLine("id: " + u.getId() + " name: " + u.getName());
-            int nine_ten = r.read8();
-            int cowell_stevenson = r.read8();
-            int crown_merrill = r.read8();
-            int porter_kresge = r.read8();
-            int rc_oakes = r.read8();
+            int isTwo = r.read16();
+            int isThree = r.read16();
+            int isFour = r.read16();
+            int nine_ten = r.read16();
+            int cowell_stevenson = r.read16();
+            int crown_merrill = r.read16();
+            int porter_kresge = r.read16();
+            int rc_oakes = r.read16();
+            Console.WriteLine("Two: " + isTwo + " Three: " + isThree + " Four: " + isFour);
             Console.WriteLine("Nine/Ten: " + nine_ten + " Cowell/Stevenson: " + cowell_stevenson + " Crown/Merrill: " + crown_merrill + " Porter/Kresge: " + porter_kresge + "RC/Oakes: " + rc_oakes);
             MatchQuery matchQuery = new MatchQuery(u.getId());
+            if (isTwo == 1)
+                matchQuery.insertGroupSizes(2);
+            if (isThree == 1)
+                matchQuery.insertGroupSizes(3);
+            if (isFour == 1)
+                matchQuery.insertGroupSizes(4);
             if (nine_ten == 1)
-            {
-                matchQuery.update("nine/ten");
-                Console.WriteLine("here");
-            }
+                matchQuery.updatePreference("nine/ten");
             if (cowell_stevenson == 1)
-                matchQuery.update("cowell/stevenson");
+                matchQuery.updatePreference("cowell/stevenson");
             if (crown_merrill == 1)
-                matchQuery.update("crown/merill");
+                matchQuery.updatePreference("crown/merill");
             if (porter_kresge == 1)
-                matchQuery.update("porter/kresge");
+                matchQuery.updatePreference("porter/kresge");
             if (rc_oakes == 1)
-                matchQuery.update("rc/oakes");
+                matchQuery.updatePreference("rc/oakes");
 
 
-            string partnerId = Matching.tryMatch(matchQuery);
+            List<string> partners = Matching.tryMatch(matchQuery);
 
-            if(String.IsNullOrEmpty(partnerId)) // No Match Found
+            if(partners.Count == 0) // No Match Found
             {
                 Writer w = new Writer(0x02);
                 w.write((byte)0);
@@ -49,25 +56,34 @@ namespace Dine.Handlers
             }
             else
             {
-                User partner = Server.getUser(partnerId);
+                string chatId = (u.getId() + "-");
+                foreach (string s in partners)
+                    chatId += (s + "-");
+                chatId = chatId.Remove(chatId.Length - 1, 1);
 
-                if (partner == null)
-                    return;
+                Chat c = new Chat(chatId);
+                c.add(u.getId(), u);
 
-                string chatId = (u.getId() + "-" + partner.getId());
-                Chat c = new Chat(chatId, u, partner);
+                u.send(getMatch(chatId));
+                foreach (string p in partners)
+                {
+                    User x = Server.getUser(p);
+                    if (x == null)
+                        continue;
+                    c.add(p, x);
+                    x.send(getMatch(chatId));            
+                }
+                Console.WriteLine("Creating Chat: " + chatId);
                 Messenger.add(chatId, c);
-
-                Writer w = new Writer(0x02);
-                w.write((byte)1);
-                w.writeStr(partnerId);
-                u.send(w);
-
-                w = new Writer(0x02);
-                w.write((byte)1);
-                w.writeStr(u.getId());
-                partner.send(w);
             }
+        }
+
+        private Writer getMatch(string chatId)
+        {
+            Writer w = new Writer(0x02);
+            w.write((byte)1);
+            w.writeStr(chatId);
+            return w;
         }
     }
 }

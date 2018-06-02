@@ -10,7 +10,8 @@ namespace Dine.Handlers
     {
         public void Invoke(User u, Reader r)
         {
-            Chat c = Messenger.getChat(u.getId().ToString());
+            Console.WriteLine("Chatting User: " + u.getId());
+            Chat c = Messenger.getChat(u.getId());
             if (c == null)
                 return;
             string message = r.readStr();
