@@ -1,0 +1,6 @@
+C:\Users\Mac\Desktop\Dine\Dine\bin\Release\Dine.exe.config
+C:\Users\Mac\Desktop\Dine\Dine\bin\Release\Dine.exe
+C:\Users\Mac\Desktop\Dine\Dine\bin\Release\Dine.pdb
+C:\Users\Mac\Desktop\Dine\Dine\obj\Release\Dine.csprojResolveAssemblyReference.cache
+C:\Users\Mac\Desktop\Dine\Dine\obj\Release\Dine.exe
+C:\Users\Mac\Desktop\Dine\Dine\obj\Release\Dine.pdb
