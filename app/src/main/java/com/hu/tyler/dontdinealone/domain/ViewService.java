@@ -19,7 +19,7 @@ public abstract class ViewService {
     }
 
     /**
-     * Returns a view from the viewName, which is a string in the form of "[package]:id/[xml-id]".
+     * Returns a view from the viewName, a string in the form of "[package]:id/[xml-id]".
      */
     public static View getView(String viewName, Activity activity) {
         int viewId = activity.getResources().getIdentifier(viewName,

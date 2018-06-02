@@ -36,9 +36,9 @@ import com.hu.tyler.dontdinealone.data.Entity;
 import com.hu.tyler.dontdinealone.data.entity.OnlineUser;
 import com.hu.tyler.dontdinealone.data.model.Documents;
 import com.hu.tyler.dontdinealone.data.model.MatchPreferences;
-import com.hu.tyler.dontdinealone.domain.ArrayService;
 import com.hu.tyler.dontdinealone.domain.NotificationService;
 import com.hu.tyler.dontdinealone.domain.OnlineService;
+import com.hu.tyler.dontdinealone.domain.PrimitiveArrayService;
 import com.hu.tyler.dontdinealone.domain.QueueService;
 import com.hu.tyler.dontdinealone.domain.UserStatusService;
 import com.hu.tyler.dontdinealone.net.Writer;
@@ -112,10 +112,10 @@ public class LobbyActivity extends AppCompatActivity {
 
         matchPreferences = Entity.matchPreferences;
 
-        groupSizePreferences = ArrayService
-                .makeArrayFromList(matchPreferences.getGroupSizePreferences());
-        diningHallPreferences = ArrayService
-                .makeArrayFromList(matchPreferences.getDiningHallPreferences());
+        groupSizePreferences = PrimitiveArrayService
+                .makeBooleanArrayFromList(matchPreferences.getGroupSizePreferences());
+        diningHallPreferences = PrimitiveArrayService
+                .makeBooleanArrayFromList(matchPreferences.getDiningHallPreferences());
 
         progressDialog = new ProgressDialog(this);
         // List items are retrieved from "app/res/values/strings.xml"
