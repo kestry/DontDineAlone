@@ -9,7 +9,6 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.hu.tyler.dontdinealone.data.Entity;
 import com.hu.tyler.dontdinealone.data.model.Collections;
 import com.hu.tyler.dontdinealone.data.model.Documents;
@@ -48,7 +47,7 @@ public class AuthUser {
 
         // Init user info
         mFAuth = FirebaseAuth.getInstance();
-        setFUser(nullCallback);
+        setupEntity(nullCallback);
     }
 
     public AuthUser(AuthUser other) {
@@ -63,20 +62,26 @@ public class AuthUser {
         mFUser = other.mFUser;
     }
 
-    public void setFirebaseAuth(FirebaseAuth firebaseAuth) {
+    public Task setFirebaseAuth(FirebaseAuth firebaseAuth) {
         mFAuth = firebaseAuth;
-        setFUser(nullCallback);
+        return setupEntity(nullCallback);
     }
 
-    private void setFUser(final Callback callback) {
+    public Task setupEntity(final Callback callback) {
+        Task task = null;
         mFUser = mFAuth.getCurrentUser();
         if (mFUser == null) {
             Entity.user.setToDefault();
-            documents.getUserDocRef().set(Entity.user);
-            loadUserMatchPreferencesAndInitOnlineUser(callback);
+            collections.setUid(null);
+            //documents.getUserDocRef().set(Entity.user);
+            //task = loadUserMatchPreferencesAndGoOnline(callback);
         } else {
+
             collections.setUid(mFUser.getUid());
-            documents.getUserDocRef().get()
+
+            // Load or Initialize and store Entity
+            Task taskIfInnerFails;
+            taskIfInnerFails = documents.getUserDocRef().get()
                     .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -89,18 +94,23 @@ public class AuthUser {
                                     Entity.user.setToDefault();
                                     documents.getUserDocRef().set(Entity.user);
                                 }
-                                loadUserMatchPreferencesAndInitOnlineUser(callback);
+                                task = loadUserMatchPreferencesAndGoOnline(callback);
 
                             } else {
                                 callback.onFailure(task.getException());
                             }
                         }
                     });
+            if (task == null) {
+                task = taskIfInnerFails;
+            }
         }
+        return task;
     }
 
-    public void loadUserMatchPreferencesAndInitOnlineUser(final Callback callback) {
-        documents.getUserMatchPreferencesDocRef().get()
+    public Task loadUserMatchPreferencesAndGoOnline(final Callback callback) {
+        Task task = null;
+        Task taskIfInnerFails = documents.getUserMatchPreferencesDocRef().get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -114,18 +124,18 @@ public class AuthUser {
                                 documents.getUserMatchPreferencesDocRef()
                                         .set(Entity.matchPreferences);
                             }
-                            OnlineService.initOnlineUser(callback);
+                            task = OnlineService.goOnline(callback);
                         } else {
                             callback.onFailure(task.getException());
                         }
             }
         });
+        return (task == null) ? taskIfInnerFails : task;
     }
 
     // Authentication and FirebaseUser Section ---------------------------
-
-    public boolean isSignedIn(final Callback callback) {
-        setFUser(callback);
+    
+    public boolean isSignedIn() {
         Log.d(TAG, "isSignedIn = " + (mFUser != null));
         return mFUser != null;
     }
@@ -147,7 +157,7 @@ public class AuthUser {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    setFUser(nullCallback);
+                    setupEntity(nullCallback);
                     //TODO:UNCOMMENT FOR EMAIL VERIFICATION BELOW
                     //mUser.sendEmailVerification();
                     //Log out immediately to prevent illegal sign in without email confirmation
@@ -160,25 +170,26 @@ public class AuthUser {
         });
     }
 
-    public void signIn(String email, String password, final Callback callback) {
-        mFAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+    public Task signIn(String email, String password, final Callback callback) {
+        Task task = null;
+        Task taskIfInnerFails = mFAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    setFUser(callback);
+                    task = setupEntity(callback);
                     //RepoContainer.profileRepo.load(documents.getProfileDocRef(), callback);
                 } else {
                     callback.onFailure(task.getException());
                 }
             }
         });
+        return (task == null) ? taskIfInnerFails : task;
     }
 
-    public void signOut() {
+    public Task signOut() {
         mFAuth.signOut();
-        // Need to manually set null, since we do not constantly get current user.
-        // May need to change if we begin to multithread?
-        setFUser(nullCallback);
+        // Update to null user
+        return setupEntity(nullCallback);
     }
 
 }

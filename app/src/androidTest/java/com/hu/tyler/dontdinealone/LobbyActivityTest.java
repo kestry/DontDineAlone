@@ -38,6 +38,7 @@ public class LobbyActivityTest {
             EntityUnderTest.setupWithMock();
         }
     }
+
     @Rule
     public LobbyActivityTestRule lobbyActivityTestRule = new LobbyActivityTestRule();
     private LobbyActivity lobbyActivity = null;
@@ -58,7 +59,7 @@ public class LobbyActivityTest {
 
     @Test
     // Currently tests to see if all UI features are displayed on the lobby screen
-    public void testAllView_onCreate_NotNull() {
+    public void testAllView_onCreate_ShouldAllBeNotNull() {
         View activityTitle = lobbyActivity.findViewById(R.id.textViewTitle);
         View editProfile   = lobbyActivity.findViewById(R.id.buttonEditProfile);
         View matching      = lobbyActivity.findViewById(R.id.buttonMatch);
@@ -72,11 +73,13 @@ public class LobbyActivityTest {
     }
 
     @Test
-    public void testEditProfileButton_OnClick_ShouldLaunchEditProfileActivity() {
+    public void testButtonEditProfile_OnClick_ShouldLaunchEditProfileActivity() {
         assertNotNull(lobbyActivity.findViewById(R.id.buttonEditProfile));
 
         onView(withId(R.id.buttonEditProfile)).perform(click());
 
+        // Monitors for when the second activity launches. Will cause the above onView to not match
+        // if the actual second activity is not equal to the expected.
         Activity editProfileActivity = getInstrumentation()
                 .waitForMonitorWithTimeout(editProfileActivityMonitor, 500);
 
@@ -85,12 +88,5 @@ public class LobbyActivityTest {
         editProfileActivity.finish();
     }
 
-    @Test
-    public void testEntity_WithMockSetup_ShouldEqualMock() {
-        Log.d(TAG, "testUserEmail_EqualsMock(): userEmail = " + Entity.onlineUser.getEmail());
-        assertTrue(
-                Entity.onlineUser.getDocumentId().equals(EntityUnderTest.FAKE_VALID_UID) &&
-                Entity.onlineUser.getEmail().equals(EntityUnderTest.FAKE_VALID_EMAIL));
-    }
 
 }

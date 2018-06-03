@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -30,7 +31,7 @@ public class EditProfileActivity extends AppCompatActivity {
     EditText editTextGender;
     EditText editTextAnimal;
 
-    ProgressDialog progressDialog;
+    ProgressBar progressBar;
 
     // Lifecycle Methods -------------------------------------------------------------------------
 
@@ -39,23 +40,16 @@ public class EditProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
 
-        editTextDisplayName = findViewById(R.id.editTextDisplayName);
+        editTextDisplayName = findViewById(R.id.editTextDisplayNameInEditProfile);
         editTextGender = findViewById(R.id.editTextGender);
         editTextAnimal = findViewById(R.id.editTextAnimal);
 
         documents = Documents.getInstance();
 
-        progressDialog = new ProgressDialog(this);
+        progressBar = findViewById(R.id.progressBarInEditProfileActivity);
 
-        //Check if user is not logged in
-        progressDialog.setMessage("Checking Sign-in...");
-        progressDialog.show();
-        if (!Entity.authUser.isSignedIn(new SignedInCallback())) {
-            //Closing this activity
-            finish();
-            //Starting Main activity
-            startActivity(new Intent(this, MainActivity.class));
-        }
+        SignedInCallback signedInCallback = new SignedInCallback();
+        signedInCallback.onSuccess();
     }
 
     // Presenter Methods -------------------------------------------------------------------------
@@ -85,13 +79,14 @@ public class EditProfileActivity extends AppCompatActivity {
         Entity.user.setGender(editTextGender.getText().toString().trim());
         Entity.user.setAnimal(editTextAnimal.getText().toString().trim());
 
-        progressDialog.setMessage("Saving Profile...");
-        progressDialog.show();
+        //progressDialog.setMessage("Saving Profile...");
+        //progressDialog.show();
+        progressBar.setVisibility(View.VISIBLE);
         documents.getUserDocRef().set(Entity.user)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        progressDialog.dismiss();
+                        progressBar.setVisibility(View.GONE);
 
                         Toast.makeText(EditProfileActivity.this,
                                 "Profile saved successfully", Toast.LENGTH_SHORT).show();
@@ -102,7 +97,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        progressDialog.dismiss();
+                        progressBar.setVisibility(View.GONE);
 
                         Log.w("XXX", "Save error: ", e);
                         Toast.makeText(EditProfileActivity.this,
@@ -142,7 +137,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
         @Override
         public void onSuccess() {
-            progressDialog.dismiss();
+            progressBar.setVisibility(View.GONE);
 
             Toast.makeText(EditProfileActivity.this,
                     "Profile saved successfully", Toast.LENGTH_SHORT).show();
@@ -151,7 +146,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
         @Override
         public void onFailure(Exception e) {
-            progressDialog.dismiss();
+            progressBar.setVisibility(View.GONE);
 
             Log.w("XXX", "Save error: ", e);
             Toast.makeText(EditProfileActivity.this,
@@ -165,7 +160,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
         @Override
         public void onSuccess() {
-            progressDialog.dismiss();
+            progressBar.setVisibility(View.GONE);
 
             // Load user's saved profile.
             loadProfile();
@@ -184,9 +179,11 @@ public class EditProfileActivity extends AppCompatActivity {
 
         @Override
         public void onFailure(Exception e) {
-            progressDialog.dismiss();
+            progressBar.setVisibility(View.GONE);
             Toast.makeText(EditProfileActivity.this,
                     "Not Signed In", Toast.LENGTH_SHORT).show();
+
+
         }
     }
 }

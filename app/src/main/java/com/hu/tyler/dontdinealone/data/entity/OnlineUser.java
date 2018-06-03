@@ -38,7 +38,7 @@ public class OnlineUser {
 
     public OnlineUser() {
         //public no-arg constructor needed
-        this.documentId = "defaultDocId"; // needs to be separately setup
+        this.documentId = null; // needs to be separately setup
         this.chatId = "0";
         this.newDoc = "0";
         this.name = "";

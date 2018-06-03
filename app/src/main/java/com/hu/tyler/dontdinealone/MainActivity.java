@@ -40,18 +40,22 @@ public class MainActivity extends AppCompatActivity {
 
         editTextEmail = findViewById(R.id.editTextEmail);
         editTextPW = findViewById(R.id.editTextPW);
+
+
     }
 
     @Override
     public void onStart() {
-        super.onStart();
         //If the user is already logged in, go directly to lobby.
-        if (Entity.authUser.isSignedIn(NullCallback.getInstance())) {
+        if (Entity.authUser.isSignedIn()) {
+            Entity.authUser.setupEntity(NullCallback.getInstance());
             Toast.makeText(this,
                     "Previously Logged In: " + Entity.authUser.getEmail(),
                     Toast.LENGTH_SHORT).show();
+            finish();
             goToLobbyActivity();
         }
+        super.onStart();
     }
 
     @Override

@@ -5,9 +5,11 @@ import android.content.Intent;
 import android.util.Log;
 
 import static android.content.ContentValues.TAG;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 import org.junit.Ignore;
+import org.junit.Test;
 import org.mockito.Mock;
 
 import com.google.android.gms.tasks.Task;
@@ -17,15 +19,33 @@ import com.hu.tyler.dontdinealone.data.Entity;
 
 public abstract class EntityUnderTest {
 
-    public static final String FAKE_VALID_UID = "fakeValidUid";
-    public static final String FAKE_VALID_EMAIL = "fakeValidEmail@ucsc.edu";
-    public static final String FAKE_VALID_PASSWORD = "fakeValidPassword_123";
+    public interface Values {
+        public static final String DEFAULT_UID = "defaultTestUid";
+        public static final String DEFAULT_EMAIL = "defaultTestEmail@ucsc.edu";
+        public static final String DEFAULT_PASSWORD = "defaultTestPassword_123";
 
-    public static final String FAKE_INVALID_EMAIL = "fakeInvalidEmail@ucsc.edu";
+        public static final String INVALID_EMAIL = "invalidTestEmail";
 
-    private static String mockUid = FAKE_VALID_UID;
-    private static String mockEmail = FAKE_VALID_EMAIL;
+        public static final String DEFAULT_DISPLAY_NAME = "defaultTestDisplayName";
+        public static final String DEFAULT_GENDER = "defaultTestGender";
+        public static final String DEFAULT_ANIMAL = "defaultTestAnimal";
 
+
+        public static final String CHANGED_DISPLAY_NAME = "changedTestDisplayName";
+        public static final String CHANGED_GENDER = "changedTestGender";
+        public static final String CHANGED_ANIMAL = "changedTestAnimal";
+
+    }
+
+    public static void setProfileToDefault() {
+        Entity.user.setDisplayName(EntityUnderTest.Values.DEFAULT_DISPLAY_NAME);
+        Entity.user.setGender(EntityUnderTest.Values.DEFAULT_GENDER);
+        Entity.user.setAnimal(EntityUnderTest.Values.DEFAULT_ANIMAL);
+
+    }
+
+    private static String mockUid = Values.DEFAULT_UID;
+    private static String mockEmail = Values.DEFAULT_EMAIL;
     // We use mock instead of spy in order to encourge explicit definition of methods, so that
     // we can decide whether the real method does not rely on state and is therefore ok to use.
     @Mock
@@ -47,7 +67,8 @@ public abstract class EntityUnderTest {
      * directly calling Firebase instead of properly using the Entity interface.
      * @PostCondition - call OnlineService.initOnlineUser() when user is supposed to be online.
      */
-    public static void setupWithMock() {
+    @Ignore
+    public static Task setupWithMock() {
 
         SaveEntityService.saveEntity();
 
@@ -72,25 +93,26 @@ public abstract class EntityUnderTest {
         when(mockFirebaseAuth.getCurrentUser()).thenReturn(mockFirebaseUser);
 
         // Mock the authentication success cases
-        when(mockFirebaseAuth.createUserWithEmailAndPassword(FAKE_VALID_EMAIL, FAKE_VALID_PASSWORD))
+        when(mockFirebaseAuth.createUserWithEmailAndPassword(Values.DEFAULT_EMAIL, Values.DEFAULT_EMAIL))
                 .thenReturn(mockSuccessfulTask);
-        when(mockFirebaseAuth.signInWithEmailAndPassword(FAKE_VALID_EMAIL, FAKE_VALID_PASSWORD))
+        when(mockFirebaseAuth.signInWithEmailAndPassword(Values.DEFAULT_EMAIL, Values.DEFAULT_PASSWORD))
                 .thenReturn(mockSuccessfulTask);
 
         // Mock the authentication failure cases
-        when(mockFirebaseAuth.createUserWithEmailAndPassword(FAKE_INVALID_EMAIL, FAKE_VALID_PASSWORD))
+        when(mockFirebaseAuth.createUserWithEmailAndPassword(Values.INVALID_EMAIL, Values.DEFAULT_PASSWORD))
                 .thenReturn(mockFailedTask);
-        when(mockFirebaseAuth.signInWithEmailAndPassword(FAKE_INVALID_EMAIL, FAKE_VALID_PASSWORD))
+        when(mockFirebaseAuth.signInWithEmailAndPassword(Values.INVALID_EMAIL, Values.DEFAULT_PASSWORD))
                 .thenReturn(mockFailedTask);
 
         // Set SUT to mock
-        Entity.authUser.setFirebaseAuth(mockFirebaseAuth);
-
+        Task task = Entity.authUser.setFirebaseAuth(mockFirebaseAuth);
         Log.d(TAG, "setupWithMock(): userEmail = " + Entity.onlineUser.getEmail());
+        return task;
     }
 
     public static void setupWithNullUser() {
-
+        mockFirebaseUser = null;
+        when(mockFirebaseAuth.getCurrentUser()).thenReturn(mockFirebaseUser);
     }
 
     public static void teardown() {
@@ -103,5 +125,15 @@ public abstract class EntityUnderTest {
         mockException = null;
     }
 
+    @Test // Test Entity SUT setup
+    public void testEntity_WithMockSetup_ShouldEqualMock() {
+        Log.d(TAG, "testEntity_WithMockSetup_ShouldEqualMock(): userUid = " +
+                Entity.onlineUser.getDocumentId());
+        Log.d(TAG, "testEntity_WithMockSetup_ShouldEqualMock(): userEmail = " +
+                Entity.onlineUser.getEmail());
+        assertTrue(Entity.onlineUser.getDocumentId()
+                .equals(EntityUnderTest.Values.DEFAULT_UID) && Entity.onlineUser.getEmail()
+                .equals(EntityUnderTest.Values.DEFAULT_EMAIL));
+    }
 
 }

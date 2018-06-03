@@ -60,8 +60,8 @@
         android:layout_marginTop="18dp"
         android:background="#FF9900"
         android:fontFamily="casual"
-        android:padding="5dp"
         android:onClick="startMatching"
+        android:padding="5dp"
         android:text="Start Matching"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/buttonLogout" />
@@ -74,8 +74,8 @@
         android:layout_marginTop="18dp"
         android:background="#FF9900"
         android:fontFamily="casual"
-        android:padding="5dp"
         android:onClick="setMatchPreferences"
+        android:padding="5dp"
         android:text="Match Preferences"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/buttonMatch" />
@@ -103,5 +103,18 @@
             android:textColor="#000"
             android:textSize="15dp" />
     </ScrollView>
+
+    <ProgressBar
+        android:id="@+id/progressBarForLobbyActivity"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/buttonMatchPreferences"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone" />
 
 </android.support.constraint.ConstraintLayout>
