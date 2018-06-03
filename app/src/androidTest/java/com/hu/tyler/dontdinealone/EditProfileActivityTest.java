@@ -4,24 +4,18 @@ import android.app.Activity;
 import android.app.Instrumentation;
 import android.support.test.rule.ActivityTestRule;
 import android.view.View;
-import android.widget.EditText;
-
 import com.hu.tyler.dontdinealone.data.Entity;
-
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.Rule;
-
-import java.util.Map;
-
+import org.junit.Test;
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.replaceText;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class EditProfileActivityTest {
 
@@ -81,7 +75,7 @@ public class EditProfileActivityTest {
         assertNotNull(lobbyActivity);
         lobbyActivity.finish();
     }
-    
+
     // Verifies text entered into fields is properly saved to the Entity class.
     @Test
     public void testSaveUserInfo(){

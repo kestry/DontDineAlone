@@ -32,7 +32,6 @@
                 android:text="Avatar :"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
-
             <ImageView
                 android:id="@+id/ava1"
                 android:layout_width="85dp"
@@ -43,7 +42,6 @@
                 android:padding="5dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/a1" />
-
 
             <ImageView
                 android:id="@+id/ava2"
@@ -227,8 +225,7 @@
                 android:layout_height="45dp"
                 android:ems="10"
                 android:inputType="textPersonName" />
-
-
+            
             <TextView
                 android:id="@+id/textView4"
                 android:layout_width="wrap_content"
