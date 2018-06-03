@@ -54,7 +54,7 @@ public class Documents {
     }
 
     public DocumentReference getOnlineUserDocRef(String uid) {
-        return collections.getUsersCRef().document(uid);
+        return collections.getOnlineUsersCRef().document(uid);
     }
 
     public DocumentReference getUserMatchPreferencesDocRef() {
@@ -63,13 +63,5 @@ public class Documents {
 
     public DocumentReference getUserMatchPreferencesDocRef(String uid) {
         return collections.getUserMatchPreferencesCRef(uid).document("Match Preferences");
-    }
-
-    public DocumentReference getGroupMatchPreferencesDocRef(String gid) {
-        return collections.getGroupMatchPreferencesCRef(gid).document("Match Preferences");
-    }
-
-    public DocumentReference getGroupFactoryDocRef() {
-        return collections.getSystemCRef().document("GroupFactory");
     }
 }

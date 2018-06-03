@@ -53,6 +53,6 @@ public abstract class OnlineService {
      *  This function is used to update the OnlineUser entity to online status.
      */
     public static void goBackOnline() {
-        UserStatusService.updateEverywhere(DatabaseStatuses.User.online);
+        UserStatusService.updateEverywhere(DatabaseStatuses.User.ONLINE);
     }
 }

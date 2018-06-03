@@ -41,7 +41,7 @@ public class Collections {
 
     private Collections() {
         mDb = FirebaseFirestore.getInstance();
-        mUid = "";
+        mUid = "uninit";
     }
 
     public String getUid() {
@@ -71,12 +71,6 @@ public class Collections {
 
     public CollectionReference getUserMatchPreferencesCRef(String uid) {
         return getUsersCRef().document(uid)
-                .collection("Match Preferences");
-    }
-
-    // For online users
-    public CollectionReference getGroupMatchPreferencesCRef(String gid) {
-        return getGroupsCRef().document(gid)
                 .collection("Match Preferences");
     }
 

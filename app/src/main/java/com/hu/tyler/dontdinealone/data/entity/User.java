@@ -19,6 +19,7 @@ public class User {
     public User() {
         setToDefault();
     }
+    public User(User other) { copy(other); }
 
     public void setToDefault() {
         displayName = "Guest"; // TODO: Set to auth name
@@ -27,7 +28,7 @@ public class User {
         avatarViewName = null;
     }
 
-    public void set(User user) {
+    public void copy(User user) {
         displayName = user.displayName;
         gender = user.gender;
         animal = user.animal;

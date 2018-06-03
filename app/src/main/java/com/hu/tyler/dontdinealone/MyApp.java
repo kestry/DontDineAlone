@@ -32,5 +32,7 @@ public class MyApp extends Application {
     public void onCreate() {
         instance = this;
         super.onCreate();
+
+
     }
 }

@@ -271,7 +271,7 @@ public class LobbyActivity extends AppCompatActivity {
 
     protected void lookingFortheHungry() {
         // Look for other people and we can distinguish them b/c their status code is "waiting".
-        onlineUsers.whereEqualTo("status", DatabaseStatuses.User.queued)
+        onlineUsers.whereEqualTo("status", DatabaseStatuses.User.QUEUED)
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
@@ -302,14 +302,14 @@ public class LobbyActivity extends AppCompatActivity {
                                             for(int i = 0; i < matchPreferences.getDiningHallPreferences().size(); i ++ )
                                             {
                                                 Log.d("prefs", "index: " + i + " " + matchPreferences.getDiningHallPreferences().get(i) );
-                                                Log.d("prefs", "Actual Value: " + DatabaseKeys.Preference.DINING_HALLS[i] );
+                                                Log.d("prefs", "Actual Value: " + DatabaseKeys.MatchPreferenceArray.DINING_HALLS[i] );
 
                                             }
 
                                             for(int i = 0; i < matchPreferences.getGroupSizePreferences().size(); i ++ )
                                             {
                                                 Log.d("group bool", "index: " + i + " " + matchPreferences.getGroupSizePreferences().get(i) );
-                                                Log.d("group size", "Actual Value: " + DatabaseKeys.Preference.GROUP_SIZES[i]);
+                                                Log.d("group size", "Actual Value: " + DatabaseKeys.MatchPreferenceArray.GROUP_SIZES[i]);
 
                                             }
 
@@ -337,7 +337,7 @@ public class LobbyActivity extends AppCompatActivity {
                                 }
                                 ////////////END OF EXTRA PRECAUTIONS
                                 */
-                                UserStatusService.updateEverywhere(DatabaseStatuses.User.matched);
+                                UserStatusService.updateEverywhere(DatabaseStatuses.User.MATCHED);
 
                                 //Get the user we are matched with
                                 final DocumentReference otherDocRef = collections.getOnlineUsersCRef().document(otherId);
@@ -407,7 +407,7 @@ public class LobbyActivity extends AppCompatActivity {
         final AlertDialog groupSizeSelection;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.select_group_sizes_label);
-        builder.setMultiChoiceItems(DatabaseKeys.Preference.GROUP_SIZES, groupSizePreferences,
+        builder.setMultiChoiceItems(DatabaseKeys.MatchPreferenceArray.GROUP_SIZES, groupSizePreferences,
                 new DialogInterface.OnMultiChoiceClickListener(){
             @Override
             public void onClick(DialogInterface dialogInterface, int i, boolean isChecked) {

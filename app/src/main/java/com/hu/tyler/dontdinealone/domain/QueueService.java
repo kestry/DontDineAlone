@@ -20,14 +20,14 @@ public abstract class QueueService {
         // Set user to queued -- but we do not leave the Online collection of users.
         DocumentReference onlineUserDocRef = Documents.getInstance().getOnlineUserDocRef();
 
-        UserStatusService.updateEverywhere(DatabaseStatuses.User.queued);
+        UserStatusService.updateEverywhere(DatabaseStatuses.User.QUEUED);
         TimestampService.updateRemoteTimestamp(onlineUserDocRef,
                 Entity.onlineUser.firstQueuedTimeKey());
     }
 
     public static void leaveQueue() {
         DocumentReference onlineUserDocRef = Documents.getInstance().getOnlineUserDocRef();
-        UserStatusService.updateEverywhere(DatabaseStatuses.User.online);
+        UserStatusService.updateEverywhere(DatabaseStatuses.User.ONLINE);
     }
     
 }

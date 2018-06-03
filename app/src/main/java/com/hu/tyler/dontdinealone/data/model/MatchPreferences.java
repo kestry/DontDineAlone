@@ -30,10 +30,10 @@ public class MatchPreferences {
     public void setToDefault() {
         groupSizePreferences.clear();
         diningHallPreferences.clear();
-        for (String groupSize : DatabaseKeys.Preference.GROUP_SIZES) {
+        for (String groupSize : DatabaseKeys.MatchPreferenceArray.GROUP_SIZES) {
             groupSizePreferences.add(true);
         }
-        for (String diningHall : DatabaseKeys.Preference.DINING_HALLS) {
+        for (String diningHall : DatabaseKeys.MatchPreferenceArray.DINING_HALLS) {
             diningHallPreferences.add(true);
         }
     }

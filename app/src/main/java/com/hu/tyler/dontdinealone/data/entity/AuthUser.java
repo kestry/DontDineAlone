@@ -1,6 +1,7 @@
 package com.hu.tyler.dontdinealone.data.entity;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -14,8 +15,11 @@ import com.hu.tyler.dontdinealone.data.model.Collections;
 import com.hu.tyler.dontdinealone.data.model.Documents;
 import com.hu.tyler.dontdinealone.data.model.MatchPreferences;
 import com.hu.tyler.dontdinealone.domain.OnlineService;
+import com.hu.tyler.dontdinealone.res.DatabaseDefaults;
 import com.hu.tyler.dontdinealone.util.Callback;
 import com.hu.tyler.dontdinealone.util.NullCallback;
+
+import static android.content.ContentValues.TAG;
 
 // This class represents a user in terms of authentication and login.
 
@@ -40,18 +44,36 @@ public class AuthUser {
     public AuthUser() {
         collections = Collections.getInstance();
         documents = Documents.getInstance();
-        mFAuth = FirebaseAuth.getInstance();
         nullCallback = NullCallback.getInstance();
 
         // Init user info
+        mFAuth = FirebaseAuth.getInstance();
         setFUser(nullCallback);
+    }
 
+    public AuthUser(AuthUser other) {
+        copy(other);
+    }
+
+    public void copy (AuthUser other) {
+        collections = other.collections;
+        documents = other.documents;
+        nullCallback = other.nullCallback;
+        mFAuth = other.mFAuth;
+        mFUser = other.mFUser;
+    }
+
+    public void setFirebaseAuth(FirebaseAuth firebaseAuth) {
+        mFAuth = firebaseAuth;
+        setFUser(nullCallback);
     }
 
     private void setFUser(final Callback callback) {
         mFUser = mFAuth.getCurrentUser();
         if (mFUser == null) {
-            callback.onFailure(null);
+            Entity.user.setToDefault();
+            documents.getUserDocRef().set(Entity.user);
+            loadUserMatchPreferencesAndInitOnlineUser(callback);
         } else {
             collections.setUid(mFUser.getUid());
             documents.getUserDocRef().get()
@@ -62,13 +84,12 @@ public class AuthUser {
                                 DocumentSnapshot document = task.getResult();
                                 // TODO: We may want this all as a transaction
                                 if (document.exists()) {
-                                    Entity.user.set(document.toObject(Entity.user.getClass()));
+                                    Entity.user.copy(document.toObject(Entity.user.getClass()));
                                 } else {
                                     Entity.user.setToDefault();
                                     documents.getUserDocRef().set(Entity.user);
                                 }
-                                //Entity.onlineUser.setupOnlineUser(Entity.authUser, Entity.user);
-                                loadUserMatchPreferences(callback);
+                                loadUserMatchPreferencesAndInitOnlineUser(callback);
 
                             } else {
                                 callback.onFailure(task.getException());
@@ -78,7 +99,7 @@ public class AuthUser {
         }
     }
 
-    public void loadUserMatchPreferences(final Callback callback) {
+    public void loadUserMatchPreferencesAndInitOnlineUser(final Callback callback) {
         documents.getUserMatchPreferencesDocRef().get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
@@ -105,19 +126,20 @@ public class AuthUser {
 
     public boolean isSignedIn(final Callback callback) {
         setFUser(callback);
+        Log.d(TAG, "isSignedIn = " + (mFUser != null));
         return mFUser != null;
     }
 
     public String getUid() {
-        return mFUser.getUid();
+        return (mFUser == null) ? DatabaseDefaults.User.UID : mFUser.getUid();
     }
 
     public String getEmail() {
-        return mFUser.getEmail();
+        return (mFUser == null) ? DatabaseDefaults.User.EMAIL : mFUser.getEmail();
     }
 
     public boolean isEmailVerified() {
-        return mFUser.isEmailVerified();
+        return (mFUser == null) ? false : mFUser.isEmailVerified();
     }
 
     public void register(String email, String password, final Callback callback) {

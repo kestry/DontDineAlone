@@ -31,7 +31,6 @@ public class OnlineUser {
     private String description;
     private String email;
     private String status;
-    private String groupDocumentId;
     @ServerTimestamp
     private Date firstOnlineTime;
     @ServerTimestamp
@@ -45,9 +44,25 @@ public class OnlineUser {
         this.name = "";
         this.email = "";
         this.description = "";
-        this.status = DatabaseStatuses.User.online;
-        this.groupDocumentId = null; // needs to be set
+        this.status = DatabaseStatuses.User.ONLINE;
         this.firstOnlineTime = new Date();
+        this.firstQueuedTime = new Date();
+    }
+
+    public OnlineUser(OnlineUser other) {
+        copy(other);
+    }
+
+    public void copy(OnlineUser other) {
+        documentId = other.documentId;
+        chatId = other.chatId;
+        newDoc = other.newDoc;
+        name = other.name;
+        description = other.description;
+        email = other.email;
+        status = other.status;
+        firstOnlineTime = other.firstOnlineTime;
+        firstQueuedTime = other.firstQueuedTime;
     }
 
     // Any function that starts with "get" will go into Firestore unless we exclude.
@@ -59,8 +74,10 @@ public class OnlineUser {
         name = user.getDisplayName();
         email = authUser.getEmail();
         description = user.animal;
-        status = DatabaseStatuses.User.online;
+        status = DatabaseStatuses.User.ONLINE;
         Log.d("OnlineUser", "setupOnlineUser: documentId = " + documentId);
+        Log.d("OnlineUser", "setupOnlineUser: email = " + email);
+
     }
 
     public String documentIdKey() {return "documentId"; }
@@ -106,10 +123,6 @@ public class OnlineUser {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
-    public String groupDocumentIdKey() { return "documentId"; }
-    public String getGroupDocumentId() { return documentId; }
-    public void setGroupDocumentId(String documentId) { this.documentId = documentId; }
-
 
     public String firstOnlineTimeKey() {
         return "firstOnlineTime";
@@ -138,7 +151,6 @@ public class OnlineUser {
         map.put(descriptionKey(), description);
         map.put(emailKey(), email);
         map.put(statusKey(), status);
-        map.put(groupDocumentIdKey(), groupDocumentId);
 
         return map;
     }
@@ -150,16 +162,4 @@ public class OnlineUser {
         return map;
     }
 
-    public void copy(OnlineUser other) {
-        documentId = other.documentId;
-        chatId = other.chatId;
-        newDoc = other.newDoc;
-        name = other.name;
-        description = other.description;
-        email = other.email;
-        status = other.status;
-        groupDocumentId = other.groupDocumentId;
-        firstOnlineTime = other.firstOnlineTime;
-        firstQueuedTime = other.firstQueuedTime;
-    }
 }

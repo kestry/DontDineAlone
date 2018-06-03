@@ -22,15 +22,15 @@ import com.hu.tyler.dontdinealone.util.Callback;
 
 public class EditProfileActivity extends AppCompatActivity {
 
-    private Documents documents;
+    Documents documents;
 
-    final private User user = Entity.user;
+    User user = Entity.user;
 
     EditText editTextDisplayName;
     EditText editTextGender;
     EditText editTextAnimal;
 
-    private ProgressDialog progressDialog;
+    ProgressDialog progressDialog;
 
     // Lifecycle Methods -------------------------------------------------------------------------
 

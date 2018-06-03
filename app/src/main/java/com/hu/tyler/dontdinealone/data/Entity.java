@@ -1,5 +1,7 @@
 package com.hu.tyler.dontdinealone.data;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.hu.tyler.dontdinealone.data.entity.AuthUser;
 import com.hu.tyler.dontdinealone.data.model.MatchPreferences;
 import com.hu.tyler.dontdinealone.data.entity.OnlineUser;
