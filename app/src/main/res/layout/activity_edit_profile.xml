@@ -12,7 +12,6 @@
         android:id="@+id/scrollView2"
         android:layout_width="111dp"
         android:layout_height="0dp"
-        android:layout_marginEnd="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/scrollView3"
         app:layout_constraintStart_toStartOf="parent"
@@ -33,19 +32,16 @@
                 android:text="Avatar :"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
-
             <ImageView
                 android:id="@+id/ava1"
                 android:layout_width="85dp"
                 android:layout_height="85dp"
                 android:adjustViewBounds="true"
                 android:background="@color/fui_transparent"
+                android:onClick="highlight"
                 android:padding="5dp"
                 android:scaleType="fitCenter"
-                android:onClick="highlight"
                 android:src="@drawable/a1" />
-
-
 
             <ImageView
                 android:id="@+id/ava2"
@@ -53,9 +49,9 @@
                 android:layout_height="85dp"
                 android:adjustViewBounds="true"
                 android:background="@color/fui_transparent"
+                android:onClick="highlight"
                 android:padding="5dp"
                 android:scaleType="fitCenter"
-                android:onClick="highlight"
                 android:src="@drawable/a2" />
 
             <ImageView
@@ -64,9 +60,9 @@
                 android:layout_height="85dp"
                 android:adjustViewBounds="true"
                 android:background="@color/fui_transparent"
+                android:onClick="highlight"
                 android:padding="5dp"
                 android:scaleType="fitCenter"
-                android:onClick="highlight"
                 android:src="@drawable/a3" />
 
             <ImageView
@@ -75,9 +71,9 @@
                 android:layout_height="85dp"
                 android:adjustViewBounds="true"
                 android:background="@color/fui_transparent"
+                android:onClick="highlight"
                 android:padding="5dp"
                 android:scaleType="fitCenter"
-                android:onClick="highlight"
                 android:src="@drawable/a6" />
 
             <ImageView
@@ -86,9 +82,9 @@
                 android:layout_height="85dp"
                 android:adjustViewBounds="true"
                 android:background="@color/fui_transparent"
+                android:onClick="highlight"
                 android:padding="5dp"
                 android:scaleType="fitCenter"
-                android:onClick="highlight"
                 android:src="@drawable/a4" />
 
             <ImageView
@@ -97,9 +93,9 @@
                 android:layout_height="85dp"
                 android:adjustViewBounds="true"
                 android:background="@color/fui_transparent"
+                android:onClick="highlight"
                 android:padding="5dp"
                 android:scaleType="fitCenter"
-                android:onClick="highlight"
                 android:src="@drawable/a5" />
 
             <ImageView
@@ -108,9 +104,9 @@
                 android:layout_height="85dp"
                 android:adjustViewBounds="true"
                 android:background="@color/fui_transparent"
+                android:onClick="highlight"
                 android:padding="5dp"
                 android:scaleType="fitCenter"
-                android:onClick="highlight"
                 android:src="@drawable/a7" />
 
             <ImageView
@@ -119,9 +115,9 @@
                 android:layout_height="85dp"
                 android:adjustViewBounds="true"
                 android:background="@color/fui_transparent"
+                android:onClick="highlight"
                 android:padding="5dp"
                 android:scaleType="fitCenter"
-                android:onClick="highlight"
                 android:src="@drawable/a8" />
 
 
@@ -131,9 +127,9 @@
                 android:layout_height="85dp"
                 android:adjustViewBounds="true"
                 android:background="@color/fui_transparent"
+                android:onClick="highlight"
                 android:padding="5dp"
                 android:scaleType="fitCenter"
-                android:onClick="highlight"
                 android:src="@drawable/a14" />
 
             <ImageView
@@ -142,9 +138,9 @@
                 android:layout_height="85dp"
                 android:adjustViewBounds="true"
                 android:background="@color/fui_transparent"
+                android:onClick="highlight"
                 android:padding="5dp"
                 android:scaleType="fitCenter"
-                android:onClick="highlight"
                 android:src="@drawable/a9" />
 
             <ImageView
@@ -153,9 +149,9 @@
                 android:layout_height="85dp"
                 android:adjustViewBounds="true"
                 android:background="@color/fui_transparent"
+                android:onClick="highlight"
                 android:padding="5dp"
                 android:scaleType="fitCenter"
-                android:onClick="highlight"
                 android:src="@drawable/a10" />
 
             <ImageView
@@ -164,9 +160,9 @@
                 android:layout_height="85dp"
                 android:adjustViewBounds="true"
                 android:background="@color/fui_transparent"
+                android:onClick="highlight"
                 android:padding="5dp"
                 android:scaleType="fitCenter"
-                android:onClick="highlight"
                 android:src="@drawable/a11" />
 
             <ImageView
@@ -175,9 +171,9 @@
                 android:layout_height="85dp"
                 android:adjustViewBounds="true"
                 android:background="@color/fui_transparent"
+                android:onClick="highlight"
                 android:padding="5dp"
                 android:scaleType="fitCenter"
-                android:onClick="highlight"
                 android:src="@drawable/a12" />
 
             <ImageView
@@ -186,9 +182,9 @@
                 android:layout_height="85dp"
                 android:adjustViewBounds="true"
                 android:background="@color/fui_transparent"
+                android:onClick="highlight"
                 android:padding="5dp"
                 android:scaleType="fitCenter"
-                android:onClick="highlight"
                 android:src="@drawable/a13" />
 
         </LinearLayout>
@@ -204,9 +200,10 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="20dp"
             android:orientation="vertical"
             tools:layout_editor_absoluteX="104dp">
 
@@ -228,7 +225,6 @@
                 android:layout_height="45dp"
                 android:ems="10"
                 android:inputType="textPersonName" />
-
 
             <TextView
                 android:id="@+id/textView4"
@@ -283,9 +279,9 @@
                     android:layout_height="wrap_content"
                     android:background="#FF9900"
                     android:fontFamily="casual"
+                    android:onClick="saveProfile"
                     android:text="OK"
                     android:textColor="#FFF"
-                    android:onClick="saveProfile"
                     tools:layout_editor_absoluteX="296dp"
                     tools:layout_editor_absoluteY="521dp" />
 
@@ -293,12 +289,12 @@
                     android:id="@+id/buttonEditCancel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="90dp"
+                    android:layout_marginLeft="40dp"
                     android:background="#FF9900"
                     android:fontFamily="casual"
+                    android:onClick="goToLobbyActivity"
                     android:text="cancel"
                     android:textColor="#FFF"
-                    android:onClick="goToLobbyActivity"
                     tools:layout_editor_absoluteX="149dp"
                     tools:layout_editor_absoluteY="521dp" />
 
