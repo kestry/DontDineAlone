@@ -25,17 +25,17 @@ public class ViewServiceTest {
     View mockView = mock(View.class);
 
     @Test(expected = Exception.class)
-    public void testWhenGettingViewName_WithNullView_ThrowException() {
+    public void testGetViewName_WithNullView_ThrowException() {
         ViewService.getViewName(null);
     }
 
     @Test(expected = Exception.class)
-    public void testWhenGettingView_WithValidNameAndNullActivity_ThrowException() {
+    public void testGetView_WithValidNameAndNullActivity_ThrowException() {
         ViewService.getView(viewName, null);
     }
 
     @Test(expected = Exception.class)
-    public void testWhenGettingView_WithNullViewNameAndValidActivity_ThrowException() {
+    public void testGetView_WithNullViewNameAndValidActivity_ThrowException() {
         ViewService.getView(null, mockActivity);
     }
 }

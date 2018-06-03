@@ -11,12 +11,12 @@ import static org.junit.Assert.*;
 public class PrimitiveArrayServiceTest {
 
     @Test(expected = Exception.class)
-    public void testMakeBooleanArrayFromList_givenNullList_throwException() {
+    public void testMakeBooleanArrayFromList_WithNullList_ThrowException() {
         PrimitiveArrayService.makeBooleanArrayFromList(null);
     }
 
     @Test
-    public void testMakeBooleanArrayFromList_givenValidList_getNewBooleanArrayCopyOfList() {
+    public void testMakeBooleanArrayFromList_WithValidList_GetNewBooleanArrayCopyOfList() {
         List<Boolean> validListInput;
         boolean[] expectedArray;
         boolean[] actualArray;
