@@ -8,12 +8,17 @@ import com.hu.tyler.dontdinealone.data.model.MatchPreferences;
 
 import org.junit.Ignore;
 
+/**
+ * Saving and restoring of the real entity values.
+ */
+@Ignore
 public abstract class SaveEntityService implements Entity {
     private static User savedUser = new User(user);
     private static AuthUser savedAuthUser = new AuthUser(authUser);
     private static OnlineUser savedOnlineUser = new OnlineUser(onlineUser);
     private static MatchPreferences savedMatchPreferences = new MatchPreferences(matchPreferences);
 
+    @Ignore
     public static void saveEntity() {
         savedUser.copy(user);
         savedAuthUser.copy(authUser);
@@ -21,6 +26,7 @@ public abstract class SaveEntityService implements Entity {
         savedMatchPreferences.copy(matchPreferences);
     }
 
+    @Ignore
     public static void restoreEntity() {
         user.copy(savedUser);
         authUser.copy(savedAuthUser);

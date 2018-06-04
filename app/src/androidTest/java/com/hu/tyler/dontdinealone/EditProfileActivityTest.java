@@ -6,7 +6,7 @@ import android.support.test.rule.ActivityTestRule;
 import android.view.View;
 
 import com.hu.tyler.dontdinealone.SUT.EntityUT;
-import com.hu.tyler.dontdinealone.SUT.TestHelperService;
+import com.hu.tyler.dontdinealone.general.TestHelperService;
 import com.hu.tyler.dontdinealone.data.Entity;
 import org.junit.After;
 import org.junit.Before;

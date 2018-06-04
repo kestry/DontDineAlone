@@ -62,12 +62,12 @@ public abstract class EntityUT {
     public static Exception mockException = mock(Exception.class);
 
     /**
-     * Sets the real entity under test to mock values. This is
-     * Note that if more methods are used in the app, then they may need to be mocked,
-     * unless it is absolutely certain the methods are not dependent
-     * on their own state. If strange inconsistencies continue to occur, then app code may be
-     * directly calling Firebase instead of properly using the Entity interface.
-     * @PostCondition - call OnlineService.initOnlineUser() when user is supposed to be online.
+     * Sets the real entity under test to mock values.
+     * Note that when using the mocked object, if there are unmocked methods that are used
+     * it's recommended you explicitly mock the method unless very certain that the methods
+     * are not dependent on their own state. If strange inconsistencies continue to occur,
+     * then it's likely that app code may directly calling Firebase somewhere instead of
+     * using the Entity interface.
      */
     @Ignore
     public static Task setupWithMock() {

@@ -34,13 +34,21 @@ Architectures used:
 Codebase Layout:
 
 Folders:
+  main
     - data
         - entity: Different models of our user. (non-traditional use of name)
         - model: Model of data
     - domain: Use cases
+    - net: Match server
     - res: Constants
     - util: Utility classes
-    - main (i.e. not in folder): Contains our activities or "views".
+    - (no folder): activities
+  androidTest
+    - general: general tests and helpers
+    - SUT
+    - (no folder): our activity tests
+  test
+    - domain: Use case tests
 
 Glossary:
     - "pending" == either "waiting" or "confirming".
