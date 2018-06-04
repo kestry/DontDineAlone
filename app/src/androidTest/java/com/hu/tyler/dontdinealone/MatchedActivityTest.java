@@ -1,7 +1,5 @@
 package com.hu.tyler.dontdinealone;
 
-import org.junit.Test;
-
 import android.content.Intent;
 import android.support.test.espresso.intent.Intents;
 import android.support.test.rule.ActivityTestRule;
@@ -12,17 +10,19 @@ import com.hu.tyler.dontdinealone.SUT.EntityUT;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
-import static org.junit.Assert.*;
+import org.junit.Test;
 
-public class RegisterActivityTest {
+import static org.junit.Assert.assertNotNull;
+
+public class MatchedActivityTest {
 
     private boolean didSutSetup = false;
     private boolean intentsAreClean = true;
 
     // We want to setup SUT before activity launches
-    private class MyActivityTestRule extends ActivityTestRule<RegisterActivity> {
+    private class MyActivityTestRule extends ActivityTestRule<MatchedActivity> {
         MyActivityTestRule() {
-            super(RegisterActivity.class);
+            super(MatchedActivity.class);
         }
 
         @Override
@@ -52,33 +52,23 @@ public class RegisterActivityTest {
 
     @Rule
     public MyActivityTestRule myActivityTestRule = new MyActivityTestRule();
-    private RegisterActivity registerActivity = null;
+    private MatchedActivity matchedActivity = null;
 
     @Before
     public void setUp() throws Exception {
-        registerActivity = myActivityTestRule.getActivity();
+        matchedActivity = myActivityTestRule.getActivity();
         myActivityTestRule.launchActivity(new Intent());
     }
 
     @After
     public void tearDown() throws Exception {
-        registerActivity = null;
+        matchedActivity = null;
     }
 
     @Test
     // Currently tests to see if all UI features are displayed on the activity screen
     public void testAllViews_OnCreate_NotNull() {
-        View email        = registerActivity.findViewById(R.id.xxxxReg);
-        View password     = registerActivity.findViewById(R.id.xxxxPW);
-        View confirmPW    = registerActivity.findViewById(R.id.xxxxPWC);
-        View signIn       = registerActivity.findViewById(R.id.buttonSignin);
-        View register     = registerActivity.findViewById(R.id.buttonRegister);
-        View activityName = registerActivity.findViewById(R.id.textViewTitle);
-        assertNotNull(email);
-        assertNotNull(password);
-        assertNotNull(confirmPW);
-        assertNotNull(signIn);
-        assertNotNull(register);
-        assertNotNull(activityName);
+
     }
+
 }

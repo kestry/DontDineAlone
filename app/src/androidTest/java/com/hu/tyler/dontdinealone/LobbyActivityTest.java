@@ -1,70 +1,85 @@
 package com.hu.tyler.dontdinealone;
 
-import android.app.Activity;
-import android.app.Instrumentation;
-import android.content.Context;
 import android.content.Intent;
-import android.support.test.InstrumentationRegistry;
+import android.support.test.espresso.intent.Intents;
 import android.support.test.rule.ActivityTestRule;
-import android.util.Log;
 import android.view.View;
 
-import com.hu.tyler.dontdinealone.SUT.EntityUnderTest;
-import com.hu.tyler.dontdinealone.data.Entity;
+import com.hu.tyler.dontdinealone.SUT.EntityUT;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static android.content.ContentValues.TAG;
-import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.intent.Intents.intended;
-import static android.support.test.espresso.intent.matcher.IntentMatchers.toPackage;
+import static android.support.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static org.junit.Assert.*;
 
+import static org.junit.Assert.assertNotNull;
+
 public class LobbyActivityTest {
 
+    private boolean didSutSetup = false;
+    private boolean intentsAreClean = true;
+
     // We want to setup SUT before activity launches
-    private class LobbyActivityTestRule extends ActivityTestRule<LobbyActivity> {
-        LobbyActivityTestRule() {
+    private class MyActivityTestRule extends ActivityTestRule<LobbyActivity> {
+        MyActivityTestRule() {
             super(LobbyActivity.class);
         }
+
         @Override
         public void beforeActivityLaunched() {
-            EntityUnderTest.setupWithMock();
+            if (!didSutSetup) {
+                EntityUT.setupWithMock();
+                didSutSetup = true;
+            }
+
+            EntityUT.setProfileToDefault();
+
+            if (intentsAreClean) {
+                Intents.init();
+                intentsAreClean = !intentsAreClean;
+            }
+        }
+
+        @Override
+        public void afterActivityFinished() {
+            if (!intentsAreClean) {
+                Intents.release();
+                intentsAreClean = !intentsAreClean;
+            }
+            EntityUT.setProfileToDefault();
         }
     }
 
     @Rule
-    public LobbyActivityTestRule lobbyActivityTestRule = new LobbyActivityTestRule();
+    public MyActivityTestRule myActivityTestRule = new MyActivityTestRule();
     private LobbyActivity lobbyActivity = null;
-
-    Instrumentation.ActivityMonitor editProfileActivityMonitor = getInstrumentation()
-            .addMonitor(EditProfileActivity.class.getName(), null, false);
 
     @Before
     public void setUp() throws Exception {
-        lobbyActivity = lobbyActivityTestRule.getActivity();
+        lobbyActivity = myActivityTestRule.getActivity();
+        myActivityTestRule.launchActivity(new Intent());
     }
 
     @After
     public void tearDown() throws Exception {
         lobbyActivity = null;
-        EntityUnderTest.teardown();
     }
 
     @Test
-    // Currently tests to see if all UI features are displayed on the lobby screen
-    public void testAllView_onCreate_ShouldAllBeNotNull() {
+    // Currently tests to see if all UI features are displayed on the activity screen
+    public void testAllViews_OnCreate_NotNull() {
         View activityTitle = lobbyActivity.findViewById(R.id.textViewTitle);
-        View editProfile   = lobbyActivity.findViewById(R.id.buttonEditProfile);
-        View matching      = lobbyActivity.findViewById(R.id.buttonMatch);
-        View logout        = lobbyActivity.findViewById(R.id.buttonLogout);
-        View numOnline     = lobbyActivity.findViewById(R.id.onlineCount);
+        View editProfile = lobbyActivity.findViewById(R.id.buttonEditProfile);
+        View matching = lobbyActivity.findViewById(R.id.buttonMatch);
+        View logout = lobbyActivity.findViewById(R.id.buttonLogout);
+        View numOnline = lobbyActivity.findViewById(R.id.onlineCount);
         assertNotNull(activityTitle);
         assertNotNull(editProfile);
         assertNotNull(matching);
@@ -73,20 +88,21 @@ public class LobbyActivityTest {
     }
 
     @Test
-    public void testButtonEditProfile_OnClick_ShouldLaunchEditProfileActivity() {
-        assertNotNull(lobbyActivity.findViewById(R.id.buttonEditProfile));
+    public void testLogoutButton_OnClick_ShouldLaunchToMainActivityAndLogoutUser() {
+        onView(withId(R.id.buttonLogout)).perform(click());
 
-        onView(withId(R.id.buttonEditProfile)).perform(click());
+        // Check that we went back to LobbyActivity after edit
+        intended(hasComponent(MainActivity.class.getName()));
 
-        // Monitors for when the second activity launches. Will cause the above onView to not match
-        // if the actual second activity is not equal to the expected.
-        Activity editProfileActivity = getInstrumentation()
-                .waitForMonitorWithTimeout(editProfileActivityMonitor, 500);
-
-        assertNotNull(editProfileActivity);
-
-        editProfileActivity.finish();
+        assertNull(EntityUT.mockFirebaseUser);
     }
 
+    // Verifies the Ok button brings you back to the lobby.
+    @Test
+    public void testEditProfileButton_OnClick_ShouldLaunchEditProfileActivity(){
+        onView(withId(R.id.buttonEditProfile)).perform(click());
 
+        // Check if we went back to LobbyActivity
+        intended(hasComponent(EditProfileActivity.class.getName()));
+    }
 }

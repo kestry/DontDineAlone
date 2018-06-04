@@ -9,7 +9,7 @@ public abstract class TestHelperService {
     public static void assertStringEquals(String label, String expected, String actual) {
         // Checks if Entity has changed values
         assertTrue(label + " : Expected(" + expected +
-                        "), Actual( " + actual + ")",
+                        "), Actual(" + actual + ")",
                 actual.equals(expected));
     }
 }
