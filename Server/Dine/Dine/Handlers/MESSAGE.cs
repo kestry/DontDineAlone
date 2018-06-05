@@ -10,13 +10,16 @@ namespace Dine.Handlers
     {
         public void Invoke(User u, Reader r)
         {
-            Console.WriteLine("Chatting User: " + u.getId());
-            Chat c = Messenger.getChat(u.getId());
-            if (c == null)
-                return;
-            string message = r.readStr();
-            Console.WriteLine("Message: " + message);
-            c.processChat(u, message);
+            try
+            {
+                string chatId = r.readStr();
+                Chat c = Messenger.getChat(chatId);
+                if (c == null)
+                    return;
+                string message = r.readStr();
+                c.processChat(u, message);
+            }
+            catch { }
         }
     }
 }

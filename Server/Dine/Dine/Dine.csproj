@@ -58,6 +58,7 @@
     <Compile Include="Server.cs" />
     <Compile Include="Session.cs" />
     <Compile Include="User.cs" />
+    <Compile Include="Util.cs" />
     <Compile Include="Writer.cs" />
   </ItemGroup>
   <ItemGroup>

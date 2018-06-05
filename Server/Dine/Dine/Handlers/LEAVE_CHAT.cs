@@ -10,8 +10,12 @@ namespace Dine.Handlers
     {
         public void Invoke(User u, Reader r)
         {
-            bool status = Messenger.getChat(u.getId()).removeUser(u.getId());
-            Console.WriteLine("Removed from Chat!");
+            try
+            {
+                string chatId = r.readStr();
+                bool status = Messenger.getChat(chatId).removeUser(u.getId());
+            }
+            catch { }
         }
     }
 }
