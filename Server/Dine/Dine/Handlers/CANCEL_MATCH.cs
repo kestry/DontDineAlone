@@ -10,11 +10,14 @@ namespace Dine
     {
         public void Invoke(User u, Reader r)
         {
-            bool status = Matching.remove(u.getId());
-            Console.WriteLine("Status: " + status);
-            Writer w = new Writer(0x03);
-            w.write((byte)(status ? 1: 0));
-            u.send(w);
+            try
+            {
+                bool status = Matching.remove(u.getId());
+                Writer w = new Writer(0x03);
+                w.write((byte)(status ? 1 : 0));
+                u.send(w);
+            }
+            catch { }
         }
     }
 }

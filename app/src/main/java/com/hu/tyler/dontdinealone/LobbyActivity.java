@@ -60,10 +60,9 @@ public class LobbyActivity extends AppCompatActivity {
     private ListenerRegistration onlineUsersListenerRegistration;
 
     // List items
+    private String[] groupSizesFormatted;
     private String[] diningHallsFormatted;
     MatchPreferences matchPreferences;
-    boolean[] groupSizePreferences;
-    boolean[] diningHallPreferences;
 
     Button buttonMatch;
     Button buttonMatchOld;
@@ -94,14 +93,10 @@ public class LobbyActivity extends AppCompatActivity {
         signedInCallback.onSuccess();
 
         onlineUsersEventListener = getNewOnlineEventListener();
+        groupSizesFormatted = getResources().getStringArray(R.array.groupSizesFormatted);
         diningHallsFormatted = getResources().getStringArray(R.array.diningHallsFormatted);
 
         matchPreferences = Entity.matchPreferences;
-
-        groupSizePreferences = PrimitiveArrayService
-                .makeBooleanArrayFromList(matchPreferences.getGroupSizePreferences());
-        diningHallPreferences = PrimitiveArrayService
-                .makeBooleanArrayFromList(matchPreferences.getDiningHallPreferences());
 
         user = Entity.onlineUser;
     }
@@ -225,6 +220,7 @@ public class LobbyActivity extends AppCompatActivity {
         //TODO: begin matching logic
         if (findingMatch) {
 
+            // Send Cancels
             Writer w = new Writer((short)0x03);
             w.write8((byte)1);
             Session.getCon().send(w);
@@ -257,9 +253,9 @@ public class LobbyActivity extends AppCompatActivity {
         Writer w = new Writer((short)0x02);
         w.writeStr(user.getDocumentId());
         w.writeStr(user.getName());
-        for(boolean b : groupSizePreferences)
+        for(boolean b : matchPreferences.getGroupSizePreferences())
             w.write16((short)(b == true ? 1 : 0));
-        for(boolean b : diningHallPreferences)
+        for(boolean b : matchPreferences.getDiningHallPreferences())
             w.write16((short)(b == true ? 1 : 0));
         Session.getCon().send(w);
     }
@@ -394,19 +390,23 @@ public class LobbyActivity extends AppCompatActivity {
     // Selection menu for group size choices
     public void checkBoxGroupSizePreferences() {
         final AlertDialog groupSizeSelection;
+        // We need to copy the persistent alert's boolean array
+        final boolean[] groupSizePreferences = PrimitiveArrayService
+                .makeBooleanArrayFromList(matchPreferences.getGroupSizePreferences());
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.select_group_sizes_label);
-        builder.setMultiChoiceItems(DatabaseKeys.MatchPreferenceArray.GROUP_SIZES, groupSizePreferences,
+        builder.setMultiChoiceItems(groupSizesFormatted, groupSizePreferences,
                 new DialogInterface.OnMultiChoiceClickListener(){
             @Override
             public void onClick(DialogInterface dialogInterface, int i, boolean isChecked) {
                 groupSizePreferences[i] = isChecked;
-                matchPreferences.setGroupSizePreferenceAt(i, isChecked);
             }
         });
         builder.setPositiveButton(R.string.ok_label, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+                matchPreferences.setGroupSizePreferencesFromArray(groupSizePreferences);
                 if (matchPreferences.hasChosenAGroupSizePreference()) {
                     // Since we made a selection, we are ok to continue selecting next preference.
                     checkBoxDiningHallPreferences();
@@ -427,7 +427,8 @@ public class LobbyActivity extends AppCompatActivity {
 
     // Selection menu for dining hall choices.
     public void checkBoxDiningHallPreferences() {
-
+        final boolean[] diningHallPreferences = PrimitiveArrayService
+                .makeBooleanArrayFromList(matchPreferences.getDiningHallPreferences());
         final AlertDialog diningHallSelection;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.select_dining_halls_label);
@@ -436,12 +437,12 @@ public class LobbyActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i, boolean isChecked) {
                 diningHallPreferences[i] = isChecked;
-                matchPreferences.setDiningHallPreferenceAt(i, isChecked);
             }
         });
         builder.setPositiveButton(R.string.ok_label, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int which) {
+                matchPreferences.setDiningHallPreferencesFromArray(diningHallPreferences);
                 if (matchPreferences.hasChosenADiningHallPreference()) {
                     // Store the preferences.
                     saveMatchPreferences();

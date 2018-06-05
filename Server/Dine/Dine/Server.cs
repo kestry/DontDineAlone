@@ -45,6 +45,8 @@ namespace Dine
         }
         public static User getUser(string id)
         {
+            if (sessions == null)
+                return null;
             User u = sessions.Where(x => x.getId() == id).FirstOrDefault();
             return u;
         }

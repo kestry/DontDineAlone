@@ -4,6 +4,7 @@ import android.app.Activity;
 
 import com.hu.tyler.dontdinealone.LobbyActivity;
 import com.hu.tyler.dontdinealone.MatchedActivity;
+import com.hu.tyler.dontdinealone.domain.UserStatusService;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -43,7 +44,11 @@ public class Connection extends Thread
                                 byte status = r.read8();
                                 //print("Match: " + (status == 1 ? "Found" : "None"));
                                 if(status == 1)
+                                {
+                                    String chatId = r.readStr();
+                                    Session.setChatId(chatId);
                                     callMatch();
+                                }
                                 break;
                             }
                             case 0x04: // Chat Messaging
@@ -143,6 +148,7 @@ public class Connection extends Thread
                 @Override
                 public void run() {
                     Session.setIsMatched(true);
+                    UserStatusService.updateToMatch();
                     lobbyActivity.goToMatchingActivity();
                 }
             });

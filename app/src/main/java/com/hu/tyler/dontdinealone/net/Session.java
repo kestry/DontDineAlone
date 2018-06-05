@@ -12,6 +12,8 @@ public class Session {
 
     private static boolean isMatched = false;
 
+    private static String chatId = "";
+
     public static Connection getCon()
     {
         return con;
@@ -40,4 +42,14 @@ public class Session {
     public static boolean isIsMatched() { return isMatched; }
 
     public static void setIsMatched(boolean matched) { isMatched = matched; }
+
+    public static String getChatId()
+    {
+        return chatId;
+    }
+
+    public static void setChatId(String c)
+    {
+        chatId = c;
+    }
 }
