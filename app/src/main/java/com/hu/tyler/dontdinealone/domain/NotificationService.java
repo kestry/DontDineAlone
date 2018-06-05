@@ -101,7 +101,7 @@ public class NotificationService extends Service {
                 }
                 if (snapshot != null && snapshot.exists()) {
                     OnlineUser thisUser = snapshot.toObject(OnlineUser.class);
-                    if(Session.isIsMatched()){
+                    if(thisUser.getStatus().equals(DatabaseStatuses.User.MATCHED)){
                         showMatchNotification();
                         //Stops the background service after notification is pushed, may or may not want this later on.
                         stopSelf();

@@ -83,6 +83,7 @@ public class MatchedActivity extends AppCompatActivity {
     {
         String str = messageBoard.getText().toString();
         Writer w = new Writer((short) 0x04);
+        w.writeStr(Session.getChatId());
         w.writeStr(str);
         Session.getCon().send(w);
         messageBoard.getText().clear();
@@ -111,7 +112,7 @@ public class MatchedActivity extends AppCompatActivity {
     @Override
     public void onResume(){
         super.onResume();
-        //stopService(notificationService);
+        stopService(notificationService);
     }
 
     @Override
@@ -124,8 +125,9 @@ public class MatchedActivity extends AppCompatActivity {
     public void leaveMatching()
     {
         Writer w = new Writer((short)0x05);
-        w.write8((byte)1);
+        w.writeStr(Session.getChatId());
         Session.getCon().send(w);
+        Session.setChatId("");
         finish();
         startActivity(new Intent(getApplicationContext(), LobbyActivity.class));
     }

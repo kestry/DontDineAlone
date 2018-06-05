@@ -60,4 +60,9 @@ public abstract class UserStatusService {
         DocumentReference onlineUserDocRef = Documents.getInstance().getOnlineUserDocRef();
         UserStatusService.update(DatabaseStatuses.User.ONLINE);
     }
+
+    public static void updateToMatch() {
+        DocumentReference onlineUserDocRef = Documents.getInstance().getOnlineUserDocRef();
+        UserStatusService.update(DatabaseStatuses.User.MATCHED);
+    }
 }

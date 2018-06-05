@@ -74,7 +74,7 @@ public class MatchPreferences {
     public boolean hasChosenAGroupSizePreference() {
         boolean hasChosen = false;
         for (Boolean pref : groupSizePreferences) {
-            hasChosen |= pref;
+            hasChosen = hasChosen || pref;
         }
         return hasChosen;
     }
@@ -82,7 +82,7 @@ public class MatchPreferences {
     public boolean hasChosenADiningHallPreference() {
         boolean hasChosen = false;
         for (Boolean pref : diningHallPreferences) {
-            hasChosen |= pref;
+            hasChosen = hasChosen || pref;
         }
         return hasChosen;
     }

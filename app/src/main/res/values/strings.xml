@@ -16,6 +16,11 @@
     </string>
 
     <!-- Strings related to match preferences -->
+    <string-array name="groupSizesFormatted">
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
     <string-array name="diningHallsFormatted">
         <item>Nine/Ten</item>
         <item>Cowell/Stevenson</item>

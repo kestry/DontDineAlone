@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onStart() {
+        super.onStart();
         //If the user is already logged in, go directly to lobby.
         if (Entity.authUser.isSignedIn()) {
             Entity.authUser.setupEntity(NullCallback.getInstance());
@@ -55,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
             finish();
             goToLobbyActivity();
         }
-        super.onStart();
     }
 
     @Override
