@@ -4,6 +4,7 @@ import android.app.Activity;
 
 import com.hu.tyler.dontdinealone.LobbyActivity;
 import com.hu.tyler.dontdinealone.MatchedActivity;
+import com.hu.tyler.dontdinealone.domain.NotificationHelper;
 import com.hu.tyler.dontdinealone.domain.UserStatusService;
 
 import java.io.DataInputStream;
@@ -149,20 +150,28 @@ public class Connection extends Thread
                 public void run() {
                     Session.setIsMatched(true);
                     UserStatusService.updateToMatch();
-                    lobbyActivity.goToMatchingActivity();
+                    if(lobbyActivity.hasWindowFocus()){
+                        lobbyActivity.goToMatchingActivity();
+                    }else{
+                        NotificationHelper.showMatchNotification(lobbyActivity);
+                    }
                 }
             });
         }
     }
+
     public void processChat(String msg) {
         final String s = msg;
         if(Session.getActivity() instanceof MatchedActivity)
         {
-            final MatchedActivity matchedActivity = ((MatchedActivity)Session.getActivity());
+            final MatchedActivity matchedActivity = ((MatchedActivity) Session.getActivity());
             matchedActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     matchedActivity.postMessage(s);
+                    if (!matchedActivity.hasWindowFocus()) {
+                        NotificationHelper.showMessageNotification(matchedActivity);
+                    }
                 }
             });
         }

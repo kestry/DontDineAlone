@@ -36,8 +36,9 @@
             android:name=".EditProfileActivity"
             android:label="Edit Profile"
             android:windowSoftInputMode="adjustNothing" />
-        <activity android:name=".MatchedActivity"></activity>
-        <service android:name=".domain.NotificationService" />
+        <activity
+            android:name=".MatchedActivity"
+            android:launchMode="singleTask"/>
     </application>
 
 </manifest>

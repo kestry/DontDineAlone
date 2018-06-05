@@ -11,11 +11,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 
-import com.google.firebase.firestore.CollectionReference;
-import com.hu.tyler.dontdinealone.data.Entity;
-import com.hu.tyler.dontdinealone.data.model.Chat;
 import com.hu.tyler.dontdinealone.data.model.Collections;
-import com.hu.tyler.dontdinealone.domain.NotificationService;
 import com.hu.tyler.dontdinealone.net.Session;
 import com.hu.tyler.dontdinealone.net.Writer;
 
@@ -28,8 +24,6 @@ import java.util.Locale;
 public class MatchedActivity extends AppCompatActivity {
 
     private Collections collections = Collections.getInstance();
-
-    private Intent notificationService;
 
     Button sendMessage;
     EditText messageBoard;
@@ -45,7 +39,6 @@ public class MatchedActivity extends AppCompatActivity {
         setContentView(R.layout.activity_matched);
         Intent intent = getIntent();
         messages = findViewById(R.id.matchingChatting);
-        notificationService = new Intent(this, NotificationService.class);
 
         SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US);
         String date = s.format(new Date());
@@ -89,8 +82,7 @@ public class MatchedActivity extends AppCompatActivity {
         messageBoard.getText().clear();
     }
 
-    public void postMessage(String message)
-    {
+    public void postMessage(String message) {
         messages.append(message + "\r\n");
     }
 
@@ -102,17 +94,12 @@ public class MatchedActivity extends AppCompatActivity {
     @Override
     public void onPause() {
         super.onPause();
-        //Starts the NotificationService in the background.
-        //notificationService.putExtra(NotificationService.NOTIFICATION_TYPE, NotificationService.MESSAGE_NOTIFICATION);
-        //notificationService.putExtra(NotificationService.CHAT_ID, docID);
-        startService(notificationService);
 
     }
 
     @Override
     public void onResume(){
         super.onResume();
-        stopService(notificationService);
     }
 
     @Override

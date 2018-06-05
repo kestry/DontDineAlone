@@ -29,7 +29,6 @@ import com.hu.tyler.dontdinealone.data.Entity;
 import com.hu.tyler.dontdinealone.data.entity.OnlineUser;
 import com.hu.tyler.dontdinealone.data.model.Documents;
 import com.hu.tyler.dontdinealone.data.model.MatchPreferences;
-import com.hu.tyler.dontdinealone.domain.NotificationService;
 import com.hu.tyler.dontdinealone.domain.OnlineService;
 import com.hu.tyler.dontdinealone.domain.PrimitiveArrayService;
 import com.hu.tyler.dontdinealone.domain.UserStatusService;
@@ -53,7 +52,6 @@ public class LobbyActivity extends AppCompatActivity {
     private boolean goingToMatching = false; // prevents MatchingActivity from running twice
     private CollectionReference onlineUsers; // for group items
     private CollectionReference matchedUsers;
-    private Intent notificationService;
     private TextView hiTxt;
     private OnlineUser user; // object to hold user info
     private EventListener<QuerySnapshot> onlineUsersEventListener;
@@ -87,7 +85,6 @@ public class LobbyActivity extends AppCompatActivity {
         onlineUsers = collections.getOnlineUsersCRef();
         matchedUsers = collections.getMatchedCRef();
 
-        notificationService = new Intent(this, NotificationService.class);
 
         SignedInCallback signedInCallback = new SignedInCallback();
         signedInCallback.onSuccess();
@@ -120,7 +117,6 @@ public class LobbyActivity extends AppCompatActivity {
         progressBar.setVisibility(View.GONE);
         user = Entity.onlineUser;
 
-        stopService(notificationService);
         if (onlineUsersListenerRegistration == null) {
             onlineUsersListenerRegistration = beginOnlineUsersListener();
         }
@@ -134,9 +130,6 @@ public class LobbyActivity extends AppCompatActivity {
             if (findingMatch == false) {
                 OnlineService.goOffline();
             }
-            //Starts the NotificationService in the background.
-            notificationService.putExtra(NotificationService.NOTIFICATION_TYPE, NotificationService.MATCH_NOTIFICATION);
-            startService(notificationService);
         }
     }
 
@@ -567,8 +560,10 @@ public class LobbyActivity extends AppCompatActivity {
         public void onFailure(Exception e) {
             progressBar.setVisibility(View.GONE);
             //progressDialog.dismiss();
+        }
 
-
+        public MatchedActivity createMatchedActivity(){
+            return new MatchedActivity();
         }
     }
 }
