@@ -12,6 +12,12 @@ import com.hu.tyler.dontdinealone.SUT.EntityUT;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
+
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.intent.Intents.intended;
+import static android.support.test.espresso.intent.matcher.IntentMatchers.hasComponent;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static org.junit.Assert.*;
 
 public class RegisterActivityTest {
@@ -81,4 +87,22 @@ public class RegisterActivityTest {
         assertNotNull(register);
         assertNotNull(activityName);
     }
+
+    @Test
+    public void testSignInInsteadButton_OnClick_ShouldLaunchToMainActivity() {
+        onView(withId(R.id.buttonSignin)).perform(click());
+
+        // Check that we went back to MainActivity after edit
+        intended(hasComponent(MainActivity.class.getName()));
+    }
+
+
+    @Test
+    public void testRegisterButton_OnClick_ShouldLaunchToMainActivity() {
+        onView(withId(R.id.buttonRegister)).perform(click());
+
+        // Check that we went back to LobbyActivity after edit
+        intended(hasComponent(MainActivity.class.getName()));
+    }
+
 }

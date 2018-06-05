@@ -31,6 +31,7 @@ public class OnlineUser {
     private String description;
     private String email;
     private String status;
+    private Boolean hasUnreadMessages;
     @ServerTimestamp
     private Date firstOnlineTime;
     @ServerTimestamp
@@ -45,6 +46,7 @@ public class OnlineUser {
         this.email = "";
         this.description = "";
         this.status = DatabaseStatuses.User.ONLINE;
+        this.hasUnreadMessages = false;
         this.firstOnlineTime = new Date();
         this.firstQueuedTime = new Date();
     }
@@ -61,6 +63,7 @@ public class OnlineUser {
         description = other.description;
         email = other.email;
         status = other.status;
+        hasUnreadMessages = other.hasUnreadMessages;
         firstOnlineTime = other.firstOnlineTime;
         firstQueuedTime = other.firstQueuedTime;
     }
@@ -75,6 +78,7 @@ public class OnlineUser {
         email = authUser.getEmail();
         description = user.animal;
         status = DatabaseStatuses.User.ONLINE;
+        hasUnreadMessages = false;
         Log.d("OnlineUser", "setupOnlineUser: documentId = " + documentId);
         Log.d("OnlineUser", "setupOnlineUser: email = " + email);
 
@@ -123,6 +127,13 @@ public class OnlineUser {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
+    public String hasUnreadMessagesKey() {return "hasUnreadMessage"; }
+    public Boolean getHasUnreadMessages() {
+        return this.hasUnreadMessages;
+    }
+    public void setHasUnreadMessages(Boolean hasUnreadMessages) {
+        this.hasUnreadMessages = hasUnreadMessages;
+    }
 
     public String firstOnlineTimeKey() {
         return "firstOnlineTime";
