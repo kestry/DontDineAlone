@@ -21,7 +21,7 @@ import static org.junit.Assert.*;
 
 import static org.junit.Assert.assertNotNull;
 
-// Tyler and Jean pair programmed
+// Testing: Tyler and Jean pair programmed
 public class LobbyActivityTest {
 
     private static boolean intentsAreClean = true;

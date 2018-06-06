@@ -22,6 +22,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+// Untested
 public class MatchedActivityTest {
 
     private static boolean intentsAreClean = true;
