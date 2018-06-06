@@ -42,7 +42,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="272dp"
-        android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
         android:background="#FF9900"
         android:fontFamily="casual"
@@ -80,6 +79,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/buttonMatch" />
 
+    <Button
+        android:id="@+id/emailButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="248dp"
+        android:background="#00000088"
+        android:fontFamily="casual"
+        android:padding="5px"
+        android:text="Report Abuse"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent" />/
+
     <ScrollView
         android:id="@+id/scrollView4"
         android:layout_width="200dp"
@@ -109,12 +121,12 @@
         style="?android:attr/progressBarStyle"
         android:layout_width="150dp"
         android:layout_height="150dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/buttonMatchPreferences"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:visibility="gone" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

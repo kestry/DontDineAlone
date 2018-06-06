@@ -1,8 +1,10 @@
 package com.hu.tyler.dontdinealone;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
@@ -67,6 +69,7 @@ public class LobbyActivity extends AppCompatActivity {
 
     String transitionID = "0"; //this will hold the document ID for 2 matches TODO: What is a transitionId exactly?
     ProgressBar progressBar;
+    Button emailButt = null;
 
     // Lifecycle Methods -------------------------------------------------------------------------
 
@@ -85,7 +88,6 @@ public class LobbyActivity extends AppCompatActivity {
         onlineUsers = collections.getOnlineUsersCRef();
         matchedUsers = collections.getMatchedCRef();
 
-
         SignedInCallback signedInCallback = new SignedInCallback();
         signedInCallback.onSuccess();
 
@@ -96,6 +98,37 @@ public class LobbyActivity extends AppCompatActivity {
         matchPreferences = Entity.matchPreferences;
 
         user = Entity.onlineUser;
+
+        emailButt = findViewById(R.id.emailButton);
+        emailButt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendEmail();
+            }
+        });
+
+
+    }
+
+    public void sendEmail()
+    {
+        /* Create the Intent */
+        try{
+            openGmail(this, "support@dontdinealone.com","Bug/Abuse Report", "Dear Dont Done Alone Team,\n");
+        }
+        catch(Exception e)
+        {
+            Toast.makeText(this, "Error Loading Email Application," +
+                    "please send your problem to support@dontdinealone.com", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void openGmail(Activity activity, String email, String subject, String content) {
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                "mailto",email, null));
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
+        emailIntent.putExtra(Intent.EXTRA_TEXT, content);
+        startActivity(emailIntent);
     }
 
     ///////////TYLERS EDITS/////////
@@ -103,7 +136,6 @@ public class LobbyActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         progressBar.setVisibility(View.GONE);
-        Log.d("XXX", "transitionID @ onStart: " + transitionID);
         user = Entity.onlineUser;
         if (onlineUsersListenerRegistration == null) {
             onlineUsersListenerRegistration = beginOnlineUsersListener();
@@ -191,9 +223,9 @@ public class LobbyActivity extends AppCompatActivity {
                             }
                         }
                     }
-                    data += otherUser.getName() +"\n" + otherUser.getEmail() +
+                    data += "Name: " + otherUser.getName()  +
                             "\nStatus Code: " + otherUser.getStatus() +
-                            "\nDocID: " + otherUser.getDocumentId() + "\n\n";
+                             "\n\n";
                 }
                 TextView onlineCount = findViewById(R.id.onlineCount);
                 onlineCount.setText(data);
@@ -253,100 +285,6 @@ public class LobbyActivity extends AppCompatActivity {
         Session.getCon().send(w);
     }
 
-    protected void lookingFortheHungry() {
-        // Look for other people and we can distinguish them b/c their status code is "waiting".
-        onlineUsers.whereEqualTo("status", DatabaseStatuses.User.QUEUED)
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot documentSnapshots) {
-                        List<DocumentSnapshot> snaps = documentSnapshots.getDocuments();
-
-                        //TODO: Make for loop to removed user from snaps List
-
-                        //TODO: Also filter out everyone with different preferences and group sizes
-
-                        //TODO: For Loop for Transactions
-
-                        for(DocumentSnapshot snap : snaps) {
-
-
-                            String otherId = snap.getId();
-                            String ourId = user.getDocumentId();
-
-
-                            documents.getUserMatchPreferencesDocRef(otherId).get()
-                                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                        @Override
-                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-
-
-                                            matchPreferences = documentSnapshot.toObject(MatchPreferences.class);
-
-                                            for(int i = 0; i < matchPreferences.getDiningHallPreferences().size(); i ++ )
-                                            {
-                                                Log.d("prefs", "index: " + i + " " + matchPreferences.getDiningHallPreferences().get(i) );
-                                                Log.d("prefs", "Actual Value: " + DatabaseKeys.MatchPreferenceArray.DINING_HALLS[i] );
-
-                                            }
-
-                                            for(int i = 0; i < matchPreferences.getGroupSizePreferences().size(); i ++ )
-                                            {
-                                                Log.d("group bool", "index: " + i + " " + matchPreferences.getGroupSizePreferences().get(i) );
-                                                Log.d("group size", "Actual Value: " + DatabaseKeys.MatchPreferenceArray.GROUP_SIZES[i]);
-
-                                            }
-
-
-                                        }
-                                    });
-
-                            boolean foundOtherUser = !otherId.equalsIgnoreCase(ourId);
-                            if(foundOtherUser) {
-
-                                Toast.makeText(LobbyActivity.this,
-                                        "Match Found!", Toast.LENGTH_SHORT).show();
-                                //TODO: probably should check whether someone already changed your status before proceeding further.
-                                /*
-                                //PRECAUTION SLOWDOWNS -- TODO: What does this mean?
-                                boolean foundMatchAlready = user.getStatus() == DatabaseStatuses.User.matched;
-                                if(transitionID != "0" || foundMatchAlready) {
-                                    return;
-                                }
-                                ////////////END OF EXTRA PRECAUTIONS
-                                */
-                                UserStatusService.update(DatabaseStatuses.User.MATCHED);
-
-                                //Get the user we are matched with
-                                final DocumentReference otherDocRef = collections.getOnlineUsersCRef().document(otherId);
-                                Log.d("XXX","otherId.equals(ourId):" + otherId.equals(ourId));
-                                Log.d("XXX", "id: "+ otherId + " Matched Email: " + snap.getString("email"));
-
-                                SimpleDateFormat s = new SimpleDateFormat("ddMMyyyyhhmmss", Locale.US);
-                                String date = s.format(new Date());
-                                final Chat mchat = new Chat(user.getName(),"Ready",2, date);
-                                 matchedUsers.add(mchat).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                     @Override
-                                     public void onSuccess(DocumentReference documentReference) {
-                                         mchat.setDocumentId(documentReference.getId());
-                                         transitionID = mchat.getDocumentId();
-                                         Log.d("XXX", "TransitionID @ lookingFortheHungry" + transitionID);
-                                         otherDocRef.update("chatID", transitionID); //update the chatID of the matched person
-                                         user.setNewDoc(transitionID);
-                                         onlineUsers.document(user.getDocumentId()).update("chatID", transitionID);
-                                         findingMatch = false; //no longer finding matches
-                                         goingToMatching = true; //transitioning to a new activity
-                                         goToMatchingActivity();
-                                     }
-                                 });
-                            }
-                        }
-                    }
-                });
-    }
-
-    /////////////////////////////End of Tylers Edit
-
 
     public void loadOnlineUsers() {
         onlineUsers.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -362,9 +300,8 @@ public class LobbyActivity extends AppCompatActivity {
                     Log.d("XXX", "for loop " + ++loopCount);
                     OnlineUser otherUser = snap.toObject(OnlineUser.class);
                     otherUser.setDocumentId(snap.getId());
-                    data += otherUser.getName() +"\n" + otherUser.getEmail() +
-                            "\nStatus Code: " + otherUser.getStatus() +
-                            "\nDocID: " + otherUser.getDocumentId() + "\n\n";
+                    data += "Name: " + otherUser.getName() +"\n" +
+                            "\nStatus Code: " + otherUser.getStatus() + "\n\n";
                 }
                 TextView onlineCount = findViewById(R.id.onlineCount);
                 onlineCount.setText(data);
