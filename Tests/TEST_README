@@ -1,0 +1,56 @@
+Testing is located in folders "src/androidTest" and "src/Test".
+We currently do not have automated testing/continuous integration setup.
+
+The "SUT" folder in "src/androidTest" was created so that the Entity (i.e. app user's data)
+is not affected by testing. It currently doesn't completely work, but what it endeavored to do was:
+- SaveEntityService: preserves and restores the user's Entity data
+- EntityUnderTest: mocks an app user by creating a mock of FirebaseAuth and FirebaseUser
+    along with Task that indicates success and failure.
+
+We also create a pool of valid and invalid inputs, updating the tests as necessary when an
+additional test cases are added.
+
+The following were deemed to not require dynamic unit testing:
+- Classes that only consist of getters and setters
+- Classes that only hold references to the database.
+- Classes that basically are wrappers around calls to components.
+- Classes that basically are wrappers around calls to updating local and remote data.
+
+Classes not requiring dynamic unit testing:
+- Classes in the "data/entity" folder (excluding AuthUser which contains major logic).
+- Classes in the "data/model" folder (excluding MatchPreferences which contains some logic).
+- Classes in the "res" folder (because they just contain constants).
+- Classes in the "util" folder (because it currently just provides base callbacks).
+
+Classes with complete unit testing:
+- PrimitiveArrayService
+
+Classes that still need unit testing:
+[data]:
+- AuthUser:
+      - Takes the FirebaseAuth and FirebaseUser information.
+      - Then AuthUser initializes the rest of the Entity data both local and/or remotely,
+            initializing to defaults.
+      * We currently do not directly unit test this. We only indirectly confirm that
+            the data is being updated correctly through the testing of the activities.
+[model]:
+- MatchPreferences:
+      - has logic that needs to be moved to domain and tested
+- NotificationService
+- OnlineService
+      - Tightly coupled with AuthUser, which is currently complicated and in need of testing.
+[net]
+- Connection
+- Reader
+- Writer
+[main]
+- all activities have partial testing except MatchedActivity which has none.
+[Server]
+
+Test Authors and/or Responsibilities
+- Tarun: null View checks for all activities except MatchedActivity
+- Cody: EditProfileActivityTest
+- Jean: LobbyActivityTest, SUT, PrimitiveArrayServiceTest, ViewServiceTest
+- Tyler: MainActivityTest
+- no one: RegisterActivityTest, MatchedActivity
+- Mac: Server

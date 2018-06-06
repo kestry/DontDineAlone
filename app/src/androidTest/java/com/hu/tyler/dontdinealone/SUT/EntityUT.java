@@ -35,16 +35,13 @@ public abstract class EntityUT {
         public static final String CHANGED_DISPLAY_NAME = "changedTestDisplayName";
         public static final String CHANGED_GENDER = "changedTestGender";
         public static final String CHANGED_ANIMAL = "changedTestAnimal";
-
     }
 
     public static void setProfileToDefault() {
         Entity.user.setDisplayName(EntityUT.Values.DEFAULT_DISPLAY_NAME);
         Entity.user.setGender(EntityUT.Values.DEFAULT_GENDER);
         Entity.user.setAnimal(EntityUT.Values.DEFAULT_ANIMAL);
-
     }
-
 
     private static String mockUid = Values.DEFAULT_UID;
     private static String mockEmail = Values.DEFAULT_EMAIL;
@@ -71,7 +68,6 @@ public abstract class EntityUT {
      */
     @Ignore
     public static Task setupWithMock() {
-
         SaveEntityService.saveEntity();
 
         mockFirebaseAuth = mock(FirebaseAuth.class);
@@ -115,16 +111,21 @@ public abstract class EntityUT {
         // Set SUT to mock
         Task task = Entity.authUser.setFirebaseAuth(mockFirebaseAuth);
         Log.d(TAG, "setupWithMock(): userEmail = " + Entity.onlineUser.getEmail());
+        setProfileToDefault();
         return task;
     }
 
-    public static void setupWithNullUser() {
-        mockFirebaseUser = null;
-        when(mockFirebaseAuth.getCurrentUser()).thenReturn(mockFirebaseUser);
+    @Ignore
+    public static void setupWithNullMockUser() {
+        SaveEntityService.saveEntity();
+        setupWithMock();
     }
 
+    @Ignore
     public static void teardown() {
+        mockFirebaseAuth.signOut();
         SaveEntityService.restoreEntity();
+        Entity.authUser.setFirebaseAuth(FirebaseAuth.getInstance());
 
         mockFirebaseAuth = null;
         mockFirebaseUser = null;

@@ -23,24 +23,18 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static org.junit.Assert.assertNotNull;
 
 public class EditProfileActivityTest {
-    private boolean didSutSetup = false;
-    private boolean intentsAreClean = true;
 
+    private static boolean intentsAreClean = true;
+/*
     // We want to setup SUT before activity launches
     private class MyActivityTestRule extends ActivityTestRule<EditProfileActivity> {
-
         MyActivityTestRule() {
             super(EditProfileActivity.class);
         }
 
         @Override
         public void beforeActivityLaunched() {
-            if (!didSutSetup) {
-                EntityUT.setupWithMock();
-                didSutSetup = true;
-            }
-
-            EntityUT.setProfileToDefault();
+            EntityUT.setupWithMock();
 
             if (intentsAreClean) {
                 Intents.init();
@@ -54,36 +48,49 @@ public class EditProfileActivityTest {
                 Intents.release();
                 intentsAreClean = !intentsAreClean;
             }
-            EntityUT.setProfileToDefault();
+            EntityUT.teardown();
         }
     }
-
+*/
     @Rule
-    public MyActivityTestRule myActivityTestRule = new MyActivityTestRule();
-    private EditProfileActivity editProfileActivity = null;
+    public ActivityTestRule<EditProfileActivity> myActivityTestRule
+        = new ActivityTestRule<EditProfileActivity>(EditProfileActivity.class);
+    private EditProfileActivity testActivity = null;
 
     @Before
     public void setUp() throws Exception {
-        editProfileActivity = myActivityTestRule.getActivity();
+        EntityUT.setupWithMock();
+
+        if (intentsAreClean) {
+            Intents.init();
+            intentsAreClean = !intentsAreClean;
+        }
+
+        testActivity = myActivityTestRule.getActivity();
         myActivityTestRule.launchActivity(new Intent());
     }
 
     @After
     public void tearDown() throws Exception {
-        editProfileActivity = null;
+        myActivityTestRule.finishActivity();
+        testActivity = null;
+        if (!intentsAreClean) {
+            Intents.release();
+            intentsAreClean = !intentsAreClean;
+        }
+        EntityUT.teardown();
     }
-
     @Test
     // Currently tests to see if all UI features are displayed on the activity screen
     public void testAllViews_OnCreate_NotNull() {
-        View cancelButton    = editProfileActivity.findViewById(R.id.buttonEditCancel);
-        View okButton        = editProfileActivity.findViewById(R.id.buttonEditOk);
-        View textAnimalSpace = editProfileActivity.findViewById(R.id.editTextAnimal);
-        View textAnimalPrompt= editProfileActivity.findViewById(R.id.textView5);
-        View textGenderSpace = editProfileActivity.findViewById(R.id.editTextGender);
-        View textGenderPrompt= editProfileActivity.findViewById(R.id.textView4);
-        View editNameSpace   = editProfileActivity.findViewById(R.id.editTextDisplayNameInEditProfile);
-        View editNamePrompt  = editProfileActivity.findViewById(R.id.textView3);
+        View cancelButton    = testActivity.findViewById(R.id.buttonEditCancel);
+        View okButton        = testActivity.findViewById(R.id.buttonEditOk);
+        View textAnimalSpace = testActivity.findViewById(R.id.editTextAnimal);
+        View textAnimalPrompt= testActivity.findViewById(R.id.textView5);
+        View textGenderSpace = testActivity.findViewById(R.id.editTextGender);
+        View textGenderPrompt= testActivity.findViewById(R.id.textView4);
+        View editNameSpace   = testActivity.findViewById(R.id.editTextDisplayNameInEditProfile);
+        View editNamePrompt  = testActivity.findViewById(R.id.textView3);
         assertNotNull(cancelButton);
         assertNotNull(okButton);
         assertNotNull(textAnimalSpace);
@@ -167,4 +174,3 @@ public class EditProfileActivityTest {
                 EntityUT.Values.DEFAULT_ANIMAL, Entity.user.getAnimal());
     }
 }
-
