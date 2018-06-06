@@ -41,6 +41,7 @@ import com.hu.tyler.dontdinealone.res.DatabaseStatuses;
 import com.hu.tyler.dontdinealone.util.Callback;
 import com.hu.tyler.dontdinealone.util.NullCallback;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -432,6 +433,13 @@ public class LobbyActivity extends AppCompatActivity {
     }
 
     public void goToMainActivity(View v) {
+        if(Session.getCon() != null) {
+            try {
+                Session.getCon().close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         Entity.authUser.signOut();
         Toast.makeText(this, "Logged Out.", Toast.LENGTH_SHORT).show();
         //Next time the app opens go to MainActivity
