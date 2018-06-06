@@ -271,7 +271,7 @@ public class LobbyActivity extends AppCompatActivity {
         if(Session.isConnected())
             doMatch();
         else
-            Session.setConnected();
+            Session.setConnected(true);
     }
 
     public void doMatch()
@@ -436,6 +436,7 @@ public class LobbyActivity extends AppCompatActivity {
         if(Session.getCon() != null) {
             try {
                 Session.getCon().close();
+                Session.reset();
             } catch (IOException e) {
                 e.printStackTrace();
             }

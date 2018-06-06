@@ -34,9 +34,9 @@ public class Session {
         return isConnected;
     }
 
-    public static void setConnected()
+    public static void setConnected(boolean c)
     {
-        isConnected = true;
+        isConnected = c;
     }
 
     public static boolean isIsMatched() { return isMatched; }
@@ -51,5 +51,11 @@ public class Session {
     public static void setChatId(String c)
     {
         chatId = c;
+    }
+
+    public static void reset()
+    {
+        isConnected = false;
+        con = new Connection();
     }
 }
