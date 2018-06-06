@@ -35,7 +35,7 @@ Classes that still need unit testing:
             the data is being updated correctly through the testing of the activities.
 [model]:
 - MatchPreferences:
-      - has logic that needs to be moved to domain and tested
+      - has logic and is only partially tested. 
 - NotificationService
 - OnlineService
       - Tightly coupled with AuthUser, which is currently complicated and in need of testing.
@@ -49,8 +49,8 @@ Classes that still need unit testing:
 
 Test Authors and/or Responsibilities
 - Tarun: null View checks for all activities except MatchedActivity
-- Cody: EditProfileActivityTest
-- Jean: LobbyActivityTest, SUT, PrimitiveArrayServiceTest, ViewServiceTest
-- Tyler: MainActivityTest
-- no one: RegisterActivityTest, MatchedActivity
+- Tyler: LobbyActivityTest
+- Cody: EditProfileActivityTest, SUT
+- Jean: SUT, PrimitiveArrayServiceTest, ViewServiceTest, paired Cody and Tyler
 - Mackenzie: MatchPreferencesTest
+- no one: RegisterActivityTest, MatchedActivity
