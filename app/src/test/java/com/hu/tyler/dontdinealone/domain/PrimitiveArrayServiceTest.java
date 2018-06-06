@@ -8,6 +8,8 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 // Simple Unit Tests to learn junit
+// Testing by Jean
+// Equivalance class: null vs valid list input.
 public class PrimitiveArrayServiceTest {
 
     @Test(expected = Exception.class)

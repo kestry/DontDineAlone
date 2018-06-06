@@ -13,6 +13,9 @@ import static org.junit.Assert.*;
 
 /**
  * Simple unit tests to learn Mockito.
+ *
+ * Tests by Jean. Not full equivalance class since we do not have the success cases.
+ * Was unable to figure how to call the activity in time.
  */
 public class ViewServiceTest {
 

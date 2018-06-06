@@ -14,6 +14,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
+// Testing by Tarun
 public class MainActivityTest {
 
     private static boolean intentsAreClean = true;

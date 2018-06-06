@@ -20,6 +20,7 @@ import static android.support.test.espresso.intent.matcher.IntentMatchers.hasCom
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static org.junit.Assert.*;
 
+// Testing done by Tyler, Tarun, and Jean
 public class RegisterActivityTest {
 
     private static boolean intentsAreClean = true;
@@ -70,7 +71,7 @@ public class RegisterActivityTest {
         assertNotNull(activityName);
     }
 
-    @Test
+    @Test // Currently not working
     public void testSignInInsteadButton_OnClick_ShouldLaunchToMainActivity() {
         onView(withId(R.id.buttonSignin)).perform(click());
 
@@ -79,11 +80,11 @@ public class RegisterActivityTest {
     }
 
 
-    @Test
+    @Test // Currently not working
     public void testRegisterButton_OnClick_ShouldLaunchToMainActivity() {
         onView(withId(R.id.buttonRegister)).perform(click());
 
-        // Check that we went back to LobbyActivity after edit
+        // Check that we went back to MainActivity after edit
         intended(hasComponent(MainActivity.class.getName()));
     }
 

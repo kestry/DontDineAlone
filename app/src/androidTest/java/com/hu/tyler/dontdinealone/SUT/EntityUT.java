@@ -136,7 +136,7 @@ public abstract class EntityUT {
         mockException = null;
     }
 
-    @Test // Test Entity SUT setup
+    @Test // Test Entity CUT setup
     public void testEntity_WithMockSetup_ShouldEqualMock() {
         Log.d(TAG, "testEntity_WithMockSetup_ShouldEqualMock(): userUid = " +
                 Entity.onlineUser.getDocumentId());
