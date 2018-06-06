@@ -26,7 +26,7 @@ public class Connection extends Thread
 
     public void run() {
         try {
-            s = new Socket("192.168.137.1", 7575);
+            s = new Socket("10.0.3.2", 7575);
             s.setKeepAlive(true);
             sendMatch();
 

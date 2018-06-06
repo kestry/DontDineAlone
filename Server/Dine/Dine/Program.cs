@@ -14,7 +14,7 @@ namespace Dine
         static void Main(string[] args)
         {
             Console.Title = "Dine";
-            Server.start("192.168.137.1", 7575);
+            Server.start("127.0.0.1", 7575);
             Console.Read();
         }
     }

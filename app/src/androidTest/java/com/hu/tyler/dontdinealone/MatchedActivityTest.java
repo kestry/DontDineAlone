@@ -6,13 +6,21 @@ import android.support.test.rule.ActivityTestRule;
 import android.view.View;
 
 import com.hu.tyler.dontdinealone.SUT.EntityUT;
+import com.hu.tyler.dontdinealone.net.Connection;
+import com.hu.tyler.dontdinealone.net.Session;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.intent.Intents.intended;
+import static android.support.test.espresso.intent.matcher.IntentMatchers.hasComponent;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class MatchedActivityTest {
 
@@ -46,11 +54,4 @@ public class MatchedActivityTest {
         }
         EntityUT.teardown();
     }
-
-    @Test
-    // Currently tests to see if all UI features are displayed on the activity screen
-    public void testAllViews_OnCreate_NotNull() {
-
-    }
-
 }
