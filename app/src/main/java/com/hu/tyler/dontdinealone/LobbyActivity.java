@@ -1,8 +1,10 @@
 package com.hu.tyler.dontdinealone;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
@@ -67,6 +69,7 @@ public class LobbyActivity extends AppCompatActivity {
 
     String transitionID = "0"; //this will hold the document ID for 2 matches TODO: What is a transitionId exactly?
     ProgressBar progressBar;
+    Button emailButt = null;
 
     // Lifecycle Methods -------------------------------------------------------------------------
 
@@ -85,7 +88,6 @@ public class LobbyActivity extends AppCompatActivity {
         onlineUsers = collections.getOnlineUsersCRef();
         matchedUsers = collections.getMatchedCRef();
 
-
         SignedInCallback signedInCallback = new SignedInCallback();
         signedInCallback.onSuccess();
 
@@ -96,6 +98,37 @@ public class LobbyActivity extends AppCompatActivity {
         matchPreferences = Entity.matchPreferences;
 
         user = Entity.onlineUser;
+
+        emailButt = findViewById(R.id.emailButton);
+        emailButt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendEmail();
+            }
+        });
+
+
+    }
+
+    public void sendEmail()
+    {
+        /* Create the Intent */
+        try{
+            openGmail(this, "support@dontdinealone.com","Bug/Abuse Report", "Dear Dont Done Alone Team,\n");
+        }
+        catch(Exception e)
+        {
+            Toast.makeText(this, "Error Loading Email Application," +
+                    "please send your problem to support@dontdinealone.com", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void openGmail(Activity activity, String email, String subject, String content) {
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                "mailto",email, null));
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
+        emailIntent.putExtra(Intent.EXTRA_TEXT, content);
+        startActivity(emailIntent);
     }
 
     ///////////TYLERS EDITS/////////
