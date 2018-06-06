@@ -53,4 +53,4 @@ Test Authors and/or Responsibilities
 - Jean: LobbyActivityTest, SUT, PrimitiveArrayServiceTest, ViewServiceTest
 - Tyler: MainActivityTest
 - no one: RegisterActivityTest, MatchedActivity
-- Mac: Server
+- Mackenzie: MatchPreferencesTest

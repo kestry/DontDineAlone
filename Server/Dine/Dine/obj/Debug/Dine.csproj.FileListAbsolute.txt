@@ -4,10 +4,3 @@ C:\Users\Mac\Desktop\Dine\Dine\bin\Debug\Dine.pdb
 C:\Users\Mac\Desktop\Dine\Dine\obj\Debug\Dine.csprojResolveAssemblyReference.cache
 C:\Users\Mac\Desktop\Dine\Dine\obj\Debug\Dine.exe
 C:\Users\Mac\Desktop\Dine\Dine\obj\Debug\Dine.pdb
-C:\Users\codyh\Desktop\DontDineAlone\Server\Dine\Dine\bin\Debug\Dine.exe.config
-C:\Users\codyh\Desktop\DontDineAlone\Server\Dine\Dine\bin\Debug\Dine.exe
-C:\Users\codyh\Desktop\DontDineAlone\Server\Dine\Dine\bin\Debug\Dine.pdb
-C:\Users\codyh\Desktop\DontDineAlone\Server\Dine\Dine\obj\Debug\Dine.csprojResolveAssemblyReference.cache
-C:\Users\codyh\Desktop\DontDineAlone\Server\Dine\Dine\obj\Debug\Dine.csproj.CoreCompileInputs.cache
-C:\Users\codyh\Desktop\DontDineAlone\Server\Dine\Dine\obj\Debug\Dine.exe
-C:\Users\codyh\Desktop\DontDineAlone\Server\Dine\Dine\obj\Debug\Dine.pdb
