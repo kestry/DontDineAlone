@@ -22,53 +22,35 @@ import static org.junit.Assert.*;
 
 public class RegisterActivityTest {
 
-    private boolean didSutSetup = false;
-    private boolean intentsAreClean = true;
-
-    // We want to setup SUT before activity launches
-    private class MyActivityTestRule extends ActivityTestRule<RegisterActivity> {
-        MyActivityTestRule() {
-            super(RegisterActivity.class);
-        }
-
-        @Override
-        public void beforeActivityLaunched() {
-            if (!didSutSetup) {
-                EntityUT.setupWithMock();
-                didSutSetup = true;
-            }
-
-            EntityUT.setProfileToDefault();
-
-            if (intentsAreClean) {
-                Intents.init();
-                intentsAreClean = !intentsAreClean;
-            }
-        }
-
-        @Override
-        public void afterActivityFinished() {
-            if (!intentsAreClean) {
-                Intents.release();
-                intentsAreClean = !intentsAreClean;
-            }
-            EntityUT.setProfileToDefault();
-        }
-    }
+    private static boolean intentsAreClean = true;
 
     @Rule
-    public MyActivityTestRule myActivityTestRule = new MyActivityTestRule();
+    public ActivityTestRule<RegisterActivity> myActivityTestRule
+            = new ActivityTestRule<RegisterActivity>(RegisterActivity.class);
     private RegisterActivity registerActivity = null;
 
     @Before
     public void setUp() throws Exception {
+        EntityUT.setupWithMock();
+
+        if (intentsAreClean) {
+            Intents.init();
+            intentsAreClean = !intentsAreClean;
+        }
+
         registerActivity = myActivityTestRule.getActivity();
         myActivityTestRule.launchActivity(new Intent());
     }
 
     @After
     public void tearDown() throws Exception {
+        myActivityTestRule.finishActivity();
         registerActivity = null;
+        if (!intentsAreClean) {
+            Intents.release();
+            intentsAreClean = !intentsAreClean;
+        }
+        EntityUT.teardown();
     }
 
     @Test

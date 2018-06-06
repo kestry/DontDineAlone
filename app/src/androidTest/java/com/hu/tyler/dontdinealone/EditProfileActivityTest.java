@@ -22,36 +22,11 @@ import static android.support.test.espresso.intent.matcher.IntentMatchers.hasCom
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static org.junit.Assert.assertNotNull;
 
+// Cody and Jean Pair Programmed
 public class EditProfileActivityTest {
 
     private static boolean intentsAreClean = true;
-/*
-    // We want to setup SUT before activity launches
-    private class MyActivityTestRule extends ActivityTestRule<EditProfileActivity> {
-        MyActivityTestRule() {
-            super(EditProfileActivity.class);
-        }
 
-        @Override
-        public void beforeActivityLaunched() {
-            EntityUT.setupWithMock();
-
-            if (intentsAreClean) {
-                Intents.init();
-                intentsAreClean = !intentsAreClean;
-            }
-        }
-
-        @Override
-        public void afterActivityFinished() {
-            if (!intentsAreClean) {
-                Intents.release();
-                intentsAreClean = !intentsAreClean;
-            }
-            EntityUT.teardown();
-        }
-    }
-*/
     @Rule
     public ActivityTestRule<EditProfileActivity> myActivityTestRule
         = new ActivityTestRule<EditProfileActivity>(EditProfileActivity.class);
@@ -80,6 +55,7 @@ public class EditProfileActivityTest {
         }
         EntityUT.teardown();
     }
+
     @Test
     // Currently tests to see if all UI features are displayed on the activity screen
     public void testAllViews_OnCreate_NotNull() {

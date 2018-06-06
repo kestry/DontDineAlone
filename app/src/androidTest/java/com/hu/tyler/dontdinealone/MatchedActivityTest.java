@@ -16,53 +16,35 @@ import static org.junit.Assert.assertNotNull;
 
 public class MatchedActivityTest {
 
-    private boolean didSutSetup = false;
-    private boolean intentsAreClean = true;
-
-    // We want to setup SUT before activity launches
-    private class MyActivityTestRule extends ActivityTestRule<MatchedActivity> {
-        MyActivityTestRule() {
-            super(MatchedActivity.class);
-        }
-
-        @Override
-        public void beforeActivityLaunched() {
-            if (!didSutSetup) {
-                EntityUT.setupWithMock();
-                didSutSetup = true;
-            }
-
-            EntityUT.setProfileToDefault();
-
-            if (intentsAreClean) {
-                Intents.init();
-                intentsAreClean = !intentsAreClean;
-            }
-        }
-
-        @Override
-        public void afterActivityFinished() {
-            if (!intentsAreClean) {
-                Intents.release();
-                intentsAreClean = !intentsAreClean;
-            }
-            EntityUT.setProfileToDefault();
-        }
-    }
+    private static boolean intentsAreClean = true;
 
     @Rule
-    public MyActivityTestRule myActivityTestRule = new MyActivityTestRule();
-    private MatchedActivity matchedActivity = null;
+    public ActivityTestRule<MatchedActivity> myActivityTestRule
+            = new ActivityTestRule<MatchedActivity>(MatchedActivity.class);
+    private MatchedActivity testActivity = null;
 
     @Before
     public void setUp() throws Exception {
-        matchedActivity = myActivityTestRule.getActivity();
+        EntityUT.setupWithMock();
+
+        if (intentsAreClean) {
+            Intents.init();
+            intentsAreClean = !intentsAreClean;
+        }
+
+        testActivity = myActivityTestRule.getActivity();
         myActivityTestRule.launchActivity(new Intent());
     }
 
     @After
     public void tearDown() throws Exception {
-        matchedActivity = null;
+        myActivityTestRule.finishActivity();
+        testActivity = null;
+        if (!intentsAreClean) {
+            Intents.release();
+            intentsAreClean = !intentsAreClean;
+        }
+        EntityUT.teardown();
     }
 
     @Test
