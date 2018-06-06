@@ -17,7 +17,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.hu.tyler.dontdinealone.data.Entity;
+import com.hu.tyler.dontdinealone.data.model.Documents;
 
+// Cody and Jean Pair Programmed
 public abstract class EntityUT {
 
     public interface Values {
@@ -31,7 +33,6 @@ public abstract class EntityUT {
         public static final String DEFAULT_GENDER = "defaultTestGender";
         public static final String DEFAULT_ANIMAL = "defaultTestAnimal";
 
-
         public static final String CHANGED_DISPLAY_NAME = "changedTestDisplayName";
         public static final String CHANGED_GENDER = "changedTestGender";
         public static final String CHANGED_ANIMAL = "changedTestAnimal";
@@ -41,6 +42,7 @@ public abstract class EntityUT {
         Entity.user.setDisplayName(EntityUT.Values.DEFAULT_DISPLAY_NAME);
         Entity.user.setGender(EntityUT.Values.DEFAULT_GENDER);
         Entity.user.setAnimal(EntityUT.Values.DEFAULT_ANIMAL);
+        Documents.getInstance().getUserDocRef().set(Entity.user);
     }
 
     private static String mockUid = Values.DEFAULT_UID;

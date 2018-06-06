@@ -21,55 +21,38 @@ import static org.junit.Assert.*;
 
 import static org.junit.Assert.assertNotNull;
 
+// Tyler and Jean pair programmed
 public class LobbyActivityTest {
 
-    private boolean didSutSetup = false;
-    private boolean intentsAreClean = true;
-
-    // We want to setup SUT before activity launches
-    private class MyActivityTestRule extends ActivityTestRule<LobbyActivity> {
-        MyActivityTestRule() {
-            super(LobbyActivity.class);
-        }
-
-        @Override
-        public void beforeActivityLaunched() {
-            if (!didSutSetup) {
-                EntityUT.setupWithMock();
-                didSutSetup = true;
-            }
-
-            EntityUT.setProfileToDefault();
-
-            if (intentsAreClean) {
-                Intents.init();
-                intentsAreClean = !intentsAreClean;
-            }
-        }
-
-        @Override
-        public void afterActivityFinished() {
-            if (!intentsAreClean) {
-                Intents.release();
-                intentsAreClean = !intentsAreClean;
-            }
-            EntityUT.setProfileToDefault();
-        }
-    }
+    private static boolean intentsAreClean = true;
 
     @Rule
-    public MyActivityTestRule myActivityTestRule = new MyActivityTestRule();
+    public ActivityTestRule<LobbyActivity> myActivityTestRule
+            = new ActivityTestRule<LobbyActivity>(LobbyActivity.class);
     private LobbyActivity lobbyActivity = null;
 
     @Before
     public void setUp() throws Exception {
+        EntityUT.setupWithMock();
+
+        if (intentsAreClean) {
+            Intents.init();
+            intentsAreClean = !intentsAreClean;
+        }
+
         lobbyActivity = myActivityTestRule.getActivity();
         myActivityTestRule.launchActivity(new Intent());
     }
 
     @After
     public void tearDown() throws Exception {
+        myActivityTestRule.finishActivity();
         lobbyActivity = null;
+        if (!intentsAreClean) {
+            Intents.release();
+            intentsAreClean = !intentsAreClean;
+        }
+        EntityUT.teardown();
     }
 
     @Test
@@ -99,7 +82,7 @@ public class LobbyActivityTest {
 
     // Verifies the Ok button brings you back to the lobby.
     @Test
-    public void testEditProfileButton_OnClick_ShouldLaunchEditProfileActivity(){
+    public void testEditProfileButton_OnClick_ShouldLaunchEditProfileActivity() {
         onView(withId(R.id.buttonEditProfile)).perform(click());
 
         // Check if we went back to LobbyActivity
